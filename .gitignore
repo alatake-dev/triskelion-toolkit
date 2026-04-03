@@ -4,6 +4,8 @@
 .idea
 .DS_Store
 
+node_modules
+
 # Core
 #
 # Note: if you want to stage/commit WP core files
