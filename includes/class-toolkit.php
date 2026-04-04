@@ -2,48 +2,42 @@
 namespace Triskelion\Toolkit;
 
 class Toolkit {
+
+	public static function get_modules() {
+		// cualquier nuevo módulo debe agregar una entrada aquí
+		return [
+			'code-console'   => [
+				'name'  => 'Consola de Código',
+				'class' => 'Triskelion\\Toolkit\\Modules\\CodeConsole\\Loader'
+			],
+			'custom-quotes'  => [
+				'name'  => 'Bloque de Citas',
+				'class' => 'Triskelion\\Toolkit\\Modules\\CustomQuotes\\Loader'
+			],
+		];
+	}
+
     public static function init() {
-        // Registrar ajustes en la BD (wp_options)
-        add_action('admin_init', [__CLASS__, 'register_settings']);
-
-        // Cargar módulos activos
-        self::load_modules();
+	    error_log("Toolkit activado");
     }
 
-    public static function register_settings() {
-        register_setting('tsk_tk_settings', 'tsk_tk_active_modules');
+	public static function register_vendor_assets() {
+		// Registramos Prism UNA SOLA VEZ bajo el handle 'tsk-prism'
+		wp_register_script(
+			'tsk-prism',
+			TSK_URL . 'assets/vendor/prism/prism.js',
+			[],
+			'1.30.0',
+			true // En el footer, por favor
+		);
 
-        add_settings_section(
-            'tsk_tk_main_section',
-            'Módulos Disponibles',
-            null,
-            'triskelion-toolkit'
-        );
+		wp_register_style(
+			'tsk-prism-theme',
+			TSK_URL . 'assets/vendor/prism/prism.css',
+			[],
+			'1.30.0'
+		);
+	}
 
-        // Aquí es donde Memo agregaría un nuevo 'add_settings_field' por cada bloque
-        add_settings_field(
-            'module_code_console',
-            'Consola de Código',
-            [__CLASS__, 'render_module_checkbox'],
-            'triskelion-toolkit',
-            'tsk_tk_main_section',
-            ['id' => 'code-console']
-        );
-    }
 
-    public static function render_module_checkbox($args) {
-        $options = get_option('tsk_tk_active_modules', []);
-        $id = $args['id'];
-        $checked = isset($options[$id]) ? checked($options[$id], 1, false) : '';
-        echo "<input type='checkbox' name='tsk_tk_active_modules[$id]' value='1' $checked />";
-    }
-
-    private static function load_modules() {
-        $active = get_option('tsk_tk_active_modules', []);
-
-        // Si el módulo está activo, despertamos a su clase
-        if (isset($active['code-console']) && $active['code-console']) {
-            \Triskelion\Toolkit\Modules\CodeConsole\Loader::init();
-        }
-    }
 }
