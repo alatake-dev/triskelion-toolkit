@@ -1,0 +1,23 @@
+{
+  "name": "triskelion-toolkit",
+  "version": "1.0.0",
+  "description": "Suite de utilerías y bloques personalizados de Triskelion.",
+  "author": "Triskelion",
+  "license": "GPL-2.0-or-later",
+  "main": "build/index.js",
+  "scripts": {
+    "env:start": "wp-env start",
+    "env:stop": "wp-env stop",
+    "env:clean": "wp-env clean",
+    "start": "wp-scripts start --webpack-copy-php",
+    "build": "wp-scripts build --webpack-copy-php",
+    "sync-assets": "node scripts/sync-assets.js",
+    "plugin-zip": "wp-scripts plugin-zip",
+    "bundle": "npm run build && npm run sync-assets && wp-scripts plugin-zip"
+  },
+  "devDependencies": {
+    "@wordpress/env": "^10.0.0",
+    "@wordpress/scripts": "^30.0.0",
+    "prismjs": "1.30.0"
+  }
+}
