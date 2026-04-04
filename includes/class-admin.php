@@ -73,7 +73,7 @@ class Admin {
     }
 
     public static function register_settings() {
-        register_setting('tsk_settings', 'tsk_active_modules');
+        register_setting('tsk_settings', Toolkit::TSK_ACTIVE_MODULES);
 
         add_settings_section(
                 'tsk_main_section',
@@ -97,11 +97,10 @@ class Admin {
     }
     public static function render_module_checkbox($args) {
         $id = $args['id'];
-        $options = (array) get_option('tsk_active_modules', []);
+        $options = (array) get_option(Toolkit::TSK_ACTIVE_MODULES, []);
 
         // Si el ID existe en el array y es true, marcamos el check
         $checked = !empty($options[$id]) ? 'checked' : '';
-
-        echo "<input type='checkbox' name='tsk_active_modules[$id]' value='1' $checked />";
+        echo "<input type='checkbox' name='" . Toolkit::TSK_ACTIVE_MODULES . "[$id]' value='1' $checked />";
     }
 }
