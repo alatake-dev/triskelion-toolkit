@@ -16,7 +16,7 @@
     "bundle": "npm run build && npm run sync-assets && wp-scripts plugin-zip"
   },
   "devDependencies": {
-    "@wordpress/env": "^10.0.0",
+    "@wordpress/env": "^11.3.0",
     "@wordpress/scripts": "^30.0.0",
     "prismjs": "1.30.0"
   }

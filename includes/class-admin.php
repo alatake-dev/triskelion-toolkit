@@ -19,8 +19,8 @@ class Admin {
     public static function add_menu_page() {
         // Retorna el 'hook_suffix', lo necesitamos para cargar CSS solo en nuestra página
         $hook = add_management_page(
-                'Triskelion Toolkit',
-                'Triskelion Toolkit',
+                __( 'Triskelion Toolkit', 'triskelion-toolkit' ),
+                __( 'Triskelion Toolkit', 'triskelion-toolkit' ),
                 'manage_options',
                 'triskelion-toolkit',
                 [__CLASS__, 'render_admin_page']
@@ -60,12 +60,12 @@ class Admin {
                 </div>
             </div>
 
-            <h1>Configuración de Módulos</h1>
+            <h1><?php esc_html_e("Module's configuration", 'triskelion-toolkit') ?></h1>
             <form method="post" action="options.php">
                 <?php
                 settings_fields('tsk_settings');
                 do_settings_sections('triskelion-toolkit');
-                submit_button('Guardar Cambios');
+                submit_button(__('Save', 'triskelion-toolkit'));
                 ?>
             </form>
         </div>
@@ -77,7 +77,7 @@ class Admin {
 
         add_settings_section(
                 'tsk_main_section',
-                'Módulos de la Suite',
+                __( 'Suite Modules', 'triskelion-toolkit' ),
                 null,
                 'triskelion-toolkit'
         );
@@ -104,3 +104,5 @@ class Admin {
         echo "<input type='checkbox' name='" . Toolkit::TSK_ACTIVE_MODULES . "[$id]' value='1' $checked />";
     }
 }
+
+// docker exec -it triskelion-wp cat /var/www/html/wp-content/plugins/triskelion-toolkit/includes/class-admin.php | grep "__("

@@ -9,11 +9,11 @@ class Toolkit {
 		// cualquier nuevo módulo debe agregar una entrada aquí
 		return [
 			'code-console'   => [
-				'name'  => 'Consola de Código',
+				'name'  => __( 'Code Console', 'triskelion-toolkit' ),
 				'class' => 'Triskelion\\Toolkit\\Modules\\CodeConsole\\Loader'
 			],
 			'custom-quotes'  => [
-				'name'  => 'Bloque de Citas',
+				'name'  => __( 'Custom Quotes', 'triskelion-toolkit' ),
 				'class' => 'Triskelion\\Toolkit\\Modules\\CustomQuotes\\Loader'
 			],
 		];
