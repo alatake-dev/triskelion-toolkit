@@ -1,9 +1,11 @@
 <?php
-namespace Triskelion\Toolkit;
+namespace Triskelion\Toolkit\Core;
 
-abstract class Abstract_Module_Loader {
+abstract class AbstractModuleLoader {
 
-	// Cada módulo debe decirnos su ID (ej: 'code-console')
+	abstract public function load() :void;
+
+	// Cada módulo debe decirnos su ID (ej: 'CodeConsole')
 	public static function get_module_id() {
 		return '';
 	}

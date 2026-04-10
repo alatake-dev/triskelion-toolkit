@@ -1,13 +1,15 @@
 <?php
-namespace Triskelion\Toolkit;
+namespace Triskelion\Toolkit\Admin;
+
+use Triskelion\Toolkit\Core\Toolkit;
 
 class Admin {
     public static function init() {
-        add_action('admin_menu', [__CLASS__, 'add_menu_page']);
-        add_action('admin_init', [__CLASS__, 'register_settings']);
+        add_action('admin_menu', [self::class, 'add_menu_page']);
+        add_action('admin_init', [self::class, 'register_settings']);
 
         $plugin_base = 'triskelion-toolkit/triskelion-toolkit.php';
-        add_filter("plugin_action_links_$plugin_base", [__CLASS__, 'add_settings_link']);
+        add_filter("plugin_action_links_$plugin_base", [self::class, 'add_settings_link']);
     }
 
     public static function add_settings_link($links) {
@@ -27,7 +29,7 @@ class Admin {
         );
 
         // Solo cargamos estilos si estamos en nuestra página del Toolkit
-        add_action("admin_print_styles-$hook", [__CLASS__, 'admin_styles']);
+        add_action("admin_print_styles-$hook", [self::class, 'admin_styles']);
     }
     public static function admin_styles() {
         ?>
@@ -103,6 +105,6 @@ class Admin {
         $checked = !empty($options[$id]) ? 'checked' : '';
         echo "<input type='checkbox' name='" . Toolkit::TSK_ACTIVE_MODULES . "[$id]' value='1' $checked />";
     }
-}
 
-// docker exec -it triskelion-wp cat /var/www/html/wp-content/plugins/triskelion-toolkit/includes/class-admin.php | grep "__("
+}
+// docker exec -it triskelion-wp cat /var/www/html/wp-content/plugins/triskelion-toolkit/includes/Admin.php | grep "__("

@@ -18,13 +18,24 @@ define( 'TSK_PATH', plugin_dir_path( __FILE__ ) );
 define( 'TSK_URL',  plugin_dir_url( __FILE__ ) );
 const TSK_VERSION = '0.0.1';
 
-require_once TSK_PATH . 'includes/class-autoloader.php';
+/* Autoloader (PSR-4 Style) */
+spl_autoload_register(function ($class) {
+	$prefix = 'Triskelion\\Toolkit\\';
+	$base_dir = TSK_PATH . 'src/ServiceLayer/';
 
-/*
-add_action( 'init', function() {
-	load_plugin_textdomain( 'triskelion-toolkit', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+	$len = strlen($prefix);
+	if (strncmp($prefix, $class, $len) !== 0) return;
+
+	$relative_class = substr($class, $len);
+
+	$file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
+
+	if (file_exists($file)) {
+		require $file;
+	}
 });
-*/
+
+
 
 add_action( 'init', function() {
 	$domain = 'triskelion-toolkit';
@@ -56,4 +67,4 @@ add_filter( 'plugin_locale', function( $locale, $domain ) {
 }, 10, 2 );
 
 // Inicializar el Toolkit
-\Triskelion\Toolkit\Toolkit::init();
+Triskelion\Toolkit\Core\Toolkit::init();
