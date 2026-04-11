@@ -3,9 +3,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Triskelion Toolkit 0.0.1\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/project\n"
-"POT-Creation-Date: 2026-04-07T04:44:11+00:00\n"
-"PO-Revision-Date: 2026-04-06 23:20-0600\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-plugin\n"
+"POT-Creation-Date: 2026-04-11T02:07:53+00:00\n"
+"PO-Revision-Date: 2026-04-10 20:11-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -16,8 +16,8 @@ msgstr ""
 "X-Domain: triskelion-toolkit\n"
 
 #. Plugin Name of the plugin
-#: triskelion-toolkit.php includes/class-admin.php:22
-#: includes/class-admin.php:23
+#: triskelion-toolkit.php src/ServiceLayer/Admin/Admin.php:23
+#: src/ServiceLayer/Admin/Admin.php:24
 msgid "Triskelion Toolkit"
 msgstr "Herramientas Triskelion"
 
@@ -31,22 +31,50 @@ msgstr "Utilerías modulares para triskelion."
 msgid "Triskelion"
 msgstr "Triskelion"
 
-#: includes/class-admin.php:63
-msgid "Module's configuration"
-msgstr "Configuración de Módulos"
+#: src/ServiceLayer/Admin/Admin.php:55
+msgid "Access Denied"
+msgstr "Acceso denegado"
 
-#: includes/class-admin.php:68
-msgid "Save"
-msgstr "Guardar"
+#: src/ServiceLayer/Admin/Admin.php:56
+msgid "This section is not available or does not require configuration."
+msgstr "Esta sección no esta disponible o no requiere configuración."
 
-#: includes/class-admin.php:80
-msgid "Suite Modules"
-msgstr "Módulos de la Suite"
+#: src/ServiceLayer/Admin/Admin.php:58
+msgid "Back to General"
+msgstr "Regresar a general"
 
-#: includes/class-toolkit.php:12
-msgid "Code Console"
-msgstr "Bloque de código “consola”"
+#: src/ServiceLayer/Admin/Admin.php:101
+msgid "Suite Management"
+msgstr "Administración de la suite"
 
-#: includes/class-toolkit.php:16
-msgid "Custom Quotes"
-msgstr "Citas personalizadas"
+#: src/ServiceLayer/Admin/Admin.php:103
+msgid "Activate or deactivate the modules you need for your ecosystem."
+msgstr "Activa o desactiva módulos de acuerdo a las necesidades de tu ecosistema."
+
+#: src/ServiceLayer/Admin/Admin.php:126
+msgid "This module is active but its loader is not available or it has no settings."
+msgstr "El módulo esta activo, pero no se localiza el loader o no tiene settings."
+
+#: src/ServiceLayer/Admin/Admin.php:149
+msgid "Available Modules"
+msgstr "Módulos disponibles"
+
+#: src/ServiceLayer/Admin/Admin.php:174
+msgid "Toggle module status"
+msgstr "Activador de módulos"
+
+#: src/ServiceLayer/Core/Toolkit.php:34
+msgid "General"
+msgstr "General"
+
+#~ msgid "Module's configuration"
+#~ msgstr "Configuración de Módulos"
+
+#~ msgid "Save"
+#~ msgstr "Guardar"
+
+#~ msgid "Code Console"
+#~ msgstr "Bloque de código “consola”"
+
+#~ msgid "Custom Quotes"
+#~ msgstr "Citas personalizadas"

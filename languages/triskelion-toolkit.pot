@@ -2,22 +2,22 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Triskelion Toolkit 0.0.1\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/project\n"
+"Project-Id-Version: Triskelion Toolkit 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/triskelion-toolkit\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-04-07T04:44:11+00:00\n"
+"POT-Creation-Date: 2026-04-11T02:33:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: triskelion-toolkit\n"
 
 #. Plugin Name of the plugin
 #: triskelion-toolkit.php
-#: includes/class-admin.php:22
-#: includes/class-admin.php:23
+#: src/ServiceLayer/Admin/Admin.php:23
+#: src/ServiceLayer/Admin/Admin.php:24
 msgid "Triskelion Toolkit"
 msgstr ""
 
@@ -31,22 +31,38 @@ msgstr ""
 msgid "Triskelion"
 msgstr ""
 
-#: includes/class-admin.php:63
-msgid "Module's configuration"
+#: src/ServiceLayer/Admin/Admin.php:55
+msgid "Access Denied"
 msgstr ""
 
-#: includes/class-admin.php:68
-msgid "Save"
+#: src/ServiceLayer/Admin/Admin.php:56
+msgid "This section is not available or does not require configuration."
 msgstr ""
 
-#: includes/class-admin.php:80
-msgid "Suite Modules"
+#: src/ServiceLayer/Admin/Admin.php:58
+msgid "Back to General"
 msgstr ""
 
-#: includes/class-toolkit.php:12
-msgid "Code Console"
+#: src/ServiceLayer/Admin/Admin.php:101
+msgid "Suite Management"
 msgstr ""
 
-#: includes/class-toolkit.php:16
-msgid "Custom Quotes"
+#: src/ServiceLayer/Admin/Admin.php:103
+msgid "Activate or deactivate the modules you need for your ecosystem."
+msgstr ""
+
+#: src/ServiceLayer/Admin/Admin.php:126
+msgid "This module is active but its loader is not available or it has no settings."
+msgstr ""
+
+#: src/ServiceLayer/Admin/Admin.php:149
+msgid "Available Modules"
+msgstr ""
+
+#: src/ServiceLayer/Admin/Admin.php:174
+msgid "Toggle module status"
+msgstr ""
+
+#: src/ServiceLayer/Core/Toolkit.php:34
+msgid "General"
 msgstr ""

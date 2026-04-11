@@ -19,59 +19,126 @@ class Admin {
     }
 
     public static function add_menu_page() {
-        // Retorna el 'hook_suffix', lo necesitamos para cargar CSS solo en nuestra página
         $hook = add_management_page(
                 __( 'Triskelion Toolkit', 'triskelion-toolkit' ),
                 __( 'Triskelion Toolkit', 'triskelion-toolkit' ),
                 'manage_options',
                 'triskelion-toolkit',
-                [__CLASS__, 'render_admin_page']
+                [self::class, 'render_admin_page']
         );
 
-        // Solo cargamos estilos si estamos en nuestra página del Toolkit
-        add_action("admin_print_styles-$hook", [self::class, 'admin_styles']);
+        // Este hook busca el método 'enqueue_admin_assets'
+        add_action("admin_print_styles-$hook", [self::class, 'enqueue_admin_assets']);
     }
-    public static function admin_styles() {
-        ?>
-        <style>
-            /* Personalizamos el título H1 para que tenga el espíritu de Triskelion */
-            .triskelion-admin h1::before {
-                content: "\f147"; /* Dashicon de Red/API */
-                font-family: dashicons;
-                vertical-align: middle;
-                margin-right: 10px;
-                color: #2271b1; /* El azul estándar de WP o el de Triskelion */
-            }
-            .tsk-logo-placeholder {
-                background: #f0f0f1;
-                border: 2px dashed #c3c4c7;
-                border-radius: 4px;
-                padding: 20px;
-                text-align: center;
-                margin-bottom: 20px;
-            }
-        </style>
-        <?php
+
+    public static function enqueue_admin_assets(): void {
+        wp_enqueue_style('tsk-admin-styles');
     }
-    public static function render_admin_page() {
+
+    public static function render_admin_page(): void {
+        $current_tab = self::get_current_tab();
+        $modules     = Toolkit::get_modules();
+        $active_map  = (array) get_option( Toolkit::TSK_ACTIVE_MODULES, [] );
+        // No entras si:
+        // - El tab no existe.
+        // - No es 'general' y el módulo está apagado.
+        // - No es 'general' y el módulo explícitamente no tiene settings.
+        $exists       = array_key_exists( $current_tab, $modules );
+        $is_general   = ( $current_tab === 'general' );
+        $is_disabled  = ! $is_general && empty( $active_map[$current_tab] );
+        $no_settings  = ! $is_general && isset( $modules[$current_tab]['has_settings'] ) && $modules[$current_tab]['has_settings'] === false;
+
+        // 1. Validación de seguridad
+        if ( ! $exists || $is_disabled || $no_settings ) {
+            ?>
+            <div class="wrap">
+                <h1><?php esc_html_e( 'Access Denied', 'triskelion-toolkit' ); ?></h1>
+                <p><?php esc_html_e( 'This section is not available or does not require configuration.', 'triskelion-toolkit' ); ?></p>
+                <a href="<?php echo admin_url( 'tools.php?page=triskelion-toolkit' ); ?>" class="button button-primary">
+                    <?php esc_html_e( 'Back to General', 'triskelion-toolkit' ); ?>
+                </a>
+            </div>
+            <?php
+            return;
+        }
+
+        $active_map = (array) get_option( Toolkit::TSK_ACTIVE_MODULES, [] );
         ?>
+
         <div class="wrap triskelion-admin">
             <div class="tsk-logo-container" style="margin-bottom: 20px;">
-                <div style="width: 200px; height: 80px; background: #eee; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center;">
-                    <span style="color: #999; font-weight: bold;">LOGO TRISKELION</span>
+                <div class="tsk-logo-placeholder">
+                    <span>LOGO TRISKELION</span>
                 </div>
             </div>
 
-            <h1><?php esc_html_e("Module's configuration", 'triskelion-toolkit') ?></h1>
-            <form method="post" action="options.php">
-                <?php
-                settings_fields('tsk_settings');
-                do_settings_sections('triskelion-toolkit');
-                submit_button(__('Save', 'triskelion-toolkit'));
-                ?>
-            </form>
+            <div class="tsk-admin-layout">
+                <aside class="tsk-admin-sidebar">
+                    <nav class="tsk-tab-menu">
+                        <?php foreach ( $modules as $id => $data ) :
+                            $is_active    = ! empty( $active_map[$id] );
+                            $has_settings = ! isset( $data['has_settings'] ) || $data['has_settings'] === true;
+                            if ( $id !== 'general' && ( ! $is_active || ! $has_settings ) ) {
+                                continue;
+                            }
+                            $active_class = ( $current_tab === $id ) ? 'active' : '';
+                            $tab_url      = admin_url( 'tools.php?page=triskelion-toolkit&tab=' . $id );
+                            $icon         = $data['icon'] ?? 'dashicons-admin-generic';
+                            ?>
+                            <a href="<?php echo esc_url( $tab_url ); ?>" class="tsk-tab-link <?php echo esc_attr( $active_class ); ?>">
+                                <span class="dashicons <?php echo esc_attr( $icon ); ?>"></span>
+                                <?php echo esc_html( $data['name'] ); ?>
+                            </a>
+
+                        <?php endforeach; ?>
+                    </nav>
+                </aside>
+
+                <main class="tsk-admin-main-content">
+                    <div class="tsk-tab-content">
+
+                        <?php if ( $current_tab === 'general' ) : ?>
+                            <h1><?php esc_html_e( 'Suite Management', 'triskelion-toolkit' ); ?></h1>
+                            <p class="description">
+                                <?php esc_html_e( 'Activate or deactivate the modules you need for your ecosystem.', 'triskelion-toolkit' ); ?>
+                            </p>
+
+                            <form method="post" action="options.php">
+                                <?php
+                                settings_fields( 'tsk_settings' );
+                                do_settings_sections( 'triskelion-toolkit' );
+                                submit_button();
+                                ?>
+                            </form>
+
+                        <?php else : ?>
+                            <?php $instance = Toolkit::get_module_instance( $current_tab ); ?>
+
+                            <h1><?php echo esc_html( $modules[$current_tab]['name'] ); ?></h1>
+
+                            <?php if ( $instance ) : ?>
+                                <div class="tsk-module-settings-container">
+                                    <?php $instance->render_settings(); ?>
+                                </div>
+                            <?php else : ?>
+                                <div class="notice notice-warning inline">
+                                    <p>
+                                        <?php esc_html_e( 'This module is active but its loader is not available or it has no settings.', 'triskelion-toolkit' ); ?>
+                                    </p>
+                                </div>
+                            <?php endif; ?>
+
+                        <?php endif; ?>
+
+                    </div>
+                </main>
+            </div>
         </div>
         <?php
+    }
+
+    private static function get_current_tab() {
+        return isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'general';
     }
 
     public static function register_settings() {
@@ -79,32 +146,38 @@ class Admin {
 
         add_settings_section(
                 'tsk_main_section',
-                __( 'Suite Modules', 'triskelion-toolkit' ),
+                __( 'Available Modules', 'triskelion-toolkit' ),
                 null,
                 'triskelion-toolkit'
         );
 
-        $modules = Toolkit::get_modules();
+        foreach (Toolkit::get_modules() as $id => $data) {
+            if ( $id === 'general' ) continue;
 
-        foreach ($modules as $id => $data) {
             add_settings_field(
                     "module_$id",
                     $data['name'],
-                    [__CLASS__, 'render_module_checkbox'], // <--- Ahora apunta aquí
+                    [self::class, 'render_module_checkbox'],
                     'triskelion-toolkit',
                     'tsk_main_section',
                     ['id' => $id]
             );
         }
     }
-    public static function render_module_checkbox($args) {
-        $id = $args['id'];
+
+    public static function render_module_checkbox($args): void {
+        $id      = $args['id'];
         $options = (array) get_option(Toolkit::TSK_ACTIVE_MODULES, []);
-
-        // Si el ID existe en el array y es true, marcamos el check
         $checked = !empty($options[$id]) ? 'checked' : '';
-        echo "<input type='checkbox' name='" . Toolkit::TSK_ACTIVE_MODULES . "[$id]' value='1' $checked />";
-    }
 
+        ?>
+        <label class="tsk-switch" title="<?php esc_attr_e('Toggle module status', 'triskelion-toolkit'); ?>">
+            <input type="checkbox"
+                   name="<?php echo Toolkit::TSK_ACTIVE_MODULES; ?>[<?php echo esc_attr($id); ?>]"
+                   value="1"
+                    <?php echo $checked; ?>>
+            <span class="tsk-slider"></span>
+        </label>
+        <?php
+    }
 }
-// docker exec -it triskelion-wp cat /var/www/html/wp-content/plugins/triskelion-toolkit/includes/Admin.php | grep "__("

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Triskelion Toolkit
  * Description: Modular utility suite for Triskelion.
- * Version:     0.0.1
+ * Version:     1.0.0
  * Author:      Triskelion
  * License:     GPLv2 or later
  * Text Domain: triskelion-toolkit
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 // Definir constantes de ruta
 define( 'TSK_PATH', plugin_dir_path( __FILE__ ) );
 define( 'TSK_URL',  plugin_dir_url( __FILE__ ) );
-const TSK_VERSION = '0.0.1';
+
 
 /* Autoloader (PSR-4 Style) */
 spl_autoload_register(function ($class) {
