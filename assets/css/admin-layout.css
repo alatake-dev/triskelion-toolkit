@@ -1,0 +1,132 @@
+.tsk-tab-link .dashicons {
+    margin-right: 10px;
+    vertical-align: text-bottom;
+}
+
+.tsk-admin-main-content {
+    flex: 1;
+    padding: 20px 40px;
+}
+
+.tsk-tab-menu {
+    display: flex;
+    flex-direction: column;
+}
+
+.tsk-admin-layout {
+    display: flex;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    margin-top: 20px;
+}
+
+.tsk-admin-sidebar {
+    width: 200px;
+    background: #f0f0f1;
+    border-right: 1px solid #ccd0d4;
+}
+
+.tsk-tab-link {
+    display: block;
+    padding: 15px;
+    text-decoration: none;
+    color: #2c3338;
+    border-bottom: 1px solid #ccd0d4;
+}
+
+.tsk-tab-link.active {
+    background: #fff;
+    border-right: 4px solid #2271b1;
+    font-weight: bold;
+}
+
+.tsk-admin-layout {
+    display: flex;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    margin-top: 20px;
+}
+
+.tsk-admin-sidebar {
+    width: 200px;
+    background: #f0f0f1;
+    border-right: 1px solid #ccd0d4;
+}
+
+.tsk-tab-link {
+    display: block;
+    padding: 15px;
+    text-decoration: none;
+    color: #2c3338;
+    border-bottom: 1px solid #ccd0d4;
+}
+
+.tsk-tab-link.active {
+    background: #fff;
+    border-right: 4px solid #2271b1;
+    font-weight: bold;
+}
+
+/* Contenedor del switch */
+.tsk-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+}
+
+/* Ocultamos el checkbox original pero mantenemos su funcionalidad */
+.tsk-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* El slider (la pista) */
+.tsk-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 20px;
+}
+
+/* El círculo blanco */
+.tsk-slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+/* Color cuando está encendido (Azul WordPress) */
+input:checked + .tsk-slider {
+    background-color: #2271b1;
+}
+
+/* Movimiento del círculo */
+input:checked + .tsk-slider:before {
+    transform: translateX(20px);
+}
+
+/* Estilo para la etiqueta de texto al lado del toggle */
+.tsk-toggle-label {
+    vertical-align: top;
+    margin-left: 10px;
+    font-weight: 500;
+}
+
+.form-table td {
+    vertical-align: middle !important;
+    padding: 15px 10px !important;
+}
+
+.tsk-switch {
+    vertical-align: middle;
+}
