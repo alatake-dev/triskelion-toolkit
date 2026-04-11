@@ -8,6 +8,16 @@
   "scripts": {
     "lint:php": "docker exec -it triskelion-wp ./vendor/bin/phpcs"
   },
+  "scripts": {
+    "start": "wp-scripts start --webpack-src-dir=src/ViewLayer/blocks --output-path=build/blocks",
+    "build": "wp-scripts build --webpack-src-dir=src/ViewLayer/blocks --output-path=build/blocks"
+  },
   "devDependencies": {
+    "@wordpress/block-editor": "^15.16.0",
+    "@wordpress/blocks": "^15.16.0",
+    "@wordpress/components": "^32.5.0",
+    "@wordpress/element": "^6.43.0",
+    "@wordpress/i18n": "^6.16.0",
+    "@wordpress/scripts": "^31.8.0"
   }
 }

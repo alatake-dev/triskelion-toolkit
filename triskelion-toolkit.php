@@ -66,5 +66,19 @@ add_filter( 'plugin_locale', function( $locale, $domain ) {
 	return $locale;
 }, 10, 2 );
 
+add_filter( 'block_categories_all', function( $categories ) {
+	return array_merge(
+		$categories,
+		[
+			[
+				'slug'  => 'triskelion',
+				'title' => 'Triskelion Assets',
+				'icon'  => 'shield', // Puedes usar cualquier Dashicon de WP
+			],
+		]
+	);
+}, 10, 1 );
+
+
 // Inicializar el Toolkit
 Triskelion\Toolkit\Core\Toolkit::init();
