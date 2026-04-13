@@ -18,7 +18,7 @@ abstract class AbstractModuleLoader {
 	 * Helper para que los hijos registren sus assets
 	 * usando el nuevo sistema de filtros de Toolkit.
 	 */
-	protected function register_assets(string $id, array $scripts = [], array $styles = []) {
+	protected function register_assets(string $id, array $scripts = [], array $styles = []): void {
 		if (!empty($scripts)) {
 			add_filter(Toolkit::HOOK_REGISTER_SCRIPTS, function($all_scripts) use ($id, $scripts) {
 				return array_merge($all_scripts, $scripts);

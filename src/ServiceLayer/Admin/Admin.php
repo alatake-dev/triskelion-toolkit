@@ -4,7 +4,7 @@ namespace Triskelion\Toolkit\Admin;
 use Triskelion\Toolkit\Core\Toolkit;
 
 class Admin {
-    public static function init() {
+    public static function init(): void {
         add_action('admin_menu', [self::class, 'add_menu_page']);
         add_action('admin_init', [self::class, 'register_settings']);
 
@@ -18,7 +18,7 @@ class Admin {
         return $links;
     }
 
-    public static function add_menu_page() {
+    public static function add_menu_page(): void {
         $hook = add_management_page(
                 __( 'Triskelion Toolkit', 'triskelion-toolkit' ),
                 __( 'Triskelion Toolkit', 'triskelion-toolkit' ),
@@ -137,17 +137,17 @@ class Admin {
         <?php
     }
 
-    private static function get_current_tab() {
+    private static function get_current_tab(): string {
         return isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'general';
     }
 
-    public static function register_settings() {
+    public static function register_settings(): void {
         register_setting('tsk_settings', Toolkit::TSK_ACTIVE_MODULES);
 
         add_settings_section(
                 'tsk_main_section',
                 __( 'Available Modules', 'triskelion-toolkit' ),
-                null,
+                '__return_empty_string',
                 'triskelion-toolkit'
         );
 

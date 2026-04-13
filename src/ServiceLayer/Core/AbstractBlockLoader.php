@@ -16,14 +16,6 @@ abstract class AbstractBlockLoader extends AbstractModuleLoader {
 	/**
 	 * Lógica de registro delegada a la función nativa de WP
 	 */
-	/*public function register_block_type(): void {
-		$block_name = $this->get_block_name();
-		$full_path  = TSK_PATH . 'build/blocks/' . $block_name;
-
-		error_log("Triskelion Debug: Intentando registrar bloque en " . $full_path);
-		register_block_type( $full_path );
-	}*/
-
 	public function register_block_type(): void {
 		$block_name = $this->get_block_name();
 		$path = TSK_PATH . 'build/blocks/' . $block_name;

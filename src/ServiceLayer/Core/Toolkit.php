@@ -13,7 +13,7 @@ class Toolkit {
 	const HOOK_REGISTER_STYLES  = 'tsk_register_vendor_styles';
 	const TSK_VERSION           = '1.0.0';
 
-	public static function init() {
+	public static function init(): void {
 		// 1. Logs de rigor
 		error_log("DEBUG TSK_PATH: " . TSK_PATH);
 
@@ -35,7 +35,7 @@ class Toolkit {
 		});
 	}
 
-	public static function get_modules() {
+	public static function get_modules(): array {
 		return [
 			'general' => [
 				'name'         => __( 'General', 'triskelion-toolkit' ),
@@ -62,7 +62,7 @@ class Toolkit {
 		];
 	}
 
-	public static function register_vendor_assets() {
+	public static function register_vendor_assets(): void {
 		$vendor_scripts = apply_filters(self::HOOK_REGISTER_SCRIPTS, []);
 		foreach ($vendor_scripts as $handle => $data) {
 			if (empty($data['src'])) continue;

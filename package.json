@@ -6,11 +6,9 @@
   "license": "GPL-2.0-or-later",
   "private": true,
   "scripts": {
-    "lint:php": "docker exec -it triskelion-wp ./vendor/bin/phpcs"
-  },
-  "scripts": {
     "start": "wp-scripts start --webpack-src-dir=src/ViewLayer/blocks --output-path=build/blocks",
-    "build": "wp-scripts build --webpack-src-dir=src/ViewLayer/blocks --output-path=build/blocks"
+    "build": "wp-scripts build --webpack-src-dir=src/ViewLayer/blocks --output-path=build/blocks",
+    "lint:php": "docker exec -it triskelion-wp ./vendor/bin/phpcs"
   },
   "devDependencies": {
     "@wordpress/block-editor": "^15.16.0",

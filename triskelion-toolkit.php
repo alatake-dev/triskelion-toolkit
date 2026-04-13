@@ -45,9 +45,9 @@ add_action( 'init', function() {
 	load_plugin_textdomain( $domain, false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 
 	// 2. Si WP falló (no cargó nada) y el idioma es español de cualquier país...
-	if ( ! is_textdomain_loaded( $domain ) && strpos( $locale, 'es_' ) === 0 ) {
+	if ( ! is_textdomain_loaded( $domain ) && str_starts_with( $locale, 'es_' ) ) {
 		$lang_base = substr( $locale, 0, 2 );
-		$mofile = plugin_dir_path( __FILE__ ) . "languages/{$domain}-{$lang_base}.mo";
+		$mofile = plugin_dir_path( __FILE__ ) . "languages/$domain-$lang_base.mo";
 
 		if ( file_exists( $mofile ) ) {
 			load_textdomain( $domain, $mofile );
@@ -59,7 +59,7 @@ add_filter( 'plugin_locale', function( $locale, $domain ) {
 	if ( 'triskelion-toolkit' === $domain ) {
 		// Si el locale empieza con "es_" (es_MX, es_PE, es_ES, etc.)
 		// forzamos a que busque simplemente "es"
-		if ( 0 === strpos( $locale, 'es_' ) ) {
+		if ( str_starts_with( $locale, 'es_' ) ) {
 			return 'es';
 		}
 	}
@@ -77,7 +77,7 @@ add_filter( 'block_categories_all', function( $categories ) {
 			],
 		]
 	);
-}, 10, 1 );
+} );
 
 
 // Inicializar el Toolkit
