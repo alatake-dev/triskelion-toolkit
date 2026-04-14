@@ -19,7 +19,7 @@ class Toolkit {
 
 		// 2. Agendar la carga de módulos para el momento CORRECTO
 		// No la llames directo, espera al hook 'init'
-		add_action( 'init', [ self::class, 'load_active_modules' ] );
+		add_action( 'init', [ self::class, 'load_active_modules' ], 5 );
 
 		// 3. Assets y Admin (esto puede quedarse aquí o en hooks)
 		add_action( 'admin_enqueue_scripts', [ self::class, 'register_vendor_assets' ] );
@@ -50,7 +50,7 @@ class Toolkit {
 			'code_showcase' => [
 				'name'         => __( 'Code Showcase', 'triskelion-toolkit' ),
 				'description'  => __( 'Display code snippets in a beautiful macOS-style terminal with multiple tabs and syntax highlighting.', 'triskelion-toolkit' ),
-				'class'        => \Triskelion\Toolkit\Modules\CodeShowcase\CodeShowcaseLoader::class,
+				'class'        => \Triskelion\Toolkit\Modules\CodeShowcase\CodeShowcaseBlockLoader::class,
 				'has_settings' => true,
 				'is_core'      => false,
 				'priority'     => 100,
@@ -108,13 +108,12 @@ class Toolkit {
 			}
 
 			$class_name = $data['class'];
-			if ( class_exists( $class_name ) ) {
-				$loader = new $class_name();
-				if ( $loader instanceof AbstractModuleLoader ) {
-					// ESTO es lo que registra el bloque
-					$loader->load();
-					error_log( "✅ Módulo instanciado y cargado: " . $id );
-				}
+			$loader = new $class_name();
+
+			// Si es un bloque, su load() agendará el registro en Gutenberg
+			if ( $loader instanceof AbstractModuleLoader ) {
+				$loader->load();
+				error_log( "✅ Módulo instanciado y cargado: " . $id );
 			}
 		}
 	}

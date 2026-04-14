@@ -3,8 +3,15 @@ namespace Triskelion\Toolkit\Core;
 
 abstract class AbstractModuleLoader {
 
-	// El único contrato obligatorio
 	abstract public function load() :void;
+    abstract protected function render_module_fields(): void;
+
+    /**
+     * Header opcional que los hijos pueden sobrescribir
+     */
+    protected function render_header(): void {
+        // Por defecto vacío o un título genérico
+    }
 
 
 	/**
@@ -62,15 +69,4 @@ abstract class AbstractModuleLoader {
 		echo '</form>';
 	}
 
-	/**
-	 * Los hijos DEBEN implementar esto para poner sus inputs/toggles
-	 */
-	abstract protected function render_module_fields(): void;
-
-	/**
-	 * Header opcional que los hijos pueden sobrescribir
-	 */
-	protected function render_header(): void {
-		// Por defecto vacío o un título genérico
-	}
 }

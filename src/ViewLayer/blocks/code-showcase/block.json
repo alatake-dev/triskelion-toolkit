@@ -8,22 +8,35 @@
   "icon": "html",
   "description": "Display code snippets with a premium macOS terminal aesthetic.",
   "attributes": {
-    "code": {
-      "type": "string",
-      "source": "html",
-      "selector": "code"
+    "files": {
+      "type": "array",
+      "default": [
+        {
+          "fileName": "index.js",
+          "language": "javascript",
+          "content": "// Tu código aquí"
+        }
+      ],
+      "items": {
+        "type": "object",
+        "properties": {
+          "fileName": { "type": "string" },
+          "language": { "type": "string" },
+          "content": { "type": "string" }
+        }
+      }
     },
-    "language": {
-      "type": "string",
-      "default": "javascript"
-    },
-    "fileName": {
-      "type": "string",
-      "default": ""
+    "activeTabIndex": {
+      "type": "number",
+      "default": 0
     },
     "showLineNumbers": {
       "type": "boolean",
       "default": true
+    },
+    "terminalTheme": {
+      "type": "string",
+      "default": "dark"
     }
   },
   "textdomain": "triskelion-toolkit",
