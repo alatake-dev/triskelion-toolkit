@@ -5,35 +5,64 @@ document.addEventListener('DOMContentLoaded', () => {
         const tabs = container.querySelectorAll('.tsk-tab');
         const panes = container.querySelectorAll('.tsk-code-pane');
         const copyBtn = container.querySelector('.tsk-copy-button');
+        const fileSelect = container.querySelector('.tsk-file-select'); // 👈 El nuevo integrante
 
-        // 1. Cambio de Tabs e Integración con Prism
+        /**
+         * Función central de cambio de estado
+         * @param {number} index - El índice del archivo a mostrar
+         */
+        const switchToFile = (index) => {
+            // 1. Limpiar estados previos
+            tabs.forEach(t => t.classList.remove('active'));
+            panes.forEach(p => p.classList.remove('active'));
+
+            // 2. Activar nuevos elementos
+            if (tabs[index]) tabs[index].classList.add('active');
+            if (panes[index]) panes[index].classList.add('active');
+
+            // 3. Sincronizar el Selector Móvil
+            if (fileSelect) fileSelect.value = index;
+
+            // 4. Re-Highlight quirúrgico con Prism
+            if (window.Prism) {
+                const code = panes[index].querySelector('code');
+                window.Prism.highlightElement(code);
+            }
+        };
+
         tabs.forEach((tab, index) => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                panes.forEach(p => p.classList.remove('active'));
-
-                tab.classList.add('active');
-                panes[index].classList.add('active');
-
-                // 💡 RE-HIGHLIGHT
-                if (typeof Prism !== 'undefined') {
-                    const activeCode = panes[index].querySelector('code');
-                    // Forzamos el resaltado. El Autoloader se encargará de pedir el JS si no existe.
-                    Prism.highlightElement(activeCode);
-                }
-            });
+            tab.addEventListener('click', () => switchToFile(index));
         });
 
-        // 2. Copiado (Tu lógica actual que ya funciona)
-        if (copyBtn) {
-            // ... (mantén tu código de copyBtn igual) ...
+        if (fileSelect) {
+            fileSelect.addEventListener('change', (e) => {
+                const index = parseInt(e.target.value, 10);
+                switchToFile(index);
+            });
         }
 
-        // 🚀 TRUCO DE SENIOR: Forzar la carga de TODOS los lenguajes presentes
-        // Aunque estén ocultos, esto dispara las peticiones al Network de una vez.
-        if (typeof Prism !== 'undefined') {
+        if (copyBtn) {
+            copyBtn.addEventListener('click', () => {
+                const activePane = container.querySelector('.tsk-code-pane.active code');
+                if (!activePane) return;
+
+                navigator.clipboard.writeText(activePane.innerText).then(() => {
+                    const originalContent = copyBtn.innerHTML;
+                    copyBtn.classList.add('copy-success');
+                    // Checkmark SVG
+                    copyBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+
+                    setTimeout(() => {
+                        copyBtn.classList.remove('copy-success');
+                        copyBtn.innerHTML = originalContent;
+                    }, 2000);
+                });
+            });
+        }
+
+        if (window.Prism) {
             const allCodeBlocks = container.querySelectorAll('pre code');
-            allCodeBlocks.forEach(code => Prism.highlightElement(code));
+            allCodeBlocks.forEach(code => window.Prism.highlightElement(code));
         }
     });
 });

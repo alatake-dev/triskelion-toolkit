@@ -44,7 +44,17 @@ class CodeShowcaseBlockLoader extends AbstractBlockLoader {
                         </button>
                     <?php endforeach; ?>
                 </div>
-                <button class="tsk-copy-button" title="<?php esc_attr_e('Copy Code', 'triskelion-toolkit'); ?>">
+                <div class="tsk-mobile-selector">
+                    <select class="tsk-file-select">
+                        <?php foreach ($files as $index => $file) : ?>
+                            <option value="<?php echo $index; ?>"><?php echo esc_html($file['fileName']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <span class="tsk-select-icon">
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l4 4 4-4"/></svg>
+                    </span>
+                </div>
+                <button class="tsk-copy-button" title="Copy Code">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                 </button>
             </div>
