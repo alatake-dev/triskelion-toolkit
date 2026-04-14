@@ -38,4 +38,5 @@ abstract class AbstractBlockLoader extends AbstractModuleLoader {
 	 * Cada bloque debe decirnos su nombre de carpeta
 	 */
 	abstract protected function get_block_name(): string;
+
 }

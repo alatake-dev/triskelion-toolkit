@@ -6,13 +6,6 @@ abstract class AbstractModuleLoader {
 	// El único contrato obligatorio
 	abstract public function load() :void;
 
-	/**
-	 * Renderiza la interfaz de configuración específica del módulo.
-	 * Por defecto no hace nada. Los hijos pueden sobrescribirlo.
-	 */
-	public function render_settings(): void {
-		// "Default" vacío.
-	}
 
 	/**
 	 * Helper para que los hijos registren sus assets
@@ -30,5 +23,54 @@ abstract class AbstractModuleLoader {
 				return array_merge($all_styles, $styles);
 			});
 		}
+	}
+
+
+	protected function get_custom_css(): string {
+		return '';
+	}
+    final public function render_settings(): void {
+	    wp_enqueue_style( 'tsk-admin-styles' );
+		$custom_css = $this->get_custom_css();
+		if (!empty($custom_css)) {
+			wp_add_inline_style( 'tsk-admin-styles', $custom_css );
+		}
+        echo '<div class="tsk-tab-content-wrapper">';
+	    ?>
+	    <div class="tsk-tab-content-wrapper">
+		    <?php
+		    $this->render_header();
+		    $this->render_form_start();
+		    $this->render_module_fields();
+		    $this->render_form_end();
+		    ?>
+	    </div>
+	    <?php
+    }
+
+	private function render_form_start(): void {
+		echo '<form method="post" action="options.php" class="tsk-modules-form">';
+		settings_fields( 'tsk_settings' );
+
+		$current_tab = $_GET['tab'] ?? 'general_settings';
+		$return_url  = admin_url( 'tools.php?page=triskelion-toolkit&tab=' . $current_tab );
+		echo '<input type="hidden" name="_wp_http_referer" value="' . esc_url( $return_url ) . '" />';
+	}
+
+	private function render_form_end(): void {
+		submit_button();
+		echo '</form>';
+	}
+
+	/**
+	 * Los hijos DEBEN implementar esto para poner sus inputs/toggles
+	 */
+	abstract protected function render_module_fields(): void;
+
+	/**
+	 * Header opcional que los hijos pueden sobrescribir
+	 */
+	protected function render_header(): void {
+		// Por defecto vacío o un título genérico
 	}
 }

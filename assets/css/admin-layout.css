@@ -1,132 +1,177 @@
+/* 1. Contenedor Maestro y Header */
+.tsk-admin-page {
+    margin-top: 20px;
+    max-width: 1200px; /* Evita que en monitores ultra-wide se estire infinito */
+}
+
+.tsk-header {
+    margin-bottom: 20px;
+}
+
+/* 2. El Layout de dos columnas */
+.tsk-admin-layout {
+    display: flex;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    min-height: 600px; /* Altura mínima para que no se vea "chico" con pocos módulos */
+}
+
+/* 3. Navegación Izquierda (Nav) */
+.tsk-admin-nav {
+    width: 220px; /* Un poco más de aire para nombres largos */
+    background: #f0f0f1;
+    border-right: 1px solid #ccd0d4;
+    flex-shrink: 0; /* Evita que la columna se colapse */
+}
+
+.tsk-tab-link {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: #2c3338;
+    border-bottom: 1px solid #dcdcde;
+    transition: all 0.2s ease;
+}
+
+.tsk-tab-link:hover {
+    background: #e5e5e5;
+    color: #2271b1;
+}
+
+.tsk-tab-link.active {
+    background: #fff;
+    color: #2271b1;
+    font-weight: 600;
+    width: calc(100% + 1px); /* Truco visual para "pisar" el borde derecho del nav */
+    border-right: 4px solid #2271b1;
+    border-bottom-color: #ccd0d4;
+}
+
 .tsk-tab-link .dashicons {
-    margin-right: 10px;
-    vertical-align: text-bottom;
+    margin-right: 12px;
 }
 
-.tsk-admin-main-content {
+/* 4. Columna de Contenido (Main) */
+.tsk-admin-main {
     flex: 1;
-    padding: 20px 40px;
-}
-
-.tsk-tab-menu {
-    display: flex;
-    flex-direction: column;
-}
-
-.tsk-admin-layout {
-    display: flex;
+    padding: 40px; /* El "aire" que pedías para la 2da columna */
     background: #fff;
-    border: 1px solid #ccd0d4;
-    margin-top: 20px;
 }
 
-.tsk-admin-sidebar {
-    width: 200px;
-    background: #f0f0f1;
-    border-right: 1px solid #ccd0d4;
+.tsk-admin-main h1 {
+    margin-top: 0;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f0f0f1;
 }
 
-.tsk-tab-link {
+/* Contenedor de cada módulo */
+.tsk-module-card {
+    display: flex;
+    align-items: flex-start; /* Alineación TOP del toggle */
+    padding: 25px 15px;
+    border-bottom: 1px solid #f0f0f1;
+    gap: 20px;
+    transition: background-color 0.2s ease;
+    margin: 0 -15px;
+}
+.tsk-module-card:hover {
+    background-color: #f6f7f7; /* Un gris casi blanco, muy sutil */
+}
+
+/* Última card sin línea para que no choque con el botón de guardar */
+.tsk-module-card:last-of-type {
+    border-bottom: none;
+    margin-bottom: 20px;
+}
+
+/* Área del Toggle */
+.tsk-module-toggle-area {
+    flex-shrink: 0;
+    padding-top: 4px; /* Ajuste fino para que el toggle se alinee con el texto del título */
+}
+
+/* Área de Información */
+.tsk-module-info-area {
+    flex: 1;
+}
+
+.tsk-module-name {
     display: block;
-    padding: 15px;
-    text-decoration: none;
-    color: #2c3338;
-    border-bottom: 1px solid #ccd0d4;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1d2327;
+    margin-bottom: 6px;
 }
 
-.tsk-tab-link.active {
-    background: #fff;
-    border-right: 4px solid #2271b1;
-    font-weight: bold;
+.tsk-module-description {
+    margin: 0;
+    color: #646970;
+    line-height: 1.5;
+    max-width: 600px; /* Evita que las líneas sean demasiado largas para leer */
 }
 
-.tsk-admin-layout {
-    display: flex;
-    background: #fff;
-    border: 1px solid #ccd0d4;
-    margin-top: 20px;
-}
-
-.tsk-admin-sidebar {
-    width: 200px;
-    background: #f0f0f1;
-    border-right: 1px solid #ccd0d4;
-}
-
-.tsk-tab-link {
-    display: block;
-    padding: 15px;
-    text-decoration: none;
-    color: #2c3338;
-    border-bottom: 1px solid #ccd0d4;
-}
-
-.tsk-tab-link.active {
-    background: #fff;
-    border-right: 4px solid #2271b1;
-    font-weight: bold;
-}
-
-/* Contenedor del switch */
+/* 1. Contenedor del Switch */
 .tsk-switch {
     position: relative;
     display: inline-block;
-    width: 40px;
-    height: 20px;
+    width: 44px;  /* Un poco más ancho para mejor agarre visual */
+    height: 22px;
+    cursor: pointer;
 }
 
-/* Ocultamos el checkbox original pero mantenemos su funcionalidad */
+/* 2. Ocultar Checkbox Nativo */
 .tsk-switch input {
     opacity: 0;
     width: 0;
     height: 0;
 }
 
-/* El slider (la pista) */
+/* 3. El Slider (La Pista) */
 .tsk-slider {
     position: absolute;
     cursor: pointer;
     top: 0; left: 0; right: 0; bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
-    border-radius: 20px;
+    background-color: #ccd0d4; /* Gris estándar de WP */
+    transition: background-color 0.3s ease;
+    border-radius: 22px;
 }
 
-/* El círculo blanco */
+/* 4. El Círculo (El Knob) */
 .tsk-slider:before {
     position: absolute;
     content: "";
-    height: 14px;
-    width: 14px;
+    height: 16px;
+    width: 16px;
     left: 3px;
     bottom: 3px;
     background-color: white;
-    transition: .4s;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
-/* Color cuando está encendido (Azul WordPress) */
-input:checked + .tsk-slider {
-    background-color: #2271b1;
+/* 5. Estado Activo (On) */
+.tsk-switch input:checked + .tsk-slider {
+    background-color: #2271b1; /* Azul Triskelion / WP */
 }
 
-/* Movimiento del círculo */
-input:checked + .tsk-slider:before {
-    transform: translateX(20px);
+.tsk-switch input:checked + .tsk-slider:before {
+    transform: translateX(22px); /* Desplazamiento exacto */
 }
 
-/* Estilo para la etiqueta de texto al lado del toggle */
-.tsk-toggle-label {
-    vertical-align: top;
-    margin-left: 10px;
-    font-weight: 500;
+/* 6. Estados de Interacción (Hover/Focus) */
+.tsk-switch:hover .tsk-slider {
+    background-color: #b5bfc7;
 }
 
-.form-table td {
-    vertical-align: middle !important;
-    padding: 15px 10px !important;
+.tsk-switch input:checked:hover + .tsk-slider {
+    background-color: #135e96; /* Azul más oscuro al pasar el mouse */
 }
 
-.tsk-switch {
-    vertical-align: middle;
+/* 7. Estado de Foco (Accesibilidad) */
+.tsk-switch input:focus + .tsk-slider {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #2271b1;
 }

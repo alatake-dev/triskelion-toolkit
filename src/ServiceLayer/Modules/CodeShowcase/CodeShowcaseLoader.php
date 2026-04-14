@@ -19,4 +19,7 @@ class CodeShowcaseLoader extends AbstractBlockLoader {
 		// Por ahora vacío para que no truene el Fatal Error
 	}
 
+	protected function render_module_fields(): void {
+		echo "<p> los settings de CodeShowcase </p>";
+	}
 }
