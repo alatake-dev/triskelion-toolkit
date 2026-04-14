@@ -134,8 +134,8 @@ export default function Edit( { attributes, setAttributes } ) {
                                 { file.fileName || 'unnamed' }
                             </button>
                         ) ) }
-                        <Button onClick={ addFile } className="tsk-add-tab">+</Button>
                     </div>
+                    <Button onClick={ addFile } className="tsk-add-tab">+</Button>
                 </div>
                 <div className="tsk-code-body">
                     <TextareaControl

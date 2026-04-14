@@ -2,60 +2,66 @@
 namespace Triskelion\Toolkit\Modules\CodeShowcase;
 
 use Triskelion\Toolkit\Core\AbstractBlockLoader;
+use Triskelion\Toolkit\Modules\VendorRegistry;
 
 class CodeShowcaseBlockLoader extends AbstractBlockLoader {
 
-	/**
-	 * Definimos el nombre de la carpeta en ViewLayer/blocks/
-	 */
-	protected function get_block_name(): string {
-		return 'code-showcase';
-	}
+    protected function get_block_name(): string {
+        return 'code-showcase';
+    }
 
-	/**
-	 * Esta función es la que WordPress llamará automáticamente
-	 * gracias a la lógica de 'method_exists' que pusimos en la abstracta.
-	 */
-    public function render_frontend( $attributes, $content ): string {
-        // DEBUG: Esto nos dirá si WordPress realmente está llamando a esta función
-        // y qué datos le está pasando.
-        error_log( "🚀 TSK RENDER: Ejecutando render para " . $this->get_block_name() );
-        error_log( "DATA: " . json_encode( $attributes ) );
+    /**
+     * Registro de dependencias externas
+     */
+    public function load(): void {
+        VendorRegistry::use('prism'); // El Registry se encarga de todo el setup
+        parent::load();
+    }
 
+    /**
+     * Encolado solo cuando el bloque se usa
+     */
+    public function enqueue_block_assets(): void {
+        if (is_admin()) return;
+        wp_enqueue_style('tsk-prism-theme');
+        wp_enqueue_script('tsk-prism-autoloader');
+    }
+
+    public function render_frontend($attributes, $content): string {
         $files = $attributes['files'] ?? [];
+        if (empty($files)) return '';
 
-        // Si no hay archivos, el bloque se "esconde"
-        if ( empty( $files ) ) {
-            return '';
-        }
-
-        $active_index = $attributes['activeTabIndex'] ?? 0;
-
-        ob_start();
-        ?>
-        <div class="tsk-code-showcase-container" data-theme="<?php echo esc_attr( $attributes['terminalTheme'] ?? 'dark' ); ?>">
+        ob_start(); ?>
+        <div class="tsk-code-showcase-container">
             <div class="tsk-code-header">
+                <div class="tsk-window-buttons">
+                    <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                </div>
                 <div class="tsk-tabs-wrapper">
-                    <?php foreach ( $files as $index => $file ) : ?>
-                        <div class="tsk-tab <?php echo $index === $active_index ? 'active' : ''; ?>">
-                            <?php echo esc_html( $file['fileName'] ?? 'unnamed.js' ); ?>
-                        </div>
+                    <?php foreach ($files as $index => $file) : ?>
+                        <button class="tsk-tab <?php echo $index === 0 ? 'active' : ''; ?>" data-tab="<?php echo $index; ?>">
+                            <?php echo esc_html($file['fileName']); ?>
+                        </button>
                     <?php endforeach; ?>
                 </div>
+                <button class="tsk-copy-button" title="<?php esc_attr_e('Copy Code', 'triskelion-toolkit'); ?>">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                </button>
             </div>
             <div class="tsk-code-body">
-                <pre><code><?php echo esc_html( $files[$active_index]['content'] ?? '' ); ?></code></pre>
+                <?php foreach ($files as $index => $file) : ?>
+                    <div class="tsk-code-pane <?php echo $index === 0 ? 'active' : ''; ?>">
+                        <div class="tsk-lang-badge"><?php echo esc_html($file['language']); ?></div>
+                        <pre class="language-<?php echo esc_attr($file['language']); ?>"><code><?php echo esc_html($file['content']); ?></code></pre>
+                    </div>
+                <?php endforeach; ?>
             </div>
         </div>
         <?php
         return ob_get_clean();
     }
-	/**
-	 * Si necesitas settings globales en el panel de Triskelion
-	 */
-	protected function render_module_fields(): void {
-		echo "<h4>Configuración del Módulo</h4>";
-		echo "<p>El bloque está registrado y listo para usarse en el editor.</p>";
-	}
 
+    protected function render_module_fields(): void {
+        echo "<h4>Code Showcase</h4><p>El bloque dinámico está activo y gestionando Prism de forma centralizada.</p>";
+    }
 }
