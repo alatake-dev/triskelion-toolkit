@@ -3,9 +3,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Triskelion Toolkit 0.0.1\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-plugin\n"
-"POT-Creation-Date: 2026-04-11T02:07:53+00:00\n"
-"PO-Revision-Date: 2026-04-10 20:11-0600\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/triskelion-"
+"toolkit\n"
+"POT-Creation-Date: 2026-04-15T00:34:31+00:00\n"
+"PO-Revision-Date: 2026-04-14 18:35-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -17,7 +18,7 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: triskelion-toolkit.php src/ServiceLayer/Admin/Admin.php:23
-#: src/ServiceLayer/Admin/Admin.php:24
+#: src/ServiceLayer/Admin/Admin.php:24 src/ServiceLayer/Admin/Admin.php:85
 msgid "Triskelion Toolkit"
 msgstr "Herramientas Triskelion"
 
@@ -31,50 +32,173 @@ msgstr "Utilerías modulares para triskelion."
 msgid "Triskelion"
 msgstr "Triskelion"
 
-#: src/ServiceLayer/Admin/Admin.php:55
+#: src/ServiceLayer/Admin/Admin.php:118
+#, fuzzy
+#| msgid ""
+#| "This module is active but its loader is not available or it has no "
+#| "settings."
+msgid "This module is active but its settings are not available."
+msgstr ""
+"El módulo esta activo, pero no se localiza el loader o no tiene settings."
+
+#: src/ServiceLayer/Admin/Admin.php:141
 msgid "Access Denied"
 msgstr "Acceso denegado"
 
-#: src/ServiceLayer/Admin/Admin.php:56
+#: src/ServiceLayer/Admin/Admin.php:142
 msgid "This section is not available or does not require configuration."
 msgstr "Esta sección no esta disponible o no requiere configuración."
 
-#: src/ServiceLayer/Admin/Admin.php:58
+#: src/ServiceLayer/Admin/Admin.php:144
 msgid "Back to General"
 msgstr "Regresar a general"
 
-#: src/ServiceLayer/Admin/Admin.php:101
+#: src/ServiceLayer/Core/Toolkit.php:42
+msgid "General Settings"
+msgstr "Configuración General"
+
+#: src/ServiceLayer/Core/Toolkit.php:51
+#: src/ServiceLayer/Modules/CodeShowcase/CodeShowcaseBlockLoader.php:86
+msgid "Code Showcase"
+msgstr "Explorador de Código"
+
+#: src/ServiceLayer/Core/Toolkit.php:52
+msgid ""
+"Display code snippets in a beautiful macOS-style terminal with multiple tabs "
+"and syntax highlighting."
+msgstr ""
+"Muestra bloques de código en un estilo de terminal macOS, con múltiples tabs "
+"y resaltado de sintaxis."
+
+#: src/ServiceLayer/Core/Toolkit.php:60
+msgid "Insight Cards"
+msgstr "Cápsulas de valor"
+
+#: src/ServiceLayer/Core/Toolkit.php:61
+msgid ""
+"Transform standard quotes into visual callouts for Tips, Warnings, and Ideas "
+"with custom styles."
+msgstr ""
+"Transforma las citas estándar en llamadas visuales para tips, warnings, "
+"ideas, con sus estilos propios."
+
+#: src/ServiceLayer/Modules/CodeShowcase/CodeShowcaseBlockLoader.php:57
+msgid "Select file"
+msgstr "Selecciona archivo"
+
+#: src/ServiceLayer/Modules/CodeShowcase/CodeShowcaseBlockLoader.php:67
+msgid "Copy Code"
+msgstr "Copiar código"
+
+#: src/ServiceLayer/Modules/CodeShowcase/CodeShowcaseBlockLoader.php:87
+msgid "Dynamic block is active and managing Prism highlighting."
+msgstr "Bloque dinámico activo y manejando Prism highlighting."
+
+#: src/ServiceLayer/Modules/GeneralSettings/GeneralSettingsLoader.php:14
 msgid "Suite Management"
 msgstr "Administración de la suite"
 
-#: src/ServiceLayer/Admin/Admin.php:103
-msgid "Activate or deactivate the modules you need for your ecosystem."
-msgstr "Activa o desactiva módulos de acuerdo a las necesidades de tu ecosistema."
+#: src/ServiceLayer/Modules/GeneralSettings/GeneralSettingsLoader.php:15
+#, fuzzy
+#| msgid "Activate or deactivate the modules you need for your ecosystem."
+msgid "Activate or deactivate modules."
+msgstr ""
+"Activa o desactiva módulos de acuerdo a las necesidades de tu ecosistema."
 
-#: src/ServiceLayer/Admin/Admin.php:126
-msgid "This module is active but its loader is not available or it has no settings."
-msgstr "El módulo esta activo, pero no se localiza el loader o no tiene settings."
+#: src/ServiceLayer/Modules/InsightCards/InsightCardsLoader.php:21
+msgid "InsightCards"
+msgstr "Cápsulas de Valor"
 
-#: src/ServiceLayer/Admin/Admin.php:149
-msgid "Available Modules"
-msgstr "Módulos disponibles"
+#: src/ServiceLayer/Modules/InsightCards/InsightCardsLoader.php:22
+#, fuzzy
+#| msgid "Module's configuration"
+msgid "InsightCards configuration"
+msgstr "Configuración de Módulos"
 
-#: src/ServiceLayer/Admin/Admin.php:174
-msgid "Toggle module status"
-msgstr "Activador de módulos"
+#: build/blocks/code-showcase/index.js:50
+#: src/ViewLayer/blocks/code-showcase/edit.js:24
+msgid "new-file.js"
+msgstr "nuevo.js"
 
-#: src/ServiceLayer/Core/Toolkit.php:34
-msgid "General"
-msgstr "General"
+#: build/blocks/code-showcase/index.js:83
+#: src/ViewLayer/blocks/code-showcase/edit.js:54
+msgid "Current File"
+msgstr "Archivo Actual"
 
-#~ msgid "Module's configuration"
-#~ msgstr "Configuración de Módulos"
+#: build/blocks/code-showcase/index.js:85
+#: src/ViewLayer/blocks/code-showcase/edit.js:56
+msgid "File Name"
+msgstr "Nombre del archivo"
+
+#: build/blocks/code-showcase/index.js:89
+#: src/ViewLayer/blocks/code-showcase/edit.js:61
+msgid "Language"
+msgstr "Lenguaje"
+
+#: build/blocks/code-showcase/index.js:110
+#: src/ViewLayer/blocks/code-showcase/edit.js:73
+msgid "Remove Tab"
+msgstr "Eliminar Tab"
+
+#: build/blocks/code-showcase/index.js:123
+#: src/ViewLayer/blocks/code-showcase/edit.js:78
+msgid "Ordering:"
+msgstr "Orden:"
+
+#: build/blocks/code-showcase/index.js:130
+#: src/ViewLayer/blocks/code-showcase/edit.js:86
+msgid "Move left"
+msgstr "A la izquierda"
+
+#: build/blocks/code-showcase/index.js:137
+#: src/ViewLayer/blocks/code-showcase/edit.js:94
+msgid "Move right"
+msgstr "A la derecha"
+
+#: build/blocks/code-showcase/index.js:141
+#: src/ViewLayer/blocks/code-showcase/edit.js:99
+msgid "Visual Settings"
+msgstr "Ajustes visuales"
+
+#: build/blocks/code-showcase/index.js:144
+#: src/ViewLayer/blocks/code-showcase/edit.js:101
+msgid "Line numbers"
+msgstr "Números de línea"
+
+#: build/blocks/code-showcase/index.js:150
+#: src/ViewLayer/blocks/code-showcase/edit.js:106
+msgid "Theme"
+msgstr "Tema"
+
+#: build/blocks/code-showcase/index.js:184
+#: src/ViewLayer/blocks/code-showcase/edit.js:131
+msgid "unnamed"
+msgstr "sin-nombre"
+
+#: build/blocks/code-showcase/index.js:189
+#: src/ViewLayer/blocks/code-showcase/edit.js:138
+msgid "Add Tab"
+msgstr "Agrega un Tab"
+
+#: build/blocks/code-showcase/index.js:197
+#: src/ViewLayer/blocks/code-showcase/edit.js:145
+msgid "Paste your code here..."
+msgstr "Pega tu código aquí…"
+
+#, fuzzy
+#~| msgid "Code Console"
+#~ msgctxt "block title"
+#~ msgid "Code Showcase"
+#~ msgstr "Bloque de código “consola”"
+
+#~ msgid "Available Modules"
+#~ msgstr "Módulos disponibles"
+
+#~ msgid "Toggle module status"
+#~ msgstr "Activador de módulos"
 
 #~ msgid "Save"
 #~ msgstr "Guardar"
-
-#~ msgid "Code Console"
-#~ msgstr "Bloque de código “consola”"
 
 #~ msgid "Custom Quotes"
 #~ msgstr "Citas personalizadas"

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "triskelion/insight-cards",
+  "version": "1.1.0",
+  "title": "Insight Card",
+  "category": "triskelion",
+  "icon": "format-quote",
+  "description": "Highlight key insights or quotes with a minimalist professional design.",
+  "attributes": {
+    "content": {
+      "type": "string",
+      "source": "html",
+      "selector": "blockquote"
+    },
+    "author": {
+      "type": "string",
+      "source": "html",
+      "selector": "cite"
+    },
+    "accentColor": {
+      "type": "string",
+      "default": "#0055ff"
+    }
+  },
+  "textdomain": "triskelion-toolkit",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
+}
