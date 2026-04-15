@@ -2,33 +2,31 @@
 namespace Triskelion\Toolkit\Core;
 
 abstract class AbstractModuleLoader {
+	abstract public function load(): void;
+	abstract protected function render_module_fields(): void;
 
-	// El único contrato obligatorio
-	abstract public function load() :void;
+	protected function render_header(): void {}
 
-	/**
-	 * Renderiza la interfaz de configuración específica del módulo.
-	 * Por defecto no hace nada. Los hijos pueden sobrescribirlo.
-	 */
-	public function render_settings(): void {
-		// "Default" vacío.
+	final public function render_settings(): void {
+		wp_enqueue_style('tsk-admin-styles');
+		echo '<div class="tsk-tab-content-wrapper">';
+		$this->render_header();
+		$this->render_form_start();
+		$this->render_module_fields();
+		$this->render_form_end();
+		echo '</div>';
 	}
 
-	/**
-	 * Helper para que los hijos registren sus assets
-	 * usando el nuevo sistema de filtros de Toolkit.
-	 */
-	protected function register_assets(string $id, array $scripts = [], array $styles = []) {
-		if (!empty($scripts)) {
-			add_filter(Toolkit::HOOK_REGISTER_SCRIPTS, function($all_scripts) use ($id, $scripts) {
-				return array_merge($all_scripts, $scripts);
-			});
-		}
+	private function render_form_start(): void {
+		echo '<form method="post" action="options.php" class="tsk-modules-form">';
+		settings_fields('tsk_settings');
+		$current_tab = $_GET['tab'] ?? 'general_settings';
+		$return_url = admin_url('tools.php?page=triskelion-toolkit&tab=' . $current_tab);
+		echo '<input type="hidden" name="_wp_http_referer" value="' . esc_url($return_url) . '" />';
+	}
 
-		if (!empty($styles)) {
-			add_filter(Toolkit::HOOK_REGISTER_STYLES, function($all_styles) use ($id, $styles) {
-				return array_merge($all_styles, $styles);
-			});
-		}
+	private function render_form_end(): void {
+		submit_button();
+		echo '</form>';
 	}
 }

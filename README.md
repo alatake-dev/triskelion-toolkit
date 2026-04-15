@@ -3,11 +3,10 @@
 A modular, high-performance WordPress plugin suite designed for the Triskelion premium ecosystem.
 
 ## 🏗 Architecture Overview
-The toolkit operates as a service container. The core infrastructure handles:
-- **Modular Loading**: Each feature is an independent module.
-- **Unified Admin UI**: A vertical tab-based interface with CSS toggles.
-- **Security Gatekeeper**: Centralized access control for module settings.
-
+The toolkit operates as a service container with a strictly decoupled architecture:
+- **Core Modules**: Essential infrastructure (Settings, Diagnostic) that is always available and cannot be deactivated.
+- **Feature Modules**: Independent, toggleable features that load only when activated.
+- **Lazy Loading**: Classes are only instantiated when their specific tab is active or their functionality is required.
 ---
 
 ## 🚀 Environment Setup (Docker)
@@ -85,6 +84,16 @@ volumes:
 
    /var/www/html/wp-content/plugins/triskelion-toolkit
 
+## 📝 Logging & Troubleshooting
+The toolkit includes a proprietary, independent logging system.
+
+- **Storage**: Logs are stored in `/wp-content/uploads/triskelion-logs/atk_debug_[hash].log`.
+- **Activation**: Can be enabled via the "Logs & Diagnostic" tab or by defining a constant in `wp-config.php`:
+  ```php
+  define( 'TSK_LOG_ENABLED', true );
+  ```
+- **Access Control:** The log directory is protected via .htaccess and index.php to prevent direct web access.
+
 ## 🛠 How to Add a New Module
 
 To maintain the Triskelion Standard, follow these steps:
@@ -107,21 +116,21 @@ To maintain the Triskelion Standard, follow these steps:
     }
     ```
 3. Register in the Toolkit
-   Add your module to the array in src/ServiceLayer/Core/Toolkit.php:
+   Add your module to the array in `src/Core/Toolkit.php`. Use the following schema:
     ```php
     'my_new_feature' => [
-        'name'         => __( 'My Feature', 'triskelion-toolkit' ),
-        'description'  => __( 'A brief description of what this does.', 'triskelion-toolkit' ),
+        'name'         => __( 'My Feature', TSK_DOMAIN ),
+        'description'  => __( 'A brief description.', TSK_DOMAIN ),
         'class'        => \Triskelion\Toolkit\Modules\MyNewFeature\MyNewFeatureLoader::class,
+        'is_core'      => false,     // true for system utilities, false for toggleable features
+        'priority'     => 100,       // 0-99: System, 100-899: Features, 900+: Support
         'has_settings' => true,
         'icon'         => 'dashicons-star-filled'
     ],
     ```
+   
 ## 📜 Development Rules
-1. Zero Bloat: Only enqueue assets if the block/feature is present on the page.
-
-2. Responsive-First: All components must be fluid and work on mobile viewports.
-
-3. I18n: Use English for all code strings and UI labels (text-domain: triskelion-toolkit).
-
-4. CSS over JS: Prefer CSS solutions (like Toggles) to keep the admin fast.
+1. **Zero Bloat**: Only enqueue assets if the feature is active and present.
+2. **Encapsulation**: Each module loader is responsible for its own rendering. The `Admin` class only orchestrates.
+3. **The "Opener-Closer" Rule**: Any method opening an HTML tag (div, section, main) MUST be responsible for closing it.
+4. **Log Everything**: Use `Toolkit::log()` for critical failures or complex logic tracing. Avoid `var_dump` in production-ready code.
