@@ -157,10 +157,7 @@
     .tsk-tabs-wrapper {
         display: none !important;
     }
-    .tsk-code-header {
-        justify-content: space-between;
-        padding: 0 10px;
-    }
+
     .tsk-mobile-selector {
         display: flex !important;
         flex: 1;
@@ -180,7 +177,7 @@
             color: #fff;
             border: none;
             padding: 0 35px 0 12px;
-            font-size: 13px;
+            font-size: 16px;
             font-family: 'Fira Code', monospace;
             appearance: none;
             -webkit-appearance: none;
@@ -209,6 +206,7 @@
     }
 
     .tsk-code-header {
+        justify-content: space-between;
         padding: 0 10px;
         gap: 5px;
         &::after { display: none !important; }

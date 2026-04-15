@@ -20,10 +20,10 @@ class Admin {
 
     public static function add_menu_page(): void {
         $hook = add_management_page(
-                __( 'Triskelion Toolkit', 'triskelion-toolkit' ),
-                __( 'Triskelion Toolkit', 'triskelion-toolkit' ),
+                __( 'Triskelion Toolkit', TSK_DOMAIN ),
+                __( 'Triskelion Toolkit', TSK_DOMAIN ),
                 'manage_options',
-                'triskelion-toolkit',
+                TSK_DOMAIN,
                 [self::class, 'render_admin_page']
         );
 
@@ -82,7 +82,7 @@ class Admin {
             <div class="tsk-logo-placeholder">
                 <span>LOGO TRISKELION</span>
             </div>
-            <h1><?php esc_html_e( 'Triskelion Toolkit', 'triskelion-toolkit' ); ?></h1>
+            <h1><?php esc_html_e( 'Triskelion Toolkit', TSK_DOMAIN ); ?></h1>
         </header>
         <?php
     }
@@ -115,7 +115,7 @@ class Admin {
     private static function render_module_error_notice(): void {
         ?>
         <div class="notice notice-warning inline">
-            <p><?php esc_html_e( 'This module is active but its settings are not available.', 'triskelion-toolkit' ); ?></p>
+            <p><?php esc_html_e( 'This module is active but its settings are not available.', TSK_DOMAIN ); ?></p>
         </div>
         <?php
     }
@@ -138,10 +138,10 @@ class Admin {
     private static function render_access_denied(): void {
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Access Denied', 'triskelion-toolkit' ); ?></h1>
-            <p><?php esc_html_e( 'This section is not available or does not require configuration.', 'triskelion-toolkit' ); ?></p>
+            <h1><?php esc_html_e( 'Access Denied', TSK_DOMAIN ); ?></h1>
+            <p><?php esc_html_e( 'This section is not available or does not require configuration.', TSK_DOMAIN ); ?></p>
             <a href="<?php echo admin_url( 'tools.php?page=triskelion-toolkit' ); ?>" class="button button-primary">
-                <?php esc_html_e( 'Back to General', 'triskelion-toolkit' ); ?>
+                <?php esc_html_e( 'Back to General', TSK_DOMAIN ); ?>
             </a>
         </div>
         <?php

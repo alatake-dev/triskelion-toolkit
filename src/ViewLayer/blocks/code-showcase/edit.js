@@ -13,7 +13,6 @@ export default function Edit( { attributes, setAttributes } ) {
     const { files, activeTabIndex, showLineNumbers, terminalTheme } = attributes;
     const blockProps = useBlockProps();
 
-    // --- MANEJADORES DE ESTADO ---
     const updateFile = ( index, key, value ) => {
         const newFiles = [ ...files ];
         newFiles[ index ] = { ...newFiles[ index ], [ key ]: value };
@@ -21,7 +20,11 @@ export default function Edit( { attributes, setAttributes } ) {
     };
 
     const addFile = () => {
-        const newFiles = [ ...files, { fileName: 'nuevo.js', language: 'javascript', content: '' } ];
+        const newFiles = [ ...files, {
+            fileName: __( 'new-file.js', TSK_DOMAIN ),
+            language: 'javascript',
+            content: ''
+        } ];
         setAttributes( { files: newFiles } );
         setAttributes( { activeTabIndex: newFiles.length - 1 } );
     };
@@ -31,31 +34,31 @@ export default function Edit( { attributes, setAttributes } ) {
         const newFiles = files.filter( ( _, i ) => i !== index );
         setAttributes( { files: newFiles, activeTabIndex: 0 } );
     };
+
     const moveFile = ( currentIndex, direction ) => {
         const newIndex = currentIndex + direction;
         if ( newIndex < 0 || newIndex >= files.length ) return;
 
         const newFiles = [ ...files ];
-        // Intercambio de posiciones (Swap)
         [ newFiles[ currentIndex ], newFiles[ newIndex ] ] = [ newFiles[ newIndex ], newFiles[ currentIndex ] ];
 
         setAttributes( {
             files: newFiles,
-            activeTabIndex: newIndex // Seguimos a la pestaña mientras se mueve
+            activeTabIndex: newIndex
         } );
     };
+
     return (
         <div { ...blockProps }>
-            { /* 1. BARRA LATERAL (Configuración) */ }
             <InspectorControls>
-                <PanelBody title={ __( 'Archivo Actual', 'triskelion-toolkit' ) }>
+                <PanelBody title={ __( 'Current File', TSK_DOMAIN ) }>
                     <TextControl
-                        label={ __( 'Nombre del archivo', 'triskelion-toolkit' ) }
+                        label={ __( 'File Name', TSK_DOMAIN ) }
                         value={ files[ activeTabIndex ]?.fileName }
                         onChange={ ( val ) => updateFile( activeTabIndex, 'fileName', val ) }
                     />
                     <SelectControl
-                        label={ __( 'Lenguaje', 'triskelion-toolkit' ) }
+                        label={ __( 'Language', TSK_DOMAIN ) }
                         value={ files[ activeTabIndex ]?.language }
                         options={ [
                             { label: 'JavaScript', value: 'javascript' },
@@ -67,45 +70,40 @@ export default function Edit( { attributes, setAttributes } ) {
                     />
 
                     <Button isDestructive variant="link" onClick={ () => removeFile( activeTabIndex ) } disabled={ files.length <= 1 }>
-                        { __( 'Eliminar Pestaña', 'triskelion-toolkit' ) }
+                        { __( 'Remove Tab', TSK_DOMAIN ) }
                     </Button>
-                    <div style={ { marginTop: '15px', display: 'flex', gap: '10px', alignItems: 'center' } }>
-                        <span style={ { fontSize: '12px', fontWeight: 'bold' } }>{ __( 'Ordenar:', 'triskelion-toolkit' ) }</span>
 
+                    <div style={ { marginTop: '15px', display: 'flex', gap: '10px', alignItems: 'center' } }>
+                        <span style={ { fontSize: '12px', fontWeight: 'bold' } }>
+                            { __( 'Ordering:', TSK_DOMAIN ) }
+                        </span>
                         <Button
                             variant="secondary"
                             isSmall
                             icon="arrow-left-alt"
                             onClick={ () => moveFile( activeTabIndex, -1 ) }
                             disabled={ activeTabIndex === 0 }
-                            label={ __( 'Mover a la izquierda', 'triskelion-toolkit' ) }
+                            label={ __( 'Move left', TSK_DOMAIN ) }
                         />
-
                         <Button
                             variant="secondary"
                             isSmall
                             icon="arrow-right-alt"
                             onClick={ () => moveFile( activeTabIndex, 1 ) }
                             disabled={ activeTabIndex === files.length - 1 }
-                            label={ __( 'Mover a la derecha', 'triskelion-toolkit' ) }
+                            label={ __( 'Move right', TSK_DOMAIN ) }
                         />
                     </div>
-
-                    <hr style={ { margin: '15px 0' } } />
-
-                    <Button isDestructive variant="link" onClick={ () => removeFile( activeTabIndex ) } disabled={ files.length <= 1 }>
-                        { __( 'Eliminar Pestaña', 'triskelion-toolkit' ) }
-                    </Button>
                 </PanelBody>
 
-                <PanelBody title={ __( 'Ajustes Visuales', 'triskelion-toolkit' ) } initialOpen={ false }>
+                <PanelBody title={ __( 'Visual Settings', TSK_DOMAIN ) } initialOpen={ false }>
                     <ToggleControl
-                        label={ __( 'Números de línea', 'triskelion-toolkit' ) }
+                        label={ __( 'Line numbers', TSK_DOMAIN ) }
                         checked={ showLineNumbers }
                         onChange={ ( val ) => setAttributes( { showLineNumbers: val } ) }
                     />
                     <SelectControl
-                        label={ __( 'Tema', 'triskelion-toolkit' ) }
+                        label={ __( 'Theme', TSK_DOMAIN ) }
                         value={ terminalTheme }
                         options={ [
                             { label: 'Dark (Monokai)', value: 'dark' },
@@ -116,7 +114,6 @@ export default function Edit( { attributes, setAttributes } ) {
                 </PanelBody>
             </InspectorControls>
 
-            { /* 2. CUERPO DEL BLOQUE (La Terminal) */ }
             <div className="tsk-code-showcase-container">
                 <div className="tsk-code-header">
                     <div className="tsk-window-buttons">
@@ -131,16 +128,21 @@ export default function Edit( { attributes, setAttributes } ) {
                                 className={ `tsk-tab ${ activeTabIndex === index ? 'active' : '' }` }
                                 onClick={ () => setAttributes( { activeTabIndex: index } ) }
                             >
-                                { file.fileName || 'unnamed' }
+                                { file.fileName || __( 'unnamed', TSK_DOMAIN ) }
                             </button>
                         ) ) }
                     </div>
-                    <Button onClick={ addFile } className="tsk-add-tab">+</Button>
+                    <Button
+                        onClick={ addFile }
+                        className="tsk-add-tab"
+                        label={ __( 'Add Tab', TSK_DOMAIN ) }
+                    >+</Button>
                 </div>
                 <div className="tsk-code-body">
                     <TextareaControl
                         value={ files[ activeTabIndex ]?.content }
                         onChange={ ( val ) => updateFile( activeTabIndex, 'content', val ) }
+                        placeholder={ __( 'Paste your code here...', TSK_DOMAIN ) }
                         spellCheck={ false }
                     />
                 </div>

@@ -14,18 +14,14 @@ class Toolkit {
 	const TSK_VERSION = '1.0.0';
 
 	public static function init(): void {
-		// 1. Logs de rigor
-		error_log( "DEBUG TSK_PATH: " . TSK_PATH );
 
-		// 2. Agendar la carga de módulos para el momento CORRECTO
-		// No la llames directo, espera al hook 'init'
+		add_action( 'init', [ self::class, 'register_core_assets' ], 1 );
+
 		add_action( 'init', [ self::class, 'load_active_modules' ], 5 );
 
-		// 3. Assets y Admin (esto puede quedarse aquí o en hooks)
 		add_action( 'admin_enqueue_scripts', [ self::class, 'register_vendor_assets' ] );
 		Admin::init();
 
-		// Filtros de estilos
 		add_filter( self::HOOK_REGISTER_STYLES, function ( $styles ) {
 			$styles['tsk-admin-styles'] = [
 				'src' => TSK_URL . 'assets/css/admin-layout.css',
@@ -35,11 +31,25 @@ class Toolkit {
 			return $styles;
 		} );
 	}
+	public static function register_core_assets(): void {
+		wp_register_script(
+			'triskelion-toolkit-core',
+			false,
+			['wp-i18n'],
+			self::TSK_VERSION,
+			true
+		);
 
+		wp_set_script_translations(
+			'triskelion-toolkit-core',
+			TSK_DOMAIN,
+			TSK_PATH . 'languages'
+		);
+	}
 	public static function get_modules(): array {
 		return [
 			'general_settings' => [
-				'name'         => __( 'General Settings', 'triskelion-toolkit' ),
+				'name'         => __( 'General Settings', TSK_DOMAIN ),
 				'description'  => 'General settings for the plugin.',
 				'class'        => \Triskelion\Toolkit\Modules\GeneralSettings\GeneralSettingsLoader::class,
 				'has_settings' => true,
@@ -48,8 +58,8 @@ class Toolkit {
 				'icon'         => 'dashicons-admin-generic'
 			],
 			'code_showcase' => [
-				'name'         => __( 'Code Showcase', 'triskelion-toolkit' ),
-				'description'  => __( 'Display code snippets in a beautiful macOS-style terminal with multiple tabs and syntax highlighting.', 'triskelion-toolkit' ),
+				'name'         => __( 'Code Showcase', TSK_DOMAIN ),
+				'description'  => __( 'Display code snippets in a beautiful macOS-style terminal with multiple tabs and syntax highlighting.', TSK_DOMAIN ),
 				'class'        => \Triskelion\Toolkit\Modules\CodeShowcase\CodeShowcaseBlockLoader::class,
 				'has_settings' => true,
 				'is_core'      => false,
@@ -57,8 +67,8 @@ class Toolkit {
 				'icon'         => 'dashicons-editor-code'
 			],
 			'insight_cards' => [
-				'name'         => __( 'Insight Cards', 'triskelion-toolkit' ),
-				'description'  => __( 'Transform standard quotes into visual callouts for Tips, Warnings, and Ideas with custom styles.', 'triskelion-toolkit' ),
+				'name'         => __( 'Insight Cards', TSK_DOMAIN ),
+				'description'  => __( 'Transform standard quotes into visual callouts for Tips, Warnings, and Ideas with custom styles.', TSK_DOMAIN ),
 				'class'        => \Triskelion\Toolkit\Modules\InsightCards\InsightCardsLoader::class,
 				'has_settings' => true,
 				'is_core'      => false,
@@ -66,8 +76,8 @@ class Toolkit {
 				'icon'         => 'dashicons-format-quote'
 			],
 /*			'diagnostic' => [
-				'name'         => __( 'Logs & Diagnostic', 'triskelion-toolkit' ),
-				'description'  => __( 'Monitor system health, view activity logs, and troubleshoot module performance.', 'triskelion-toolkit' ),
+				'name'         => __( 'Logs & Diagnostic', TSK_DOMAIN ),
+				'description'  => __( 'Monitor system health, view activity logs, and troubleshoot module performance.', TSK_DOMAIN ),
 				'class'        => DiagnosticLoader::class,
 				'has_settings' => true,
 				'is_core'      => true,

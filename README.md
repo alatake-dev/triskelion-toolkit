@@ -119,8 +119,8 @@ To maintain the Triskelion Standard, follow these steps:
    Add your module to the array in `src/Core/Toolkit.php`. Use the following schema:
     ```php
     'my_new_feature' => [
-        'name'         => __( 'My Feature', 'triskelion-toolkit' ),
-        'description'  => __( 'A brief description.', 'triskelion-toolkit' ),
+        'name'         => __( 'My Feature', TSK_DOMAIN ),
+        'description'  => __( 'A brief description.', TSK_DOMAIN ),
         'class'        => \Triskelion\Toolkit\Modules\MyNewFeature\MyNewFeatureLoader::class,
         'is_core'      => false,     // true for system utilities, false for toggleable features
         'priority'     => 100,       // 0-99: System, 100-899: Features, 900+: Support

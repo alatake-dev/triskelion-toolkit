@@ -11,8 +11,8 @@ class GeneralSettingsLoader extends AbstractModuleLoader {
     protected function render_header(): void {
         ?>
         <div class="tsk-tab-header">
-            <h2><?php esc_html_e( 'Suite Management', 'triskelion-toolkit' ); ?></h2>
-            <p class="description"><?php esc_html_e( 'Activate or deactivate modules.', 'triskelion-toolkit' ); ?></p>
+            <h2><?php esc_html_e( 'Suite Management', TSK_DOMAIN ); ?></h2>
+            <p class="description"><?php esc_html_e( 'Activate or deactivate modules.', TSK_DOMAIN ); ?></p>
         </div>
         <?php
     }
