@@ -19,7 +19,7 @@ abstract class AbstractModuleLoader {
 
 	private function render_form_start(): void {
 		echo '<form method="post" action="options.php" class="tsk-modules-form">';
-		settings_fields('tsk_settings');
+		settings_fields(TSK_SETTINGS_GROUP);
 		$current_tab = $_GET['tab'] ?? 'general_settings';
 		$return_url = admin_url('tools.php?page=triskelion-toolkit&tab=' . $current_tab);
 		echo '<input type="hidden" name="_wp_http_referer" value="' . esc_url($return_url) . '" />';

@@ -2,9 +2,10 @@
 namespace Triskelion\Toolkit\Modules\CodeShowcase;
 
 use Triskelion\Toolkit\Core\AbstractBlockLoader;
+use Triskelion\Toolkit\Core\SettingsProviderInterface;
 use Triskelion\Toolkit\Modules\VendorRegistry;
 
-class CodeShowcaseBlockLoader extends AbstractBlockLoader {
+class CodeShowcaseBlockLoader extends AbstractBlockLoader implements SettingsProviderInterface{
 
     protected function get_block_name(): string {
         return 'code-showcase';
@@ -25,7 +26,7 @@ class CodeShowcaseBlockLoader extends AbstractBlockLoader {
         // 1. Assets globales del bloque (CSS y Prism)
         wp_enqueue_style('tsk-prism-theme');
         wp_enqueue_script('tsk-prism-autoloader');
-        wp_enqueue_script('triskelion-toolkit-core');
+        wp_enqueue_script(TRISKELION_TOOLKIT_CORE);
         wp_script_add_data('triskelion-code-showcase-view-script', 'data', '/* i18n bridge */');
     }
 
@@ -45,8 +46,8 @@ class CodeShowcaseBlockLoader extends AbstractBlockLoader {
 
                 <div class="tsk-tabs-wrapper" role="tablist" aria-label="<?php esc_attr_e('Source files', TSK_DOMAIN); ?>">
                     <?php foreach ($files as $index => $file) :
-                        $tab_id = "{$block_id}-tab-{$index}";
-                        $panel_id = "{$block_id}-panel-{$index}";
+                        $tab_id = "$block_id-tab-$index";
+                        $panel_id = "$block_id-panel-$index";
                         $is_active = ($index === 0);
                         ?>
                         <button
@@ -81,8 +82,8 @@ class CodeShowcaseBlockLoader extends AbstractBlockLoader {
 
             <div class="tsk-code-body">
                 <?php foreach ($files as $index => $file) :
-                    $tab_id = "{$block_id}-tab-{$index}";
-                    $panel_id = "{$block_id}-panel-{$index}";
+                    $tab_id = "$block_id-tab-$index";
+                    $panel_id = "$block_id-panel-$index";
                     $is_active = ($index === 0);
                     ?>
                     <div

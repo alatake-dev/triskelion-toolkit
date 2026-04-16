@@ -17,6 +17,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 define( 'TSK_PATH', plugin_dir_path( __FILE__ ) );
 define( 'TSK_URL',  plugin_dir_url( __FILE__ ) );
 const TSK_DOMAIN = 'triskelion-toolkit';
+const TRISKELION_TOOLKIT_CORE = 'triskelion-toolkit-core';
+const TSK_ACTIVE_MODULES = 'tsk_active_modules';
+const TSK_SETTINGS_GROUP = 'tsk_settings_group';
+const HOOK_REGISTER_SCRIPTS = 'tsk_register_vendor_scripts';
+const HOOK_REGISTER_STYLES = 'tsk_register_vendor_styles';
+const TSK_VERSION = '1.0.0';
+
 
 
 /* Autoloader (PSR-4 Style) */
@@ -42,10 +49,8 @@ add_action( 'init', function() {
 	$domain = TSK_DOMAIN;
 	$locale = get_locale(); // Supongamos que es 'es_PE'
 
-	// 1. Intentamos la carga estándar (buscará triskelion-toolkit-es_PE.mo)
 	load_plugin_textdomain( $domain, false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 
-	// 2. Si WP falló (no cargó nada) y el idioma es español de cualquier país...
 	if ( ! is_textdomain_loaded( $domain ) && str_starts_with( $locale, 'es_' ) ) {
 		$lang_base = substr( $locale, 0, 2 );
 		$mofile = plugin_dir_path( __FILE__ ) . "languages/$domain-$lang_base.mo";

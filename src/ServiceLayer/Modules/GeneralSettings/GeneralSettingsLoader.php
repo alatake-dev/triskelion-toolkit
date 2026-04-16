@@ -2,9 +2,10 @@
 namespace Triskelion\Toolkit\Modules\GeneralSettings;
 
 use Triskelion\Toolkit\Core\AbstractModuleLoader;
+use Triskelion\Toolkit\Core\SettingsProviderInterface;
 use Triskelion\Toolkit\Core\Toolkit;
 
-class GeneralSettingsLoader extends AbstractModuleLoader {
+class GeneralSettingsLoader extends AbstractModuleLoader implements SettingsProviderInterface{
 
     public function load(): void { }
 
@@ -27,7 +28,7 @@ class GeneralSettingsLoader extends AbstractModuleLoader {
     }
 
     private function render_module_row( string $id, array $data ): void {
-        $active_map = (array) get_option( Toolkit::TSK_ACTIVE_MODULES, [] );
+        $active_map = (array) get_option( TSK_ACTIVE_MODULES, [] );
         $is_active  = ! empty( $active_map[$id] );
         ?>
         <div class="tsk-module-card">
