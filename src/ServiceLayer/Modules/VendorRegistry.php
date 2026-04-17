@@ -44,7 +44,7 @@ class VendorRegistry {
         window.Prism = window.Prism || {};
         Prism.plugins = Prism.plugins || {};
         Prism.plugins.autoloader = Prism.plugins.autoloader || {};
-        Prism.plugins.autoloader.languages_path = '{$components_path}';
+        Prism.plugins.autoloader.languages_path = '$components_path';
     ";
 
 		wp_add_inline_script('tsk-prism-core', $inline_config, 'before');

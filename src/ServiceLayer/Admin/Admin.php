@@ -2,19 +2,29 @@
 namespace Triskelion\Toolkit\Admin;
 
 use Triskelion\Toolkit\Core\Toolkit;
+use Triskelion\Toolkit\Modules\ModuleRegistry;
+use Triskelion\Toolkit\Core\SettingsProviderInterface;
 
 class Admin {
     public static function init(): void {
-        add_action('admin_menu', [self::class, 'add_menu_page']);
-        add_action('admin_init', [self::class, 'register_settings']);
+        add_action( 'admin_menu', [ self::class, 'add_menu_page' ] );
+        add_action( 'admin_init', [ self::class, 'register_settings' ] );
 
         $plugin_base = 'triskelion-toolkit/triskelion-toolkit.php';
-        add_filter("plugin_action_links_$plugin_base", [self::class, 'add_settings_link']);
+        add_filter( "plugin_action_links_$plugin_base", [ self::class, 'add_settings_link' ] );
+
     }
 
-    public static function add_settings_link($links) {
-        $settings_link = '<a href="' . admin_url('tools.php?page=triskelion-toolkit') . '">GeneralSettings</a>';
-        array_unshift($links, $settings_link);
+    /**
+     * Agrega el enlace de "Settings" en la lista de plugins.
+     */
+    public static function add_settings_link( $links ) {
+        $settings_link = sprintf(
+                '<a href="%s">%s</a>',
+                admin_url( 'tools.php?page=triskelion-toolkit' ),
+                __( 'Settings', TSK_DOMAIN )
+        );
+        array_unshift( $links, $settings_link );
         return $links;
     }
 
@@ -24,33 +34,41 @@ class Admin {
                 __( 'Triskelion Toolkit', TSK_DOMAIN ),
                 'manage_options',
                 TSK_DOMAIN,
-                [self::class, 'render_admin_page']
+                [ self::class, 'render_admin_page' ]
         );
 
-        add_action("admin_print_styles-$hook", [self::class, 'enqueue_admin_assets']);
+        add_action( "admin_print_styles-$hook", [ self::class, 'enqueue_admin_assets' ] );
     }
 
     public static function enqueue_admin_assets(): void {
-        wp_enqueue_style('tsk-admin-styles');
+        wp_enqueue_style( 'tsk-admin-styles' );
     }
+
+// En src/ServiceLayer/Admin/Admin.php
 
     public static function register_settings(): void {
-        // Solo registramos la opción. No necesitamos sections ni fields de WP
-        // porque estamos haciendo nuestro propio render dinámico por UX.
-        register_setting('tsk_settings', Toolkit::TSK_ACTIVE_MODULES);
-    }
+        register_setting( 'tsk_general_group', TSK_ACTIVE_MODULES );
 
+        // Lo que es de los Módulos
+        $modules = Toolkit::get_modules();
+
+        foreach ( $modules as $id => $data ) {
+            if ( empty( $data['class'] ) ) continue;
+
+            if ( is_subclass_of( $data['class'], SettingsProviderInterface::class ) ) {
+                $loader = new $data['class']( $id );
+                $loader->register_module_settings();
+            }
+        }
+    }
     /**
-     * ORQUESTADOR PRINCIPAL
-     */
-    /**
-     * ORQUESTADOR PRINCIPAL - Versión Limpia
+     * Renderizado principal de la página de administración.
      */
     public static function render_admin_page(): void {
         $current_tab = self::get_current_tab();
         $modules     = Toolkit::get_modules();
-        $active_map  = (array) get_option( Toolkit::TSK_ACTIVE_MODULES, [] );
 
+        $active_map  = (array) get_option( TSK_ACTIVE_MODULES, [] );
         if ( ! self::can_access_tab( $current_tab, $modules, $active_map ) ) {
             self::render_access_denied();
             return;
@@ -66,8 +84,11 @@ class Admin {
 
         $instance = Toolkit::get_module_instance( $current_tab );
 
-        if ( $instance && method_exists( $instance, 'render_settings' ) ) {
-            $instance->render_settings();
+        if ( $instance instanceof SettingsProviderInterface ) {
+            if ( method_exists( $instance, 'enqueue_module_styles' ) ) {
+                $instance->enqueue_module_styles();
+            }
+            $instance->render_module_settings();
         } else {
             self::render_module_error_notice();
         }
@@ -76,6 +97,7 @@ class Admin {
         echo '</div>';
         echo '</div>';
     }
+
     private static function render_header(): void {
         ?>
         <header class="tsk-header">
@@ -88,29 +110,30 @@ class Admin {
     }
 
     private static function render_tab_menu( string $current_tab, array $modules, array $active_map ): void {
-        ?>
-        <aside class="tsk-admin-nav">
-            <nav class="tsk-tab-menu">
-                <?php foreach ( $modules as $id => $data ) :
-                    $is_core      = ! empty( $data['is_core'] ); // Usamos la nueva bandera
-                    $is_active    = ! empty( $active_map[$id] );
-                    $has_settings = ! isset( $data['has_settings'] ) || $data['has_settings'] === true;
+        echo '<nav class="tsk-admin-sidebar">';
 
-                    if ( ! $is_core && ( ! $is_active || ! $has_settings ) ) continue;
+        foreach ( $modules as $id => $data ) {
+            $is_core = isset( $data['is_core'] ) && (bool) $data['is_core'] === true;
 
-                    $active_class = ( $current_tab === $id ) ? 'active' : '';
-                    $tab_url      = admin_url( 'tools.php?page=triskelion-toolkit&tab=' . $id );
-                    ?>
-                    <a href="<?php echo esc_url( $tab_url ); ?>" class="tsk-tab-link <?php echo esc_attr( $active_class ); ?>">
-                        <span class="dashicons <?php echo esc_attr( $data['icon'] ?? 'dashicons-admin-generic' ); ?>"></span>
-                        <?php echo esc_html( $data['name'] ); ?>
-                    </a>
-                <?php endforeach; ?>
-            </nav>
-        </aside>
-        <?php
+            $is_active = ! empty( $active_map[ $id ] );
+
+            $has_settings = ModuleRegistry::has_settings( $data['class'] );
+
+            if ( $is_core || ( $is_active && $has_settings )) {
+                $active_class = ( $current_tab === $id ) ? 'is-active' : '';
+                $url = admin_url( 'tools.php?page=triskelion-toolkit&tab=' . $id );
+
+                printf(
+                        '<a href="%s" class="tsk-tab-link %s">%s</a>',
+                        esc_url( $url ),
+                        esc_attr( $active_class ),
+                        esc_html( $data['name'] )
+                );
+            }
+        }
+
+        echo '</nav>';
     }
-
 
     private static function render_module_error_notice(): void {
         ?>
@@ -121,27 +144,33 @@ class Admin {
     }
 
     private static function get_current_tab(): string {
-        return isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'general_settings';
+        return isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'general_settings';
     }
 
     private static function can_access_tab( string $current_tab, array $modules, array $active_map ): bool {
-        if ( ! array_key_exists( $current_tab, $modules ) ) return false;
+        if ( ! array_key_exists( $current_tab, $modules ) ) {
+            return false;
+        }
 
-        // Si es CORE (General, Diagnostic), siempre tiene acceso
-        if ( ! empty( $modules[$current_tab]['is_core'] ) ) return true;
+        $data = $modules[ $current_tab ];
+        if ( empty( $data['class'] ) ) {
+            return false;
+        }
+        if( isset( $data['is_core'] ) && (bool) $data['is_core'] === true){
+            return true;
+        }
+        $is_active = ! empty( $active_map[ $current_tab ] );
 
-        $is_active    = ! empty( $active_map[$current_tab] );
-        $has_settings = ! isset( $modules[$current_tab]['has_settings'] ) || $modules[$current_tab]['has_settings'] === true;
-
-        return $is_active && $has_settings;
+        return $is_active && \Triskelion\Toolkit\Modules\ModuleRegistry::has_settings( $data['class'] );
     }
+
     private static function render_access_denied(): void {
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'Access Denied', TSK_DOMAIN ); ?></h1>
             <p><?php esc_html_e( 'This section is not available or does not require configuration.', TSK_DOMAIN ); ?></p>
-            <a href="<?php echo admin_url( 'tools.php?page=triskelion-toolkit' ); ?>" class="button button-primary">
-                <?php esc_html_e( 'Back to General', TSK_DOMAIN ); ?>
+            <a href="<?php echo admin_url( 'tools.php?page=triskelion-toolkit' ); ?>" class="button">
+                <?php esc_html_e( 'Back to Settings', TSK_DOMAIN ); ?>
             </a>
         </div>
         <?php

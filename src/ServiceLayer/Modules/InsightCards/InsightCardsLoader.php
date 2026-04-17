@@ -2,8 +2,9 @@
 namespace Triskelion\Toolkit\Modules\InsightCards;
 
 use Triskelion\Toolkit\Core\AbstractBlockLoader;
+use Triskelion\Toolkit\Core\SettingsProviderInterface;
 
-class InsightCardsLoader extends AbstractBlockLoader {
+class InsightCardsLoader extends AbstractBlockLoader implements SettingsProviderInterface{
 	protected function get_block_name(): string {
 		return 'insight-cards';
 	}
@@ -23,4 +24,8 @@ class InsightCardsLoader extends AbstractBlockLoader {
 		</div>
 		<?php
 	}
+
+    public function register_module_settings(): void {
+        // silence is golden
+    }
 }
