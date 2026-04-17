@@ -91,4 +91,25 @@ class GeneralSettingsLoader extends AbstractModuleLoader implements SettingsProv
         }
     ";
     }
+
+    public function register_module_settings(): void {
+        register_setting(
+                $this->get_settings_group(),
+                TSK_ACTIVE_MODULES,
+                [
+                        'type'              => 'array',
+                        'sanitize_callback' => [ $this, 'sanitize_module_settings' ],
+
+                ]
+        );
+    }
+    public function sanitize_module_settings( $input ): array {
+        $ret_val = [];
+        if ( is_array( $input ) ) {
+            foreach ( $input as $module_id => $value ) {
+                $ret_val[ sanitize_key( $module_id ) ] = true;
+            }
+        }
+        return $ret_val;
+    }
 }

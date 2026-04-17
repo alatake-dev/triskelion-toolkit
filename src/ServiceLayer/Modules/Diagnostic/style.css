@@ -1,0 +1,88 @@
+/* Contenedor de Configuración (Limpio/WP Style) */
+.tsk-diagnostic-settings-container {
+    background: #fff;
+    padding: 10px 25px;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    margin-bottom: 40px;
+}
+
+/* Wrapper de la Terminal (Oscuro/Técnico) */
+.tsk-terminal-wrapper {
+    margin-top: 20px;
+    border: 1px solid #1a1a1a;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.tsk-terminal-header {
+    background: #2c3338; /* Gris corporativo WP */
+    color: #fff;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tsk-terminal-header h3 {
+    color: #fff !important;
+    margin: 0 !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.5px;
+}
+
+.tsk-terminal-header h3 .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+}
+
+/* La Consola Negra */
+.tsk-log-container {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    width: 100% !important;
+    height: 550px !important;
+    padding: 20px !important;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+    font-size: 13px !important;
+    line-height: 1.6 !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    white-space: pre;
+    resize: vertical;
+    display: block;
+    margin: 0 !important;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Botones dentro de la Terminal */
+.tsk-terminal-actions .button {
+    background: #444 !important;
+    border-color: #111 !important;
+    color: #fff !important;
+    font-size: 11px !important;
+    height: 28px !important;
+    line-height: 26px !important;
+}
+
+.tsk-terminal-actions .button:hover {
+    background: #555 !important;
+}
+
+.tsk-btn-success {
+    background: #2e7d32 !important;
+    border-color: #1b5e20 !important;
+}
+
+.tsk-switch.tsk-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.tsk-switch.tsk-disabled .tsk-slider {
+    background-color: #dcdcde !important;
+}

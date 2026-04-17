@@ -24,14 +24,12 @@ return [
 		'priority'     => 101,
 		'icon'         => 'dashicons-format-quote'
 	],
-	/*
 	'diagnostic' => [
 		'name'         => __( 'Logs & Diagnostic', TSK_DOMAIN ),
 		'description'  => __( 'Monitor system health, view activity logs, and troubleshoot module performance.', TSK_DOMAIN ),
-		'class'        => DiagnosticLoader::class,
+		'class'        => \Triskelion\Toolkit\Modules\Diagnostic\DiagnosticLoader::class,
 		'is_core'      => true,
 		'priority'     => 900,
 		'icon'         => 'dashicons-rest-api' // O 'dashicons-visibility'
 	],
-*/
 ];

@@ -13,18 +13,26 @@
 // Si alguien intenta acceder directamente al archivo, adiós.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-// Definir constantes de ruta
-define( 'TSK_PATH', plugin_dir_path( __FILE__ ) );
-define( 'TSK_URL',  plugin_dir_url( __FILE__ ) );
-const TSK_DOMAIN = 'triskelion-toolkit';
-const TRISKELION_TOOLKIT_CORE = 'triskelion-toolkit-core';
-const TSK_ACTIVE_MODULES = 'tsk_active_modules';
-const TSK_SETTINGS_GROUP = 'tsk_settings_group';
-const HOOK_REGISTER_SCRIPTS = 'tsk_register_vendor_scripts';
-const HOOK_REGISTER_STYLES = 'tsk_register_vendor_styles';
-const TSK_VERSION = '1.0.0';
+// --- Rutas y Archivos (Dinámicos) ---
+define( 'TSK_FILE',    __FILE__ );
+define( 'TSK_PATH',    plugin_dir_path( __FILE__ ) );
+define( 'TSK_URL',     plugin_dir_url( __FILE__ ) );
 
+// --- Identificadores y Versión (Estáticos) ---
+define( 'TSK_DOMAIN',               'triskelion-toolkit' );
+define( 'TSK_VERSION',              '1.1.0' ); // Súbele a 1.1.0 por el refactor
+define( 'TRISKELION_TOOLKIT_CORE',  'triskelion-toolkit-core' );
 
+// --- Base de Datos y Settings ---
+define( 'TSK_ACTIVE_MODULES',       'tsk_active_modules' );
+define( 'TSK_SETTINGS_GROUP',       'tsk_settings_group' );
+
+// --- Hooks del Framework ---
+define( 'HOOK_REGISTER_SCRIPTS',    'tsk_register_vendor_scripts' );
+define( 'HOOK_REGISTER_STYLES',     'tsk_register_vendor_styles' );
+
+define( 'TSK_LOG_LEVEL', 'debug' );
+//define( 'TSK_LOG_ENABLED', true );
 
 /* Autoloader (PSR-4 Style) */
 spl_autoload_register(function ($class) {

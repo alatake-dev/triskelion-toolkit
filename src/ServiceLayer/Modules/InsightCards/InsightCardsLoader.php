@@ -24,4 +24,8 @@ class InsightCardsLoader extends AbstractBlockLoader implements SettingsProvider
 		</div>
 		<?php
 	}
+
+    public function register_module_settings(): void {
+        // silence is golden
+    }
 }
