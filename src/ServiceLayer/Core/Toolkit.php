@@ -11,6 +11,7 @@ class Toolkit {
 
 
 	public static function init(): void {
+		Logger::init();
 
 		self::ignite_modules();
 		add_action( 'init', [ self::class, 'register_core_assets' ], 1 );
@@ -76,7 +77,7 @@ class Toolkit {
 	}
 
 	public static function load_active_modules(): void {
-		error_log( "📦 TRISKELION: Ejecutando carga de módulos..." );
+		Logger::debug("Ejecutando carga de módulos desde ModuleRegistry.");
 
 		$active_map = (array) get_option( TSK_ACTIVE_MODULES, [] );
 		$modules    = self::get_modules();
@@ -87,25 +88,14 @@ class Toolkit {
 			}
 
 			$class_name = $data['class'];
-			$loader = new $class_name();
+			$loader = new $class_name( $id );
 
 			// Si es un bloque, su load() agendará el registro en Gutenberg
 			if ( $loader instanceof AbstractModuleLoader ) {
 				$loader->load();
-				error_log( "✅ Módulo instanciado y cargado: " . $id );
+				Logger::debug("Módulo cargado con éxito: " . $id);
 			}
 		}
-	}
-
-	public static function log( string $message, string $level = 'info', array $context = [] ): void {
-		if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) {
-			return;
-		}
-
-		$prefix = "[Triskelion Toolkit][$level]";
-		$extra  = ! empty( $context ) ? ' | Context: ' . json_encode( $context ) : '';
-
-		error_log( "$prefix: $message$extra" );
 	}
 
 	public static function get_module_instance( string $id ) {
@@ -121,7 +111,7 @@ class Toolkit {
 
 		// Verificamos si la clase existe antes de instanciar
 		if ( class_exists( $class ) ) {
-			self::$loaded_instances[ $id ] = new $class();
+			self::$loaded_instances[ $id ] = new $class( $id);
 			return self::$loaded_instances[ $id ];
 		}
 

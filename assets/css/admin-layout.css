@@ -175,3 +175,13 @@
 .tsk-switch input:focus + .tsk-slider {
     box-shadow: 0 0 0 2px #fff, 0 0 0 4px #2271b1;
 }
+
+.tsk-badge {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.tsk-badge-active { background: #e7f9ed; color: #22733b; border: 1px solid #b7e8c5; }
+.tsk-badge-inactive { background: #f0f0f1; color: #646970; border: 1px solid #dcdcde; }

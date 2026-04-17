@@ -4,6 +4,7 @@ namespace Triskelion\Toolkit\Modules;
 
 use ReflectionClass;
 use ReflectionException;
+use Triskelion\Toolkit\Core\Logger;
 
 class ModuleRegistry {
 	private static array $modules = [];
@@ -17,15 +18,15 @@ class ModuleRegistry {
 	}
 	public static function has_settings( string $class_name ): bool {
 		try {
-			// Forzamos el autoloader (true)
 			if ( ! class_exists( $class_name, true ) ) {
-				error_log("❌ Registry: Clase no encontrada: " . $class_name);
+				Logger::error("Registry: Clase no encontrada -> " . $class_name);
 				return false;
 			}
 
 			$reflection = new ReflectionClass( $class_name );
 			return $reflection->implementsInterface( \Triskelion\Toolkit\Core\SettingsProviderInterface::class );
 		} catch ( ReflectionException $e ) {
+			Logger::error("Registry: Error al analizar la clase -> " . $class_name) . " | " . $e->getMessage();
 			return false;
 		}
 	}

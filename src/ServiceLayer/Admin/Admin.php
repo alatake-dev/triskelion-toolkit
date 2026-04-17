@@ -12,6 +12,7 @@ class Admin {
 
         $plugin_base = 'triskelion-toolkit/triskelion-toolkit.php';
         add_filter( "plugin_action_links_$plugin_base", [ self::class, 'add_settings_link' ] );
+
     }
 
     /**
@@ -43,10 +44,23 @@ class Admin {
         wp_enqueue_style( 'tsk-admin-styles' );
     }
 
-    public static function register_settings(): void {
-        register_setting( TSK_SETTINGS_GROUP, TSK_ACTIVE_MODULES );
-    }
+// En src/ServiceLayer/Admin/Admin.php
 
+    public static function register_settings(): void {
+        register_setting( 'tsk_general_group', TSK_ACTIVE_MODULES );
+
+        // Lo que es de los Módulos
+        $modules = Toolkit::get_modules();
+
+        foreach ( $modules as $id => $data ) {
+            if ( empty( $data['class'] ) ) continue;
+
+            if ( is_subclass_of( $data['class'], SettingsProviderInterface::class ) ) {
+                $loader = new $data['class']( $id );
+                $loader->register_module_settings();
+            }
+        }
+    }
     /**
      * Renderizado principal de la página de administración.
      */
@@ -70,9 +84,11 @@ class Admin {
 
         $instance = Toolkit::get_module_instance( $current_tab );
 
-        // La validación definitiva: Contrato por Interface
         if ( $instance instanceof SettingsProviderInterface ) {
-            $instance->render_settings();
+            if ( method_exists( $instance, 'enqueue_module_styles' ) ) {
+                $instance->enqueue_module_styles();
+            }
+            $instance->render_module_settings();
         } else {
             self::render_module_error_notice();
         }

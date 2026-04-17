@@ -106,4 +106,8 @@ class CodeShowcaseBlockLoader extends AbstractBlockLoader implements SettingsPro
         echo "<h4>" . esc_html__('Code Showcase', TSK_DOMAIN) . "</h4>";
         echo "<p>" . esc_html__('Dynamic block is active and managing Prism highlighting.', TSK_DOMAIN) . "</p>";
     }
+
+    public function register_module_settings(): void {
+        // silence is golden
+    }
 }
