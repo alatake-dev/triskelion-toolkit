@@ -50,7 +50,7 @@ class Toolkit {
 
 		wp_set_script_translations(
 			TRISKELION_TOOLKIT_CORE,
-			TSK_DOMAIN,
+			'triskelion-toolkit',
 			TSK_PATH . 'languages'
 		);
 	}

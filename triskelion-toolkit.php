@@ -19,7 +19,6 @@ define( 'TSK_PATH',    plugin_dir_path( __FILE__ ) );
 define( 'TSK_URL',     plugin_dir_url( __FILE__ ) );
 
 // --- Identificadores y Versión (Estáticos) ---
-define( 'TSK_DOMAIN',               'triskelion-toolkit' );
 define( 'TSK_VERSION',              '1.1.0' ); // Súbele a 1.1.0 por el refactor
 define( 'TRISKELION_TOOLKIT_CORE',  'triskelion-toolkit-core' );
 
@@ -53,7 +52,7 @@ spl_autoload_register(function ($class) {
 
 
 add_action( 'init', function() {
-	$domain = TSK_DOMAIN;
+	$domain = 'triskelion-toolkit';
 	$locale = get_locale(); // Supongamos que es 'es_PE'
 
 	load_plugin_textdomain( $domain, false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
@@ -70,7 +69,7 @@ add_action( 'init', function() {
 
 add_filter( 'load_script_translation_file', function( $file, $handle, $domain ) {
 	// Solo actuamos sobre nuestro dominio
-	if ( TSK_DOMAIN !== $domain ) {
+	if ( 'triskelion-toolkit' !== $domain ) {
 		return $file;
 	}
 
@@ -90,7 +89,7 @@ add_filter( 'load_script_translation_file', function( $file, $handle, $domain ) 
 }, 10, 3 );
 
 add_filter( 'plugin_locale', function( $locale, $domain ) {
-	if ( TSK_DOMAIN === $domain ) {
+	if ( 'triskelion-toolkit' === $domain ) {
 		// Si el locale empieza con "es_" (es_MX, es_PE, es_ES, etc.)
 		// forzamos a que busque simplemente "es"
 		if ( str_starts_with( $locale, 'es_' ) ) {

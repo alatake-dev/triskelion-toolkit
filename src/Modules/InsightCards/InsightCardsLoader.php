@@ -19,8 +19,8 @@ class InsightCardsLoader extends AbstractBlockLoader implements SettingsProvider
 	protected function render_header(): void {
 		?>
 		<div class="tsk-tab-header">
-			<h2><?php esc_html_e( 'InsightCards', TSK_DOMAIN ); ?></h2>
-			<p class="description"><?php esc_html_e( 'InsightCards configuration', TSK_DOMAIN ); ?></p>
+			<h2><?php esc_html_e( 'InsightCards', 'triskelion-toolkit' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'InsightCards configuration', 'triskelion-toolkit' ); ?></p>
 		</div>
 		<?php
 	}

@@ -22,7 +22,7 @@ class Admin {
         $settings_link = sprintf(
                 '<a href="%s">%s</a>',
                 admin_url( 'tools.php?page=triskelion-toolkit' ),
-                __( 'Settings', TSK_DOMAIN )
+                __( 'Settings', 'triskelion-toolkit' )
         );
         array_unshift( $links, $settings_link );
         return $links;
@@ -30,10 +30,10 @@ class Admin {
 
     public static function add_menu_page(): void {
         $hook = add_management_page(
-                __( 'Triskelion Toolkit', TSK_DOMAIN ),
-                __( 'Triskelion Toolkit', TSK_DOMAIN ),
+                __( 'Triskelion Toolkit', 'triskelion-toolkit' ),
+                __( 'Triskelion Toolkit', 'triskelion-toolkit' ),
                 'manage_options',
-                TSK_DOMAIN,
+                'triskelion-toolkit',
                 [ self::class, 'render_admin_page' ]
         );
 
@@ -104,7 +104,7 @@ class Admin {
             <div class="tsk-logo-placeholder">
                 <span>LOGO TRISKELION</span>
             </div>
-            <h1><?php esc_html_e( 'Triskelion Toolkit', TSK_DOMAIN ); ?></h1>
+            <h1><?php esc_html_e( 'Triskelion Toolkit', 'triskelion-toolkit' ); ?></h1>
         </header>
         <?php
     }
@@ -138,7 +138,7 @@ class Admin {
     private static function render_module_error_notice(): void {
         ?>
         <div class="notice notice-warning inline">
-            <p><?php esc_html_e( 'This module is active but its settings are not available.', TSK_DOMAIN ); ?></p>
+            <p><?php esc_html_e( 'This module is active but its settings are not available.', 'triskelion-toolkit' ); ?></p>
         </div>
         <?php
     }
@@ -167,10 +167,10 @@ class Admin {
     private static function render_access_denied(): void {
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Access Denied', TSK_DOMAIN ); ?></h1>
-            <p><?php esc_html_e( 'This section is not available or does not require configuration.', TSK_DOMAIN ); ?></p>
+            <h1><?php esc_html_e( 'Access Denied', 'triskelion-toolkit' ); ?></h1>
+            <p><?php esc_html_e( 'This section is not available or does not require configuration.', 'triskelion-toolkit' ); ?></p>
             <a href="<?php echo admin_url( 'tools.php?page=triskelion-toolkit' ); ?>" class="button">
-                <?php esc_html_e( 'Back to Settings', TSK_DOMAIN ); ?>
+                <?php esc_html_e( 'Back to Settings', 'triskelion-toolkit' ); ?>
             </a>
         </div>
         <?php

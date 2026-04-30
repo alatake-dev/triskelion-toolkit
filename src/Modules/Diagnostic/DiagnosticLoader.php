@@ -79,13 +79,13 @@ class DiagnosticLoader extends AbstractModuleLoader implements SettingsProviderI
         if ( $forced_enabled || $forced_level ) {
             echo '<div class="notice notice-warning inline" style="margin-bottom: 20px; border-left-width: 4px;">';
             echo '<p><span class="dashicons dashicons-lock" style="font-size:16px; vertical-align:middle;"></span> ';
-            _e( 'Algunos valores están bloqueados por el sistema (wp-config.php).', TSK_DOMAIN );
+            _e( 'Algunos valores están bloqueados por el sistema (wp-config.php).', 'triskelion-toolkit' );
             echo '</p></div>';
         }
         ?>
         <table class="form-table" role="presentation">
             <tr>
-                <th scope="row"><?php _e( 'Enable Debug Logging', TSK_DOMAIN ); ?></th>
+                <th scope="row"><?php _e( 'Enable Debug Logging', 'triskelion-toolkit' ); ?></th>
                 <td>
                     <label class="tsk-switch <?php echo $forced_enabled ? 'tsk-disabled' : ''; ?>">
                         <input type="checkbox"
@@ -97,13 +97,13 @@ class DiagnosticLoader extends AbstractModuleLoader implements SettingsProviderI
                     </label>
                     <?php if ( $forced_enabled ) : ?>
                         <span class="description" style="margin-left:12px; color: #646970; font-style: italic;">
-                        <?php _e( '(Definido en código)', TSK_DOMAIN ); ?>
+                        <?php _e( '(Definido en código)', 'triskelion-toolkit' ); ?>
                     </span>
                     <?php endif; ?>
                 </td>
             </tr>
             <tr>
-                <th scope="row"><?php _e( 'Log Level', TSK_DOMAIN ); ?></th>
+                <th scope="row"><?php _e( 'Log Level', 'triskelion-toolkit' ); ?></th>
                 <td>
                     <select name="tsk_settings_diagnostic[level]" <?php disabled( $forced_level ); ?>>
                         <?php
@@ -116,7 +116,7 @@ class DiagnosticLoader extends AbstractModuleLoader implements SettingsProviderI
                     </select>
                     <?php if ( $forced_level ) : ?>
                         <span class="description" style="margin-left:12px; color: #646970; font-style: italic;">
-                        <?php printf( __( '(Forzado a %s)', TSK_DOMAIN ), strtoupper($val_level) ); ?>
+                        <?php printf( __( '(Forzado a %s)', 'triskelion-toolkit' ), strtoupper($val_level) ); ?>
                     </span>
                     <?php endif; ?>
                 </td>
@@ -134,11 +134,11 @@ class DiagnosticLoader extends AbstractModuleLoader implements SettingsProviderI
 
         ?>
         <div class="tsk-diagnostic-section">
-            <h3><?php _e( 'Configuration & Overrides', TSK_DOMAIN ); ?></h3>
+            <h3><?php _e( 'Configuration & Overrides', 'triskelion-toolkit' ); ?></h3>
 
             <table class="form-table">
                 <tr>
-                    <th scope="row"><?php _e( 'Enable Logging', TSK_DOMAIN ); ?></th>
+                    <th scope="row"><?php _e( 'Enable Logging', 'triskelion-toolkit' ); ?></th>
                     <td>
                         <label class="tsk-switch">
                             <input type="checkbox"
@@ -151,13 +151,13 @@ class DiagnosticLoader extends AbstractModuleLoader implements SettingsProviderI
                         <?php if ( $has_debug_override ) : ?>
                             <p class="description">
                                 <span class="dashicons dashicons-lock"></span>
-                                <?php _e( 'Forced via TSK_DEBUG in wp-config.php', TSK_DOMAIN ); ?>
+                                <?php _e( 'Forced via TSK_DEBUG in wp-config.php', 'triskelion-toolkit' ); ?>
                             </p>
                         <?php endif; ?>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><?php _e( 'Log Level', TSK_DOMAIN ); ?></th>
+                    <th scope="row"><?php _e( 'Log Level', 'triskelion-toolkit' ); ?></th>
                     <td>
                         <select name="tsk_settings_diagnostic[level]" class="tsk-select" <?php disabled( $has_level_override ); ?>>
                             <?php foreach ( ['debug', 'info', 'warn', 'error', 'off'] as $lvl ) : ?>
@@ -169,7 +169,7 @@ class DiagnosticLoader extends AbstractModuleLoader implements SettingsProviderI
                         <?php if ( $has_level_override ) : ?>
                             <p class="description">
                                 <span class="dashicons dashicons-lock"></span>
-                                <?php _e( 'Forced via TSK_LOG_LEVEL in wp-config.php', TSK_DOMAIN ); ?>
+                                <?php _e( 'Forced via TSK_LOG_LEVEL in wp-config.php', 'triskelion-toolkit' ); ?>
                             </p>
                         <?php endif; ?>
                     </td>
@@ -184,13 +184,13 @@ class DiagnosticLoader extends AbstractModuleLoader implements SettingsProviderI
         $active  = (array) get_option( TSK_ACTIVE_MODULES, [] );
         ?>
         <div class="tsk-diagnostic-section" style="margin-top: 40px;">
-            <h3><?php esc_html_e( 'Active Components', TSK_DOMAIN ); ?></h3>
+            <h3><?php esc_html_e( 'Active Components', 'triskelion-toolkit' ); ?></h3>
             <table class="widefat striped tsk-info-table">
                 <thead>
                 <tr>
-                    <th><?php esc_html_e( 'Module', TSK_DOMAIN ); ?></th>
-                    <th><?php esc_html_e( 'Status', TSK_DOMAIN ); ?></th>
-                    <th><?php esc_html_e( 'Type', TSK_DOMAIN ); ?></th>
+                    <th><?php esc_html_e( 'Module', 'triskelion-toolkit' ); ?></th>
+                    <th><?php esc_html_e( 'Status', 'triskelion-toolkit' ); ?></th>
+                    <th><?php esc_html_e( 'Type', 'triskelion-toolkit' ); ?></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -226,19 +226,19 @@ class DiagnosticLoader extends AbstractModuleLoader implements SettingsProviderI
         ?>
         <div class="tsk-terminal-wrapper">
             <div class="tsk-terminal-header">
-                <h3><span class="dashicons dashicons-terminal"></span> <?php _e( 'System Telemetry', TSK_DOMAIN ); ?></h3>
+                <h3><span class="dashicons dashicons-terminal"></span> <?php _e( 'System Telemetry', 'triskelion-toolkit' ); ?></h3>
                 <div class="tsk-terminal-actions">
                     <button type="button" class="button button-secondary" onclick="window.location.reload();">
-                        <span class="dashicons dashicons-update"></span> <?php _e( 'Refresh', TSK_DOMAIN ); ?>
+                        <span class="dashicons dashicons-update"></span> <?php _e( 'Refresh', 'triskelion-toolkit' ); ?>
                     </button>
                     <button type="button" class="button button-secondary tsk-copy-btn" onclick="tskCopyToClipboard()">
-                        <span class="dashicons dashicons-clipboard"></span> <?php _e( 'Copy Logs', TSK_DOMAIN ); ?>
+                        <span class="dashicons dashicons-clipboard"></span> <?php _e( 'Copy Logs', 'triskelion-toolkit' ); ?>
                     </button>
                 </div>
             </div>
             <textarea readonly id="tsk-terminal" class="tsk-log-container" spellcheck="false"><?php echo esc_textarea( trim($log_content) ); ?></textarea>
         </div>
-        <p class="description"><?php _e( 'Viewing last 100 entries from triskelion.log', TSK_DOMAIN ); ?></p>
+        <p class="description"><?php _e( 'Viewing last 100 entries from triskelion.log', 'triskelion-toolkit' ); ?></p>
 
         <script>
             function tskCopyToClipboard() {
@@ -246,7 +246,7 @@ class DiagnosticLoader extends AbstractModuleLoader implements SettingsProviderI
                 const btn = document.querySelector('.tsk-copy-btn');
                 navigator.clipboard.writeText(textarea.value).then(() => {
                     const originalHTML = btn.innerHTML;
-                    btn.innerHTML = '<span class="dashicons dashicons-yes"></span> <?php _e( "Copied!", TSK_DOMAIN ); ?>';
+                    btn.innerHTML = '<span class="dashicons dashicons-yes"></span> <?php _e( "Copied!", 'triskelion-toolkit' ); ?>';
                     btn.classList.add('tsk-btn-success');
                     setTimeout(() => {
                         btn.innerHTML = originalHTML;
@@ -264,8 +264,8 @@ class DiagnosticLoader extends AbstractModuleLoader implements SettingsProviderI
     protected function render_header(): void {
         ?>
         <div class="tsk-tab-header">
-            <h2><?php esc_html_e( 'Logs & Diagnostic', TSK_DOMAIN ); ?></h2>
-            <p class="description"><?php esc_html_e( 'Real-time monitoring and internal toolkit configuration.', TSK_DOMAIN ); ?></p>
+            <h2><?php esc_html_e( 'Logs & Diagnostic', 'triskelion-toolkit' ); ?></h2>
+            <p class="description"><?php esc_html_e( 'Real-time monitoring and internal toolkit configuration.', 'triskelion-toolkit' ); ?></p>
         </div>
         <?php
     }

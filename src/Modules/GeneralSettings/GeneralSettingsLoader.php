@@ -2,10 +2,14 @@
 namespace Triskelion\TriskelionToolkit\Modules\GeneralSettings;
 
 use Triskelion\TriskelionToolkit\Core\AbstractModule;
+use Triskelion\TriskelionToolkit\Core\Data\ModuleConfig;
+use Triskelion\TriskelionToolkit\Core\Data\ModuleConfigBuilder;
+use Triskelion\TriskelionToolkit\Core\Interfaces\RegistrableModuleInterface;
+use Triskelion\TriskelionToolkit\Core\Interfaces\SettingsInterface;
 use Triskelion\TriskelionToolkit\Modules\GeneralSettings\ServiceLayer\SettingsService;
 use Triskelion\TriskelionToolkit\Modules\GeneralSettings\ViewLayer\AdminInterface;
 
-class GeneralSettingsLoader extends AbstractModule{
+class GeneralSettingsLoader extends AbstractModule implements SettingsInterface, RegistrableModuleInterface {
 
     protected function register() {
         new SettingsService();
@@ -20,8 +24,8 @@ class GeneralSettingsLoader extends AbstractModule{
     protected function render_header(): void {
         ?>
         <div class="tsk-tab-header">
-            <h2><?php esc_html_e( 'Suite Management', TSK_DOMAIN ); ?></h2>
-            <p class="description"><?php esc_html_e( 'Activate or deactivate modules.', TSK_DOMAIN ); ?></p>
+            <h2><?php esc_html_e( 'Suite Management', 'triskelion-toolkit' ); ?></h2>
+            <p class="description"><?php esc_html_e( 'Activate or deactivate modules.', 'triskelion-toolkit' ); ?></p>
         </div>
         <?php
     }
@@ -122,4 +126,67 @@ class GeneralSettingsLoader extends AbstractModule{
     }
 
     */
+// src/Modules/GeneralSettings/GeneralSettingsLoader.php
+
+	public function render_settings(): string {
+		$manifest = Kernel::get_manifest();
+		$db_settings = get_option( 'triskelion_modules_settings', [] );
+
+		ob_start();
+		?>
+		<div class="tsk-settings-header">
+			<h1><?php echo esc_html__( 'System Modules', 'triskelion-toolkit' ); ?></h1>
+			<p><?php echo esc_html__( 'Core modules are mandatory. Optional modules can be toggled.', 'triskelion-toolkit' ); ?></p>
+		</div>
+
+		<form method="post" action="options.php">
+			<?php settings_fields( 'triskelion_settings_group' ); ?>
+
+			<div class="tsk-modules-list">
+				<?php foreach ( $manifest as $id => $config ) :
+					$is_core = ! empty( $config['is_core'] ); //[cite: 2]
+					$is_active = $is_core || ! empty( $db_settings[ $id ] );
+					?>
+					<div class="tsk-module-card <?php echo $is_core ? 'is-core-module' : ''; ?>">
+						<div class="tsk-module-toggle-area">
+							<?php if ( $is_core ) : ?>
+								<!-- Badge visual para módulos que no se pueden apagar[cite: 2] -->
+								<span class="tsk-badge tsk-badge-active"><?php echo esc_html__( 'Core', 'triskelion-toolkit' ); ?></span>
+							<?php else : ?>
+								<label class="tsk-switch">
+									<input type="checkbox"
+									       name="triskelion_modules_settings[<?php echo esc_attr( $id ); ?>]"
+									       value="1"
+										<?php checked( $is_active ); ?>>
+									<span class="tsk-slider"></span>
+								</label>
+							<?php endif; ?>
+						</div>
+
+						<div class="tsk-module-info-area">
+							<span class="tsk-module-name"><?php echo esc_html( $config['name'] ); ?></span>
+							<p class="tsk-module-description"><?php echo esc_html( $config['description'] ); ?></p>
+						</div>
+					</div>
+				<?php endforeach; ?>
+			</div>
+
+			<?php submit_button( __( 'Save Module Configuration', 'triskelion-toolkit' ) ); ?>
+		</form>
+		<?php
+		return ob_get_clean();
+	}
+
+    public static function get_config(): ModuleConfig {
+        return (new ModuleConfigBuilder())
+                ->set_id('general_settings')
+                ->set_name(__( 'General Settings', 'triskelion-toolkit' ))
+                ->set_description(__('General settings for the plugin.', 'triskelion-toolkit'))
+                ->set_class(\Triskelion\TriskelionToolkit\Modules\GeneralSettings\GeneralSettingsLoader::class)
+                ->set_is_core(true)
+                ->set_priority(0)
+                ->set_icon('dashicons-admin-generic')
+                ->build();
+    }
+
 }
