@@ -10,23 +10,72 @@ import {
 } from '@wordpress/components';
 
 export default function Edit( { attributes, setAttributes } ) {
-    const { files, activeTabIndex, showLineNumbers, terminalTheme } = attributes;
+    const { files, activeTabIndex, showLineNumbers } = attributes;
     const blockProps = useBlockProps();
+
+
+    // 1. Obtener lenguajes desde el Bridge de PHP (con fallback de seguridad)
+    const availableLangs = window.tskShowcaseConfig?.activeLanguages || ['javascript', 'php', 'java', 'python'];
+
+    const languageOptions = availableLangs.map( lang => ({
+        label: lang.charAt(0).toUpperCase() + lang.slice(1),
+        value: lang
+    }));
+
+    // 2. Smart-Mapping: Detectar lenguaje por extensión
+    const getLanguageFromExtension = ( fileName ) => {
+        if ( ! fileName.includes( '.' ) ) return null;
+        const ext = fileName.split( '.' ).pop().toLowerCase();
+
+        // Agrupamos extensiones comunes por el ID de Prism
+        const extensionMap = {
+            // Web
+            'js': 'javascript', 'jsx': 'javascript', 'ts': 'typescript', 'tsx': 'typescript',
+            'html': 'html', 'xhtml': 'html', 'css': 'css', 'scss': 'sass', 'less': 'less',
+            // Backend & Systems
+            'php': 'php', 'phtml': 'php', 'java': 'java', 'class': 'java', 'py': 'python',
+            'rb': 'ruby', 'go': 'go', 'rs': 'rust', 'cs': 'csharp', 'cpp': 'cpp', 'c': 'c',
+            // Data & Config
+            'json': 'json', 'xml': 'xml', 'yml': 'yaml', 'yaml': 'yaml', 'sql': 'sql',
+            'md': 'markdown', 'csv': 'csv',
+            // Shell & Scripts
+            'sh': 'bash', 'zsh': 'bash', 'bash': 'bash', 'bat': 'batch', 'ps1': 'powershell',
+            // Mobile
+            'swift': 'swift', 'kt': 'kotlin', 'dart': 'dart'
+        };
+
+        return extensionMap[ ext ] || null;
+    };
 
     const updateFile = ( index, key, value ) => {
         const newFiles = [ ...files ];
-        newFiles[ index ] = { ...newFiles[ index ], [ key ]: value };
+
+        // Creamos el objeto actualizado
+        let updatedFile = { ...newFiles[ index ], [ key ]: value };
+
+        // LÓGICA DE DETECCIÓN: Solo si estamos editando el nombre y contiene un punto
+        if ( key === 'fileName' && value.includes('.') ) {
+            const ext = value.split('.').pop().toLowerCase();
+
+            // Obtenemos el mapa que enviamos desde PHP (Bridge)
+            const extensionMap = window.tskShowcaseConfig?.extensionMap || {};
+
+            // Si la extensión existe en nuestro mapa, actualizamos el lenguaje
+            if ( extensionMap[ext] ) {
+                updatedFile.language = extensionMap[ext];
+            }
+        }
+
+        newFiles[ index ] = updatedFile;
         setAttributes( { files: newFiles } );
     };
-
     const addFile = () => {
         const newFiles = [ ...files, {
-            fileName: __( 'new-file.js', TSK_DOMAIN ),
+            fileName: 'new-file.js',
             language: 'javascript',
             content: ''
         } ];
-        setAttributes( { files: newFiles } );
-        setAttributes( { activeTabIndex: newFiles.length - 1 } );
+        setAttributes( { files: newFiles, activeTabIndex: newFiles.length - 1 } );
     };
 
     const removeFile = ( index ) => {
@@ -35,82 +84,34 @@ export default function Edit( { attributes, setAttributes } ) {
         setAttributes( { files: newFiles, activeTabIndex: 0 } );
     };
 
-    const moveFile = ( currentIndex, direction ) => {
-        const newIndex = currentIndex + direction;
-        if ( newIndex < 0 || newIndex >= files.length ) return;
-
-        const newFiles = [ ...files ];
-        [ newFiles[ currentIndex ], newFiles[ newIndex ] ] = [ newFiles[ newIndex ], newFiles[ currentIndex ] ];
-
-        setAttributes( {
-            files: newFiles,
-            activeTabIndex: newIndex
-        } );
-    };
-
     return (
         <div { ...blockProps }>
             <InspectorControls>
-                <PanelBody title={ __( 'Current File', TSK_DOMAIN ) }>
+                <PanelBody title={ __( 'Configuración del Bloque', 'triskelion-toolkit' ) }>
+                    <ToggleControl
+                        label={ __( 'Mostrar números de línea', 'triskelion-toolkit' ) }
+                        checked={ showLineNumbers }
+                        onChange={ ( val ) => setAttributes( { showLineNumbers: val } ) }
+                    />
+                </PanelBody>
+
+                <PanelBody title={ __( 'Archivo Actual', 'triskelion-toolkit' ) } initialOpen={ true }>
                     <TextControl
-                        label={ __( 'File Name', TSK_DOMAIN ) }
+                        label={ __( 'Nombre del archivo', 'triskelion-toolkit' ) }
                         value={ files[ activeTabIndex ]?.fileName }
                         onChange={ ( val ) => updateFile( activeTabIndex, 'fileName', val ) }
                     />
                     <SelectControl
-                        label={ __( 'Language', TSK_DOMAIN ) }
+                        label={ __( 'Lenguaje', 'triskelion-toolkit' ) }
                         value={ files[ activeTabIndex ]?.language }
-                        options={ [
-                            { label: 'JavaScript', value: 'javascript' },
-                            { label: 'PHP', value: 'php' },
-                            { label: 'CSS', value: 'css' },
-                            { label: 'HTML', value: 'html' },
-                        ] }
+                        options={ languageOptions }
                         onChange={ ( val ) => updateFile( activeTabIndex, 'language', val ) }
                     />
-
-                    <Button isDestructive variant="link" onClick={ () => removeFile( activeTabIndex ) } disabled={ files.length <= 1 }>
-                        { __( 'Remove Tab', TSK_DOMAIN ) }
-                    </Button>
-
-                    <div style={ { marginTop: '15px', display: 'flex', gap: '10px', alignItems: 'center' } }>
-                        <span style={ { fontSize: '12px', fontWeight: 'bold' } }>
-                            { __( 'Ordering:', TSK_DOMAIN ) }
-                        </span>
-                        <Button
-                            variant="secondary"
-                            isSmall
-                            icon="arrow-left-alt"
-                            onClick={ () => moveFile( activeTabIndex, -1 ) }
-                            disabled={ activeTabIndex === 0 }
-                            label={ __( 'Move left', TSK_DOMAIN ) }
-                        />
-                        <Button
-                            variant="secondary"
-                            isSmall
-                            icon="arrow-right-alt"
-                            onClick={ () => moveFile( activeTabIndex, 1 ) }
-                            disabled={ activeTabIndex === files.length - 1 }
-                            label={ __( 'Move right', TSK_DOMAIN ) }
-                        />
-                    </div>
-                </PanelBody>
-
-                <PanelBody title={ __( 'Visual Settings', TSK_DOMAIN ) } initialOpen={ false }>
-                    <ToggleControl
-                        label={ __( 'Line numbers', TSK_DOMAIN ) }
-                        checked={ showLineNumbers }
-                        onChange={ ( val ) => setAttributes( { showLineNumbers: val } ) }
-                    />
-                    <SelectControl
-                        label={ __( 'Theme', TSK_DOMAIN ) }
-                        value={ terminalTheme }
-                        options={ [
-                            { label: 'Dark (Monokai)', value: 'dark' },
-                            { label: 'Light (Classic)', value: 'light' },
-                        ] }
-                        onChange={ ( val ) => setAttributes( { terminalTheme: val } ) }
-                    />
+                    { files.length > 1 && (
+                        <Button isDestructive onClick={ () => removeFile( activeTabIndex ) }>
+                            { __( 'Eliminar este archivo', 'triskelion-toolkit' ) }
+                        </Button>
+                    ) }
                 </PanelBody>
             </InspectorControls>
 
@@ -128,21 +129,17 @@ export default function Edit( { attributes, setAttributes } ) {
                                 className={ `tsk-tab ${ activeTabIndex === index ? 'active' : '' }` }
                                 onClick={ () => setAttributes( { activeTabIndex: index } ) }
                             >
-                                { file.fileName || __( 'unnamed', TSK_DOMAIN ) }
+                                { file.fileName || __( 'unnamed', 'triskelion-toolkit' ) }
                             </button>
                         ) ) }
                     </div>
-                    <Button
-                        onClick={ addFile }
-                        className="tsk-add-tab"
-                        label={ __( 'Add Tab', TSK_DOMAIN ) }
-                    >+</Button>
+                    <Button onClick={ addFile } className="tsk-add-tab">+</Button>
                 </div>
                 <div className="tsk-code-body">
                     <TextareaControl
                         value={ files[ activeTabIndex ]?.content }
                         onChange={ ( val ) => updateFile( activeTabIndex, 'content', val ) }
-                        placeholder={ __( 'Paste your code here...', TSK_DOMAIN ) }
+                        placeholder={ __( 'Pega tu código aquí...', 'triskelion-toolkit' ) }
                         spellCheck={ false }
                     />
                 </div>

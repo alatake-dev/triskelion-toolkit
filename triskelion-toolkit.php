@@ -31,8 +31,6 @@ define( 'TSK_SETTINGS_GROUP',       'tsk_settings_group' );
 define( 'HOOK_REGISTER_SCRIPTS',    'tsk_register_vendor_scripts' );
 define( 'HOOK_REGISTER_STYLES',     'tsk_register_vendor_styles' );
 
-define( 'TSK_LOG_LEVEL', 'debug' );
-//define( 'TSK_LOG_ENABLED', true );
 
 /* Autoloader (PSR-4 Style) */
 spl_autoload_register(function ($class) {

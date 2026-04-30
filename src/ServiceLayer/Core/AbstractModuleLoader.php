@@ -43,6 +43,7 @@ abstract class AbstractModuleLoader {
 		wp_enqueue_style('tsk-admin-styles');
 		echo '<div class="tsk-tab-content-wrapper">';
 		$this->render_header();
+		settings_errors($this->get_settings_group());
 		$this->render_form_start();
 		$this->render_module_fields();
 		$this->render_form_end();
