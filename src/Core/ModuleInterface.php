@@ -1,6 +1,6 @@
 <?php
 
-namespace Triskelion\Toolkit\Core;
+namespace src\Core;
 
 interface ModuleInterface {
 	public static function get_module_id(): string;

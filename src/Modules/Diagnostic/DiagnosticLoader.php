@@ -1,10 +1,10 @@
 <?php
-namespace Triskelion\Toolkit\Modules\Diagnostic;
+namespace src\Modules\Diagnostic;
 
-use Triskelion\Toolkit\Core\AbstractModuleLoader;
-use Triskelion\Toolkit\Core\SettingsProviderInterface;
-use Triskelion\Toolkit\Modules\ModuleRegistry;
-use Triskelion\Toolkit\Core\Logger;
+use src\Core\AbstractModuleLoader;
+use src\Core\Logger;
+use src\Core\SettingsProviderInterface;
+use src\Modules\ModuleRegistry;
 
 class DiagnosticLoader extends AbstractModuleLoader implements SettingsProviderInterface {
 

@@ -1,0 +1,14 @@
+{
+  "name": "alatake/triskelion-toolkit",
+  "description": "Herramientas de alto rendimiento para Bricks Builder",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "autoload": {
+    "psr-4": {
+      "Alatake\\Toolkit\\": "src/"
+    }
+  },
+  "config": {
+    "optimize-autoloader": true
+  }
+}

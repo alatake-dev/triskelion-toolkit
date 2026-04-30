@@ -1,6 +1,6 @@
 <?php
 
-namespace Triskelion\Toolkit\Core;
+namespace src\Core;
 
 interface SettingsProviderInterface {
 	public function render_module_settings(): void;

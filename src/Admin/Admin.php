@@ -1,9 +1,9 @@
 <?php
-namespace Triskelion\Toolkit\Admin;
+namespace src\Admin;
 
-use Triskelion\Toolkit\Core\Toolkit;
-use Triskelion\Toolkit\Modules\ModuleRegistry;
-use Triskelion\Toolkit\Core\SettingsProviderInterface;
+use src\Core\SettingsProviderInterface;
+use src\Core\Toolkit;
+use src\Modules\ModuleRegistry;
 
 class Admin {
     public static function init(): void {
@@ -161,7 +161,7 @@ class Admin {
         }
         $is_active = ! empty( $active_map[ $current_tab ] );
 
-        return $is_active && \Triskelion\Toolkit\Modules\ModuleRegistry::has_settings( $data['class'] );
+        return $is_active && \src\Modules\ModuleRegistry::has_settings( $data['class'] );
     }
 
     private static function render_access_denied(): void {

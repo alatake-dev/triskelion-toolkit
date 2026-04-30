@@ -1,5 +1,5 @@
 <?php
-namespace Triskelion\Toolkit\Core;
+namespace src\Core;
 
 class Logger {
 	private static string $log_path = '';

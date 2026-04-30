@@ -33,6 +33,7 @@ define( 'HOOK_REGISTER_STYLES',     'tsk_register_vendor_styles' );
 
 
 /* Autoloader (PSR-4 Style) */
+/*
 spl_autoload_register(function ($class) {
 	$prefix = 'Triskelion\\Toolkit\\';
 	$base_dir = TSK_PATH . 'src/ServiceLayer/';
@@ -115,3 +116,10 @@ add_filter( 'block_categories_all', function( $categories ) {
 
 // Inicializar el Toolkit
 Triskelion\Toolkit\Core\Toolkit::init();
+*/
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+	require_once __DIR__ . '/vendor/autoload.php';
+}
+
+$bootstrap = require_once __DIR__ . '/src/bootstrap.php';
+\src\Core\Kernel::boot($bootstrap);

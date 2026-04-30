@@ -1,5 +1,5 @@
 <?php
-namespace Triskelion\Toolkit\Core;
+namespace src\Core;
 
 use ReflectionClass;
 

@@ -1,9 +1,9 @@
 <?php
-namespace Triskelion\Toolkit\Modules\CodeShowcase;
+namespace src\Modules\CodeShowcase;
 
-use Triskelion\Toolkit\Core\AbstractBlockLoader;
-use Triskelion\Toolkit\Core\SettingsProviderInterface;
-use Triskelion\Toolkit\Modules\VendorRegistry;
+use src\Core\AbstractBlockLoader;
+use src\Core\SettingsProviderInterface;
+use src\Modules\VendorRegistry;
 
 class CodeShowcaseBlockLoader extends AbstractBlockLoader implements SettingsProviderInterface {
 

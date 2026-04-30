@@ -1,9 +1,9 @@
 <?php
 
-namespace Triskelion\Toolkit\Core;
+namespace src\Core;
 
-use Triskelion\Toolkit\Admin\Admin;
-use Triskelion\Toolkit\Modules\ModuleRegistry;
+use src\Admin\Admin;
+use src\Modules\ModuleRegistry;
 
 
 class Toolkit {

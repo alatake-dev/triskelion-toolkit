@@ -1,9 +1,9 @@
 <?php
-namespace Triskelion\Toolkit\Modules\GeneralSettings;
+namespace src\Modules\GeneralSettings;
 
-use Triskelion\Toolkit\Core\AbstractModuleLoader;
-use Triskelion\Toolkit\Core\SettingsProviderInterface;
-use Triskelion\Toolkit\Core\Toolkit;
+use src\Core\AbstractModuleLoader;
+use src\Core\SettingsProviderInterface;
+use src\Core\Toolkit;
 
 class GeneralSettingsLoader extends AbstractModuleLoader implements SettingsProviderInterface{
 

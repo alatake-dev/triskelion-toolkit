@@ -1,5 +1,5 @@
 <?php
-namespace Triskelion\Toolkit\Modules;
+namespace src\Modules;
 
 class VendorRegistry {
 	private static array $registered = [];

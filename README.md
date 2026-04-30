@@ -107,7 +107,7 @@ To maintain the Triskelion Standard, follow these steps:
     ```php
     namespace Triskelion\Toolkit\Modules\MyNewFeature;
     
-    use Triskelion\Toolkit\Core\AbstractModuleLoader;
+    use src\Core\AbstractModuleLoader;
     
     class MyNewFeatureLoader extends AbstractModuleLoader {
         public function load(): void {
