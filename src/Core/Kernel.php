@@ -1,6 +1,6 @@
 <?php
 
-namespace src\Core;
+namespace Triskelion\TriskelionToolkit\Core;
 
 class Kernel {
 	private static $active_services = [];

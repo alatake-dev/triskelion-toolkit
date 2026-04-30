@@ -1,6 +1,6 @@
 <?php
 
-namespace src\Core;
+namespace Triskelion\TriskelionToolkit\Core;
 
 class Init {
 	public static function run() {

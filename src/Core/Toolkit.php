@@ -1,6 +1,6 @@
 <?php
 
-namespace src\Core;
+namespace Triskelion\TriskelionToolkit\Core;
 
 use src\Admin\Admin;
 use src\Modules\ModuleRegistry;

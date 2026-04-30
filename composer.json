@@ -14,5 +14,8 @@
             "email": "me@alatake.dev"
         }
     ],
-    "require": {}
+    "require": {},
+    "config": {
+        "optimize-autoloader": true
+    }
 }

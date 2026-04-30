@@ -1,5 +1,5 @@
 <?php
-namespace src\Modules\CodeShowcase;
+namespace Triskelion\TriskelionToolkit\Modules\CodeShowcase;
 
 use src\Core\AbstractBlockLoader;
 use src\Core\SettingsProviderInterface;

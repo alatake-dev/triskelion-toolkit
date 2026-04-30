@@ -1,6 +1,6 @@
 <?php
 
-namespace src\Modules;
+namespace Triskelion\TriskelionToolkit\Modules;
 
 use ReflectionClass;
 use ReflectionException;
@@ -24,7 +24,7 @@ class ModuleRegistry {
 			}
 
 			$reflection = new ReflectionClass( $class_name );
-			return $reflection->implementsInterface( \src\Core\SettingsProviderInterface::class );
+			return $reflection->implementsInterface( \Triskelion\TriskelionToolkit\Core\SettingsProviderInterface::class );
 		} catch ( ReflectionException $e ) {
 			Logger::error("Registry: Error al analizar la clase -> " . $class_name) . " | " . $e->getMessage();
 			return false;

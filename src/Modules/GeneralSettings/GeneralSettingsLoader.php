@@ -1,11 +1,19 @@
 <?php
-namespace src\Modules\GeneralSettings;
+namespace Triskelion\TriskelionToolkit\Modules\GeneralSettings;
 
-use src\Core\AbstractModuleLoader;
-use src\Core\SettingsProviderInterface;
-use src\Core\Toolkit;
+use Triskelion\TriskelionToolkit\Core\AbstractModule;
+use Triskelion\TriskelionToolkit\Modules\GeneralSettings\ServiceLayer\SettingsService;
+use Triskelion\TriskelionToolkit\Modules\GeneralSettings\ViewLayer\AdminInterface;
 
-class GeneralSettingsLoader extends AbstractModuleLoader implements SettingsProviderInterface{
+class GeneralSettingsLoader extends AbstractModule{
+
+    protected function register() {
+        new SettingsService();
+        if ( is_admin() ) {
+            new AdminInterface();
+        }
+    }
+    /*
 
     public function load(): void { }
 
@@ -112,4 +120,6 @@ class GeneralSettingsLoader extends AbstractModuleLoader implements SettingsProv
         }
         return $ret_val;
     }
+
+    */
 }

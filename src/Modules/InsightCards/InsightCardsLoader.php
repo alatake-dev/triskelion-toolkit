@@ -1,5 +1,5 @@
 <?php
-namespace src\Modules\InsightCards;
+namespace Triskelion\TriskelionToolkit\Modules\InsightCards;
 
 use src\Core\AbstractBlockLoader;
 use src\Core\SettingsProviderInterface;

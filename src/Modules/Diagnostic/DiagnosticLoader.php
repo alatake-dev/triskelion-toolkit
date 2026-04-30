@@ -1,5 +1,5 @@
 <?php
-namespace src\Modules\Diagnostic;
+namespace Triskelion\TriskelionToolkit\Modules\Diagnostic;
 
 use src\Core\AbstractModuleLoader;
 use src\Core\Logger;
