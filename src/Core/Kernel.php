@@ -28,7 +28,7 @@ class Kernel {
 		self::$module_configs = new ModuleCollection();
 
 		// Ahora sí, ya cargado WP, buscamos los módulos
-		$db_settings  = get_option( 'triskelion_active_modules', [] );
+		$db_settings  = get_option( 'tsk_active_modules', [] );
 		$loader_files = glob( TSK_PATH . 'src/Modules/*/*Loader.php' );
 
 		foreach ( $loader_files as $file ) {

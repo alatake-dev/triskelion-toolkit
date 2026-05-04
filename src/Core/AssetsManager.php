@@ -13,7 +13,7 @@ class AssetsManager {
 
 		wp_enqueue_style(
 			'tsk-admin-css',
-			TSK_URL . 'assets/css/admin-style.css',
+			TSK_URL . 'assets/css/admin-_diagnostic.scss',
 			[],
 			TSK_VERSION
 		);

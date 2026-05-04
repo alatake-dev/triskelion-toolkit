@@ -19,12 +19,12 @@ abstract class AbstractModuleLoader {
 	}
 
 	public function enqueue_module_styles(): void {
-		$css_file = $this->module_path . '/style.css';
+		$css_file = $this->module_path . '/_diagnostic.scss';
 
 		if ( file_exists( $css_file ) ) {
 			wp_enqueue_style(
 				"tsk-module-$this->module_id",
-				$this->module_url . '/style.css',
+				$this->module_url . '/_diagnostic.scss',
 				[],
 				TSK_VERSION
 			);

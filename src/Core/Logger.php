@@ -2,6 +2,24 @@
 namespace Triskelion\TriskelionToolkit\Core;
 
 class Logger {
+	public const LEVEL_DEBUG = 'debug';
+	public const LEVEL_INFO  = 'info';
+	public const LEVEL_WARN  = 'warn';
+	public const LEVEL_ERROR = 'error';
+	public const LEVEL_OFF   = 'off';
+
+	public static function get_severity_map(): array {
+		return [
+			self::LEVEL_DEBUG => 0,
+			self::LEVEL_INFO  => 1,
+			self::LEVEL_WARN  => 2,
+			self::LEVEL_ERROR => 3,
+			self::LEVEL_OFF   => 4,
+		];
+	}
+	public static function get_levels(): array {
+		return array_keys(self::get_severity_map());
+	}
 	private static string $log_path = '';
 	private static int $max_size = 2097152; // 2MB
 
@@ -77,18 +95,15 @@ class Logger {
 
 	private static function write( string $message, string $level, string $module ): void {
 		$config = self::get_config();
-
-		// Cortocircuito: Si está apagado, fuera.
 		if ( ! $config['enabled'] ) {
 			return;
 		}
 
-		// Validar Nivel
-		$levels = [ 'debug' => 0, 'info' => 1, 'warn' => 2, 'error' => 3, 'off' => 4 ];
-		$msg_level   = $levels[ $level ] ?? 3;
-		$thresh_level = $levels[ $config['level'] ] ?? 3;
+		$severity = self::get_severity_map();
+		$msg_weight    = $severity[$level] ?? 3;
+		$thresh_weight = $severity[$config['level']] ?? 3;
 
-		if ( $msg_level < $thresh_level ) {
+		if ( $msg_weight < $thresh_weight ) {
 			return;
 		}
 
