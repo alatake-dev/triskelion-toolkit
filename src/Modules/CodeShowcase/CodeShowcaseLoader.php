@@ -2,12 +2,121 @@
 namespace Triskelion\TriskelionToolkit\Modules\CodeShowcase;
 
 
-use Triskelion\TriskelionToolkit\Core\AbstractBlockLoader;
-use Triskelion\TriskelionToolkit\Core\SettingsProviderInterface;
-use Triskelion\TriskelionToolkit\Modules\VendorRegistry;
 
-class CodeShowcaseBlockLoader extends AbstractBlockLoader implements SettingsProviderInterface {
+use Exception;
+use Triskelion\TriskelionToolkit\Core\AbstractModule;
+use Triskelion\TriskelionToolkit\Core\Data\ModuleConfigBuilder;
+use Triskelion\TriskelionToolkit\Core\Interfaces\RegistrableModuleInterface;
+use Triskelion\TriskelionToolkit\Core\Data\ModuleConfig;
 
+class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInterface {
+
+    protected function register() {
+        add_action( 'init', [ $this, 'register_showcase_block' ] );
+    }
+
+    public function register_showcase_block(): void {
+        $block_path = TSK_PATH . 'build/blocks/CodeShowcase/block';
+
+        if ( file_exists( $block_path . '/block.json' ) ) {
+	        register_block_type( $block_path, [
+		        // Esta es la clave: delegamos el renderizado al servidor
+		        'render_callback' => [ $this, 'render_frontend' ],
+	        ] );
+        }
+    }
+
+    /**
+     * Renderiza el bloque con resaltado desde el servidor.
+     * Adiós Prism.js, hola rendimiento real.
+     */
+    public function render_frontend( $attributes ): string {
+        $files = $attributes['files'] ?? [];
+        if ( empty( $files ) ) return '';
+
+        $active_tab = (int) ($attributes['activeTabIndex'] ?? 0);
+        $highlighter = new \Highlight\Highlighter();
+
+        ob_start(); ?>
+        <div class="tsk-code-showcase-container">
+            <div class="tsk-code-header">
+                <!-- Semántica macOS: Botones de control -->
+                <div class="tsk-window-buttons" aria-hidden="true">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+
+                <!-- Selector Móvil: UX First -->
+                <div class="tsk-mobile-selector">
+                    <select class="tsk-file-select" aria-label="Seleccionar archivo">
+                        <?php foreach ( $files as $index => $file ) : ?>
+                            <option value="<?php echo $index; ?>" <?php selected($active_tab, $index); ?>>
+                                <?php echo esc_html( $file['fileName'] ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <!-- Pestañas Desktop: BEM __tabs -->
+                <div class="tsk-tabs-wrapper" role="tablist">
+                    <?php foreach ( $files as $index => $file ) :
+                        $is_active = $index === $active_tab; ?>
+                        <button
+                                class="tsk-tab <?php echo $is_active ? 'active' : ''; ?>"
+                                data-index="<?php echo $index; ?>"
+                                role="tab"
+                                aria-selected="<?php echo $is_active ? 'true' : 'false'; ?>"
+                        >
+                            <?php echo esc_html( $file['fileName'] ); ?>
+                        </button>
+                    <?php endforeach; ?>
+                </div>
+
+                <button class="tsk-copy-button" aria-label="Copiar código">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="tsk-code-body">
+                <?php foreach ( $files as $index => $file ) :
+                    $lang = $file['language'] ?? 'plaintext';
+                    $is_active = $index === $active_tab;
+                    $content = $file['content'] ?? '';
+
+                    try {
+                        $highlighted = $highlighter->highlight($lang, $content ?? '');
+                        $code_output = $highlighted->value;
+                    } catch ( Exception $e ) {
+                        $code_output = htmlspecialchars($content, ENT_NOQUOTES, 'UTF-8');
+                    }
+                    ?>
+                    <div class="tsk-code-pane <?php echo $is_active ? 'active' : ''; ?>"
+                         id="pane-<?php echo $index; ?>"
+                         role="tabpanel"
+                            <?php echo ! $is_active ? 'hidden' : ''; ?>>
+                        <pre><code class="hljs <?php echo esc_attr($lang); ?>"><?php echo $code_output; ?></code></pre>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+    public static function get_config(): ModuleConfig {
+	    return ( new ModuleConfigBuilder() )
+		    ->set_id( 'code_showcase' )
+		    ->set_name( __( 'Code Showcase', 'triskelion-toolkit' ) )
+		    ->set_description( __( 'Display code snippets in a beautiful macOS-style terminal with multiple tabs and syntax highlighting.', 'triskelion-toolkit' ) )
+		    ->set_class( \Triskelion\TriskelionToolkit\Modules\CodeShowcase\CodeShowcaseLoader::class )
+		    ->set_priority( 110 ) // Un poco después de Diagnostic
+		    ->set_is_core( false )
+		    ->build();
+    }
+
+    /*
     private const DEFAULT_LANGS = ['java', 'javascript', 'php', 'python'];
 
     protected function get_block_name(): string {
@@ -135,11 +244,12 @@ class CodeShowcaseBlockLoader extends AbstractBlockLoader implements SettingsPro
                 ]
         );
     }
-
+*/
     /**
      * Master Map of supported languages and their extensions.
      * Generated via Python Parser.
      */
+    /*
     private function get_all_prism_languages(): array {
         return [
                 'abap' => [
@@ -1332,4 +1442,6 @@ class CodeShowcaseBlockLoader extends AbstractBlockLoader implements SettingsPro
                 ],
         ];
     }
+    */
+
 }

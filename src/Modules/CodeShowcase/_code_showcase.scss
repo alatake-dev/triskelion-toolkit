@@ -1,0 +1,53 @@
+.tsk-mobile-selector {
+  display: none;
+}
+.tsk-code-pane {
+  display: none;
+
+  &.active {
+    display: block;
+  }
+}
+
+/* ==========================================================================
+   TSK CODE SHOWCASE - SERVER SIDE THEME (HLJS)
+   ========================================================================== */
+
+.tsk-code-showcase-container {
+  // Definimos la paleta para que sea fácil de cambiar después
+  --hljs-bg: #1e1e1e;
+  --hljs-text: #d4d4d4;
+  --hljs-keyword: #569cd6;
+  --hljs-string: #ce9178;
+  --hljs-comment: #6a9955;
+  --hljs-function: #dcdcaa;
+  --hljs-number: #b5cea8;
+  --hljs-attr: #9cdcfe;
+
+  .hljs {
+    display: block;
+    overflow-x: auto;
+    padding: 1.5em;
+    background: var(--hljs-bg);
+    color: var(--hljs-text);
+    font-family: 'Fira Code', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+
+    /* Mapeo de clases de highlight.php a nuestras variables */
+    &-keyword, &-selector-tag, &-literal { color: var(--hljs-keyword); font-weight: bold; }
+    &-string, &-title, &-section { color: var(--hljs-string); }
+    &-comment { color: var(--hljs-comment); font-style: italic; }
+    &-number { color: var(--hljs-number); }
+    &-function, &-params { color: var(--hljs-function); }
+    &-attr, &-variable { color: var(--hljs-attr); }
+  }
+}
+@media (max-width: 600px) {
+  .tsk-tabs-wrapper {
+    display: none !important;
+  }
+  .tsk-mobile-selector {
+    display: flex !important; // Aparece el select
+  }
+}

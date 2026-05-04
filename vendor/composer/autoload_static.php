@@ -6,6 +6,10 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit3b10e096de99aa346b6fe971c35f7e07
 {
+    public static $files = array (
+        'b6ec61354e97f32c0ae683041c78392a' => __DIR__ . '/..' . '/scrivo/highlight.php/HighlightUtilities/functions.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
         'T' =>
         array (
@@ -20,22 +24,49 @@ class ComposerStaticInit3b10e096de99aa346b6fe971c35f7e07
         ),
     );
 
+    public static $prefixesPsr0 = array (
+        'H' =>
+        array (
+            'Highlight\\' =>
+            array (
+                0 => __DIR__ . '/..' . '/scrivo/highlight.php',
+            ),
+            'HighlightUtilities\\' =>
+            array (
+                0 => __DIR__ . '/..' . '/scrivo/highlight.php',
+            ),
+        ),
+    );
+
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'Highlight\\Autoloader' => __DIR__ . '/..' . '/scrivo/highlight.php/Highlight/Autoloader.php',
+        'Highlight\\HighlightResult' => __DIR__ . '/..' . '/scrivo/highlight.php/Highlight/HighlightResult.php',
+        'Highlight\\Highlighter' => __DIR__ . '/..' . '/scrivo/highlight.php/Highlight/Highlighter.php',
+        'Highlight\\JsonRef' => __DIR__ . '/..' . '/scrivo/highlight.php/Highlight/JsonRef.php',
+        'Highlight\\Language' => __DIR__ . '/..' . '/scrivo/highlight.php/Highlight/Language.php',
+        'Highlight\\Mode' => __DIR__ . '/..' . '/scrivo/highlight.php/Highlight/Mode.php',
+        'Highlight\\ModeDeprecations' => __DIR__ . '/..' . '/scrivo/highlight.php/Highlight/ModeDeprecations.php',
+        'Highlight\\RegEx' => __DIR__ . '/..' . '/scrivo/highlight.php/Highlight/RegEx.php',
+        'Highlight\\RegExMatch' => __DIR__ . '/..' . '/scrivo/highlight.php/Highlight/RegExMatch.php',
+        'Highlight\\RegExUtils' => __DIR__ . '/..' . '/scrivo/highlight.php/Highlight/RegExUtils.php',
+        'Highlight\\Terminators' => __DIR__ . '/..' . '/scrivo/highlight.php/Highlight/Terminators.php',
         'Triskelion\\TriskelionToolkit\\Admin\\Admin' => __DIR__ . '/../..' . '/src/Admin/Admin.php',
-        'Triskelion\\TriskelionToolkit\\Core\\AbstractBlockLoader' => __DIR__ . '/../..' . '/src/Core/AbstractBlockLoader.php',
         'Triskelion\\TriskelionToolkit\\Core\\AbstractModule' => __DIR__ . '/../..' . '/src/Core/AbstractModule.php',
-        'Triskelion\\TriskelionToolkit\\Core\\AbstractModuleLoader' => __DIR__ . '/../..' . '/src/Core/AbstractModuleLoader.php',
+        'Triskelion\\TriskelionToolkit\\Core\\AdminManager' => __DIR__ . '/../..' . '/src/Core/AdminManager.php',
+        'Triskelion\\TriskelionToolkit\\Core\\AssetsManager' => __DIR__ . '/../..' . '/src/Core/AssetsManager.php',
+        'Triskelion\\TriskelionToolkit\\Core\\Data\\ModuleCollection' => __DIR__ . '/../..' . '/src/Core/Data/ModuleCollection.php',
+        'Triskelion\\TriskelionToolkit\\Core\\Data\\ModuleConfig' => __DIR__ . '/../..' . '/src/Core/Data/ModuleConfig.php',
+        'Triskelion\\TriskelionToolkit\\Core\\Data\\ModuleConfigBuilder' => __DIR__ . '/../..' . '/src/Core/Data/ModuleConfigBuilder.php',
         'Triskelion\\TriskelionToolkit\\Core\\Init' => __DIR__ . '/../..' . '/src/Core/Init.php',
+        'Triskelion\\TriskelionToolkit\\Core\\Interfaces\\RegistrableModuleInterface' => __DIR__ . '/../..' . '/src/Core/Interfaces/RegistrableModuleInterface.php',
+        'Triskelion\\TriskelionToolkit\\Core\\Interfaces\\SettingsInterface' => __DIR__ . '/../..' . '/src/Core/Interfaces/SettingsInterface.php',
         'Triskelion\\TriskelionToolkit\\Core\\Kernel' => __DIR__ . '/../..' . '/src/Core/Kernel.php',
         'Triskelion\\TriskelionToolkit\\Core\\Logger' => __DIR__ . '/../..' . '/src/Core/Logger.php',
-        'Triskelion\\TriskelionToolkit\\Core\\ModuleInterface' => __DIR__ . '/../..' . '/src/Core/ModuleInterface.php',
-        'Triskelion\\TriskelionToolkit\\Core\\SettingsProviderInterface' => __DIR__ . '/../..' . '/src/Core/SettingsProviderInterface.php',
         'Triskelion\\TriskelionToolkit\\Core\\Toolkit' => __DIR__ . '/../..' . '/src/Core/Toolkit.php',
-        'Triskelion\\TriskelionToolkit\\Modules\\CodeShowcase\\CodeShowcaseBlockLoader' => __DIR__ . '/../..' . '/src/Modules/CodeShowcase/CodeShowcaseBlockLoader.php',
+        'Triskelion\\TriskelionToolkit\\Modules\\CodeShowcase\\CodeShowcaseLoader' => __DIR__ . '/../..' . '/src/Modules/CodeShowcase/CodeShowcaseLoader.php',
         'Triskelion\\TriskelionToolkit\\Modules\\Diagnostic\\DiagnosticLoader' => __DIR__ . '/../..' . '/src/Modules/Diagnostic/DiagnosticLoader.php',
         'Triskelion\\TriskelionToolkit\\Modules\\GeneralSettings\\GeneralSettingsLoader' => __DIR__ . '/../..' . '/src/Modules/GeneralSettings/GeneralSettingsLoader.php',
-        'Triskelion\\TriskelionToolkit\\Modules\\InsightCards\\InsightCardsLoader' => __DIR__ . '/../..' . '/src/Modules/InsightCards/InsightCardsLoader.php',
         'Triskelion\\TriskelionToolkit\\Modules\\ModuleRegistry' => __DIR__ . '/../..' . '/src/Modules/ModuleRegistry.php',
         'Triskelion\\TriskelionToolkit\\Modules\\VendorRegistry' => __DIR__ . '/../..' . '/src/Modules/VendorRegistry.php',
     );
@@ -45,6 +76,7 @@ class ComposerStaticInit3b10e096de99aa346b6fe971c35f7e07
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit3b10e096de99aa346b6fe971c35f7e07::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit3b10e096de99aa346b6fe971c35f7e07::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit3b10e096de99aa346b6fe971c35f7e07::$prefixesPsr0;
             $loader->classMap = ComposerStaticInit3b10e096de99aa346b6fe971c35f7e07::$classMap;
 
         }, null, ClassLoader::class);

@@ -126,8 +126,11 @@ $bootstrap = require_once __DIR__ . '/src/bootstrap.php';
 \Triskelion\TriskelionToolkit\Core\Kernel::boot($bootstrap);
 */
 
-require_once __DIR__ . '/vendor/autoload.php';
-error_log('Triskelion Toolkit: Autoloader cargado');
+if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
+	require_once __DIR__ . '/vendor/autoload.php';
+	error_log('Triskelion Toolkit: Autoloader cargado');
+}
+
 
 \Triskelion\TriskelionToolkit\Core\Kernel::boot();
 

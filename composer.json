@@ -14,7 +14,9 @@
             "email": "me@alatake.dev"
         }
     ],
-    "require": {},
+    "require": {
+        "scrivo/highlight.php": "v9.18.1.10"
+    },
     "config": {
         "optimize-autoloader": true
     }
