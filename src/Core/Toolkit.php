@@ -2,9 +2,10 @@
 
 namespace Triskelion\TriskelionToolkit\Core;
 
-use src\Admin\Admin;
-use src\Modules\ModuleRegistry;
 
+
+use Triskelion\TriskelionToolkit\Admin\Admin;
+use Triskelion\TriskelionToolkit\Modules\ModuleRegistry;
 
 class Toolkit {
 	private static array $loaded_instances = [];

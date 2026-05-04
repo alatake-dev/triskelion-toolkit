@@ -4,7 +4,7 @@ namespace Triskelion\TriskelionToolkit\Modules;
 
 use ReflectionClass;
 use ReflectionException;
-use src\Core\Logger;
+use Triskelion\TriskelionToolkit\Core\Logger;
 
 class ModuleRegistry {
 	private static array $modules = [];

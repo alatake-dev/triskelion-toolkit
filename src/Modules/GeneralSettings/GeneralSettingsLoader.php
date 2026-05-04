@@ -1,4 +1,5 @@
 <?php
+
 namespace Triskelion\TriskelionToolkit\Modules\GeneralSettings;
 
 use Triskelion\TriskelionToolkit\Core\AbstractModule;
@@ -6,187 +7,117 @@ use Triskelion\TriskelionToolkit\Core\Data\ModuleConfig;
 use Triskelion\TriskelionToolkit\Core\Data\ModuleConfigBuilder;
 use Triskelion\TriskelionToolkit\Core\Interfaces\RegistrableModuleInterface;
 use Triskelion\TriskelionToolkit\Core\Interfaces\SettingsInterface;
-use Triskelion\TriskelionToolkit\Modules\GeneralSettings\ServiceLayer\SettingsService;
-use Triskelion\TriskelionToolkit\Modules\GeneralSettings\ViewLayer\AdminInterface;
+use Triskelion\TriskelionToolkit\Core\Kernel;
 
 class GeneralSettingsLoader extends AbstractModule implements SettingsInterface, RegistrableModuleInterface {
 
-    protected function register() {
-        new SettingsService();
-        if ( is_admin() ) {
-            new AdminInterface();
-        }
+    public function __construct() {
+        // Registramos los ajustes en el core de WP al inicializar
+        add_action( 'admin_init', [ $this, 'register_settings' ] );
     }
-    /*
 
-    public function load(): void { }
+    public function register_settings(): void {
+        register_setting( 'tsk_settings_group', 'triskelion_active_modules', [
+                'type'              => 'array',
+                'sanitize_callback' => [ $this, 'sanitize_modules' ],
+                'default'           => [],
+        ] );
+    }
 
-    protected function render_header(): void {
-        ?>
-        <div class="tsk-tab-header">
-            <h2><?php esc_html_e( 'Suite Management', 'triskelion-toolkit' ); ?></h2>
-            <p class="description"><?php esc_html_e( 'Activate or deactivate modules.', 'triskelion-toolkit' ); ?></p>
+    public function render_settings(): string {
+        $manifest       = Kernel::get_manifest();
+        $active_modules = get_option( 'triskelion_active_modules', [] );
+
+        ob_start(); ?>
+        <div class="tsk-settings-container">
+            <h1>System Modules</h1>
+            <p class="description">Core modules are mandatory. Optional modules can be toggled.</p>
+
+            <form method="post" action="options.php">
+                <?php
+                settings_fields( 'tsk_settings_group' );
+                // Invocamos al componente visual interno
+                echo $this->render_module_grid( $manifest, $active_modules );
+                submit_button( __( 'Save Configuration', 'triskelion-toolkit' ) );
+                ?>
+            </form>
         </div>
         <?php
+        return ob_get_clean();
     }
 
-    protected function render_module_fields(): void {
-        $modules = Toolkit::get_modules();
+    /**
+     * Componente de UI: El Grid de Módulos.
+     * Aquí aplicamos el orden jerárquico y bloqueamos los módulos obligatorios.
+     */
+    private function render_module_grid($manifest_collection, $active_modules): string {
+        // 1. Obtenemos el manifiesto ya ordenado por la Colección
+        $sorted_modules = $manifest_collection->get_all_sorted();
 
-        foreach ( $modules as $id => $data ) {
-            if ( ! empty( $data['is_core'] ) ) continue;
-            $this->render_module_row( $id, $data );
-        }
-    }
+        ob_start(); ?>
 
-    private function render_module_row( string $id, array $data ): void {
-        $active_map = (array) get_option( TSK_ACTIVE_MODULES, [] );
-        $is_active  = ! empty( $active_map[$id] );
-        ?>
-        <div class="tsk-module-card">
-            <div class="tsk-module-toggle-area">
-                <label class="tsk-switch">
-                    <input type="checkbox"
-                           name="tsk_active_modules[<?php echo esc_attr( $id ); ?>]"
-                           value="1" <?php checked( $is_active ); ?>>
-                    <span class="tsk-slider"></span>
-                </label>
-            </div>
-            <div class="tsk-module-info-area">
-                <span class="tsk-module-name"><?php echo esc_html( $data['name'] ); ?></span>
-                <p class="tsk-module-description"><?php echo esc_html( $data['description'] ?? '' ); ?></p>
-            </div>
+        <div class="tsk-modules-grid">
+            <?php foreach ($sorted_modules as $config) :
+                // Lógica de estado y protección[cite: 1]
+                $is_core   = $config->is_core;
+                $is_active = $is_core || in_array($config->id, $active_modules, true);
+
+                // BEM: Clase dinámica para el estado 'disabled' visual[cite: 1]
+                $card_classes = 'tsk-module-card' . ($is_core ? ' tsk-module-card--core' : '');
+                ?>
+                <div class="<?php echo esc_attr($card_classes); ?>">
+                    <div class="tsk-module-toggle">
+                        <label class="tsk-switch">
+                            <input type="checkbox"
+                                    <?php
+                                    /**
+                                     * Si es core, no enviamos 'name'. Al estar disabled,
+                                     * el navegador lo ignora, pero esto es doble seguridad.[cite: 1]
+                                     */
+                                    echo ! $is_core ? 'name="triskelion_active_modules[]"' : ''; ?>
+                                   value="<?php echo esc_attr($config->id); ?>"
+                                    <?php checked($is_active); ?>
+                                    <?php disabled($is_core); ?>>
+                            <span class="tsk-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="tsk-module-info">
+                    <span class="tsk-module-title">
+                        <?php echo esc_html($config->name); ?>
+                        <?php if ($is_core) : ?>
+                            <span class="tsk-badge tsk-badge--mandatory">Core</span>
+                        <?php endif; ?>
+                    </span>
+                        <p class="tsk-module-desc">
+                            <?php echo esc_html($config->description); ?>
+                        </p>
+                    </div>
+                </div>
+            <?php endforeach; ?>
         </div>
+
         <?php
+        return ob_get_clean();
     }
-
-    protected function get_custom_css(): string {
-        return "
-        #wpbody-content .tsk-tab-content-wrapper .tsk-module-card {
-            display: flex !important;
-            flex-direction: row !important;
-            align-items: flex-start !important;
-            padding: 25px 0;
-            border-bottom: 1px solid #f0f0f1;
-            gap: 25px;
-            margin: 0;
-            background: transparent;
-            border-left: none;
-            border-right: none;
-            border-top: none;
-        }
-
-        #wpbody-content .tsk-module-toggle-area {
-            flex: 0 0 50px !important;
-            display: flex !important;
-            padding-top: 5px;
-        }
-
-        #wpbody-content .tsk-module-info-area {
-            flex: 1 !important;
-            min-width: 0;
-        }
-
-        .tsk-module-name {
-            display: block;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #1d2327;
-            margin-bottom: 4px;
-        }
-
-        .tsk-module-description {
-            margin: 0;
-            color: #646970;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-    ";
+    public function sanitize_modules( $input ): array {
+        // Lógica para asegurar que los módulos 'core' siempre se guarden como activos
+        return is_array( $input ) ? array_unique( $input ) : [];
     }
-
-    public function register_module_settings(): void {
-        register_setting(
-                $this->get_settings_group(),
-                TSK_ACTIVE_MODULES,
-                [
-                        'type'              => 'array',
-                        'sanitize_callback' => [ $this, 'sanitize_module_settings' ],
-
-                ]
-        );
-    }
-    public function sanitize_module_settings( $input ): array {
-        $ret_val = [];
-        if ( is_array( $input ) ) {
-            foreach ( $input as $module_id => $value ) {
-                $ret_val[ sanitize_key( $module_id ) ] = true;
-            }
-        }
-        return $ret_val;
-    }
-
-    */
-// src/Modules/GeneralSettings/GeneralSettingsLoader.php
-
-	public function render_settings(): string {
-		$manifest = Kernel::get_manifest();
-		$db_settings = get_option( 'triskelion_modules_settings', [] );
-
-		ob_start();
-		?>
-		<div class="tsk-settings-header">
-			<h1><?php echo esc_html__( 'System Modules', 'triskelion-toolkit' ); ?></h1>
-			<p><?php echo esc_html__( 'Core modules are mandatory. Optional modules can be toggled.', 'triskelion-toolkit' ); ?></p>
-		</div>
-
-		<form method="post" action="options.php">
-			<?php settings_fields( 'triskelion_settings_group' ); ?>
-
-			<div class="tsk-modules-list">
-				<?php foreach ( $manifest as $id => $config ) :
-					$is_core = ! empty( $config['is_core'] ); //[cite: 2]
-					$is_active = $is_core || ! empty( $db_settings[ $id ] );
-					?>
-					<div class="tsk-module-card <?php echo $is_core ? 'is-core-module' : ''; ?>">
-						<div class="tsk-module-toggle-area">
-							<?php if ( $is_core ) : ?>
-								<!-- Badge visual para módulos que no se pueden apagar[cite: 2] -->
-								<span class="tsk-badge tsk-badge-active"><?php echo esc_html__( 'Core', 'triskelion-toolkit' ); ?></span>
-							<?php else : ?>
-								<label class="tsk-switch">
-									<input type="checkbox"
-									       name="triskelion_modules_settings[<?php echo esc_attr( $id ); ?>]"
-									       value="1"
-										<?php checked( $is_active ); ?>>
-									<span class="tsk-slider"></span>
-								</label>
-							<?php endif; ?>
-						</div>
-
-						<div class="tsk-module-info-area">
-							<span class="tsk-module-name"><?php echo esc_html( $config['name'] ); ?></span>
-							<p class="tsk-module-description"><?php echo esc_html( $config['description'] ); ?></p>
-						</div>
-					</div>
-				<?php endforeach; ?>
-			</div>
-
-			<?php submit_button( __( 'Save Module Configuration', 'triskelion-toolkit' ) ); ?>
-		</form>
-		<?php
-		return ob_get_clean();
-	}
 
     public static function get_config(): ModuleConfig {
-        return (new ModuleConfigBuilder())
-                ->set_id('general_settings')
-                ->set_name(__( 'General Settings', 'triskelion-toolkit' ))
-                ->set_description(__('General settings for the plugin.', 'triskelion-toolkit'))
-                ->set_class(\Triskelion\TriskelionToolkit\Modules\GeneralSettings\GeneralSettingsLoader::class)
-                ->set_is_core(true)
-                ->set_priority(0)
-                ->set_icon('dashicons-admin-generic')
+        return ( new ModuleConfigBuilder() )
+                ->set_id( 'general_settings' )
+                ->set_name( __( 'General Settings', 'triskelion-toolkit' ) )
+                ->set_description( __( 'General settings for the plugin.', 'triskelion-toolkit' ) )
+                ->set_class( \Triskelion\TriskelionToolkit\Modules\GeneralSettings\GeneralSettingsLoader::class )
+                ->set_is_core( true )
+                ->set_priority( 0 )
+                ->set_icon( 'dashicons-admin-generic' )
                 ->build();
     }
 
+    public function register(): void {
+        // Silencio absoluto. No ensuciamos el arranque de WP.
+    }
 }

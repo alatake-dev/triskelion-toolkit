@@ -1,9 +1,9 @@
 <?php
 namespace Triskelion\TriskelionToolkit\Admin;
 
-use src\Core\SettingsProviderInterface;
-use src\Core\Toolkit;
-use src\Modules\ModuleRegistry;
+use Triskelion\TriskelionToolkit\Core\SettingsProviderInterface;
+use Triskelion\TriskelionToolkit\Core\Toolkit;
+use Triskelion\TriskelionToolkit\Modules\ModuleRegistry;
 
 class Admin {
     public static function init(): void {

@@ -11,33 +11,41 @@ class Kernel {
 	private static ModuleCollection $module_configs;
 	private static array $loaded_modules = [];
 
+	public static function get_manifest(): ModuleCollection {
+		if ( ! isset( self::$module_configs ) ) {
+			self::$module_configs = new ModuleCollection();
+		}
+		return self::$module_configs;
+	}
+
 	public static function boot() {
+
+		add_action('plugins_loaded', [self::class, 'setup'], 1);
 		add_action('init', [self::class, 'init_i18n']);
 
-		add_action('plugins_loaded', function() {
-			self::$module_configs = new ModuleCollection();
-			
-			$db_settings = get_option('triskelion_modules_settings', []);
+	}
+	public static function setup() {
+		self::$module_configs = new ModuleCollection();
 
-			$loader_files = glob(TSK_PATH . 'src/Modules/*/*Loader.php');
+		// Ahora sí, ya cargado WP, buscamos los módulos
+		$db_settings  = get_option( 'triskelion_active_modules', [] );
+		$loader_files = glob( TSK_PATH . 'src/Modules/*/*Loader.php' );
 
-			foreach ($loader_files as $file) {
+		foreach ( $loader_files as $file ) {
+			$class = self::resolve_namespace( $file );
 
-				$class = self::resolve_namespace($file);
-
-				if (!class_exists($class, true) || !is_subclass_of($class, \Triskelion\TriskelionToolkit\Core\Interfaces\RegistrableModuleInterface::class)) {
-					continue;
-				}
-				$config = $class::get_config();
-				self::$module_configs->add($config);
-
-				$is_active = $config->is_core || !empty($db_settings[$config->id]);
-				if ($is_active) {
-					self::$loaded_modules[$config->id] = new $class();
-				}
-
+			if ( ! class_exists( $class, true ) ) {
+				continue;
 			}
-		}, 1);
+
+			$config = $class::get_config(); // Aquí ya no habrá notice de traducción
+			self::$module_configs->add( $config );
+
+			// La lógica de in_array que ya corregimos
+			if ( $config->is_core || in_array( $config->id, $db_settings, true ) ) {
+				self::$loaded_modules[ $config->id ] = new $class();
+			}
+		}
 	}
 
 	private static function resolve_namespace(string $file_path): string {
@@ -49,11 +57,6 @@ class Kernel {
 		$relative_path = str_replace('/', '\\', $relative_path);        // Modules\Smtp\SmtpLoader
 
 		return 'Triskelion\\TriskelionToolkit\\' . $relative_path;
-	}
-	private static function get_class_name_from_path($file_path): string {
-		// Esto es un ejemplo, depende de tu estructura de carpetas y namespace base
-		$path = str_replace([TSK_PATH . 'src/', '.php', '/'], ['', '', '\\'], $file_path);
-		return 'Triskelion\\TriskelionToolkit\\' . $path;
 	}
 
 	/**

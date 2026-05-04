@@ -1,0 +1,168 @@
+@charset "UTF-8";
+/* ==========================================================================
+   TSK ADMIN UI - DESIGN TOKENS
+   ========================================================================== */
+:root {
+  --tsk-primary: #2271b1;
+  --tsk-primary-dark: #135e96;
+  --tsk-bg-main: #fff;
+  --tsk-bg-side: #f0f0f1;
+  --tsk-border-color: #ccd0d4;
+  --tsk-text-main: #2c3338;
+  --tsk-text-dark: #1d2327;
+  --tsk-text-muted: #646970;
+  --tsk-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* ==========================================================================
+   ADMIN LAYOUT
+   ========================================================================== */
+.tsk-admin-page {
+  margin-top: 20px;
+  max-width: 1200px;
+}
+.tsk-admin-layout {
+  display: flex;
+  background: var(--tsk-bg-main);
+  border: 1px solid var(--tsk-border-color);
+  box-shadow: var(--tsk-shadow);
+  min-height: 600px;
+}
+.tsk-admin {
+  /* Navegación lateral */
+}
+.tsk-admin-nav {
+  width: 220px;
+  background: var(--tsk-bg-side);
+  border-right: 1px solid var(--tsk-border-color);
+  flex-shrink: 0;
+}
+.tsk-admin {
+  /* Contenido principal */
+}
+.tsk-admin-main {
+  flex: 1;
+  padding: 40px;
+  background: var(--tsk-bg-main);
+}
+.tsk-admin-main h1 {
+  margin: 0 0 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--tsk-bg-side);
+}
+
+/* ==========================================================================
+   COMPONENTS: TABS & CARDS
+   ========================================================================== */
+.tsk-tab-link {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  text-decoration: none;
+  color: var(--tsk-text-main);
+  border-bottom: 1px solid #dcdcde;
+  transition: all 0.2s ease;
+}
+.tsk-tab-link:hover {
+  background: #e5e5e5;
+  color: var(--tsk-primary);
+}
+.tsk-tab-link.active {
+  background: var(--tsk-bg-main);
+  color: var(--tsk-primary);
+  font-weight: 600;
+  width: calc(100% + 1px);
+  border-right: 4px solid var(--tsk-primary);
+  border-bottom-color: var(--tsk-border-color);
+}
+.tsk-tab-link .dashicons {
+  margin-right: 12px;
+}
+
+.tsk-module-card {
+  display: flex;
+  align-items: flex-start;
+  padding: 25px 15px;
+  border-bottom: 1px solid var(--tsk-bg-side);
+  gap: 20px;
+  transition: background-color 0.2s ease;
+  margin: 0 -15px;
+}
+.tsk-module-card:hover {
+  background-color: #f6f7f7;
+}
+.tsk-module-card:last-of-type {
+  border-bottom: none;
+  margin-bottom: 20px;
+}
+.tsk-module-card {
+  /* Bloqueo visual para módulos CORE */
+}
+.tsk-module-card--core {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+.tsk-module-card--core .tsk-switch {
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   COMPONENT: THE SMART SWITCH
+   ========================================================================== */
+.tsk-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 22px;
+  cursor: pointer;
+}
+.tsk-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.tsk-switch input:checked + .tsk-slider {
+  background-color: var(--tsk-primary);
+}
+.tsk-switch input:checked + .tsk-slider::before {
+  transform: translateX(22px);
+}
+.tsk-switch input {
+  /* Accesibilidad: Focus visible */
+}
+.tsk-switch input:focus + .tsk-slider {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--tsk-primary);
+}
+.tsk-switch input {
+  /* Estado deshabilitado */
+}
+.tsk-switch input:disabled + .tsk-slider {
+  background-color: var(--tsk-border-color);
+  filter: grayscale(1);
+}
+
+.tsk-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--tsk-border-color);
+  transition: background-color 0.3s ease;
+  border-radius: 22px;
+}
+.tsk-slider::before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/*# sourceMappingURL=admin-layout.css.map */

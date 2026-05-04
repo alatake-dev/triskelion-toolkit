@@ -1,14 +1,7 @@
 <?php
 return [
 	/*
-	'general_settings' => [
-		'name'         => __( 'General Settings', 'triskelion-toolkit' ),
-		'description'  => __('General settings for the plugin.', 'triskelion-toolkit'),
-		'class'        => \Triskelion\TriskelionToolkit\Modules\GeneralSettings\GeneralSettingsLoader::class,
-		'is_core'      => true,
-		'priority'     => 0,
-		'icon'         => 'dashicons-admin-generic'
-	],
+
 	'code_showcase' => [
 		'name'         => __( 'Code Showcase', 'triskelion-toolkit' ),
 		'description'  => __( 'Display code snippets in a beautiful macOS-style terminal with multiple tabs and syntax highlighting.', 'triskelion-toolkit' ),
@@ -25,13 +18,6 @@ return [
 		'priority'     => 101,
 		'icon'         => 'dashicons-format-quote'
 	],
-	'diagnostic' => [
-		'name'         => __( 'Logs & Diagnostic', 'triskelion-toolkit' ),
-		'description'  => __( 'Monitor system health, view activity logs, and troubleshoot module performance.', 'triskelion-toolkit' ),
-		'class'        => \Triskelion\TriskelionToolkit\Modules\Diagnostic\DiagnosticLoader::class,
-		'is_core'      => true,
-		'priority'     => 900,
-		'icon'         => 'dashicons-rest-api' // O 'dashicons-visibility'
-	],
+
 	*/
 ];

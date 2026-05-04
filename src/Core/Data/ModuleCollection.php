@@ -7,15 +7,15 @@ class ModuleCollection {
 
 	public function add(ModuleConfig $config): void {
 		$this->items[$config->id] = $config;
-		$this->apply_order();
 	}
 
-	private function apply_order(): void {
-		uasort($this->items, function(ModuleConfig $a, ModuleConfig $b) {
+	public function get_all_sorted(): array {
+		$items = $this->items;
+		uasort($items, function(ModuleConfig $a, ModuleConfig $b) {
 			return ($a->priority <=> $b->priority) ?: ($a->name <=> $b->name);
 		});
+		return $items;
 	}
-
 	public function get_all(): array {
 		return $this->items;
 	}

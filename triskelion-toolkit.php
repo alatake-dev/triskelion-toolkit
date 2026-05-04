@@ -127,3 +127,10 @@ $bootstrap = require_once __DIR__ . '/src/bootstrap.php';
 */
 
 require_once __DIR__ . '/vendor/autoload.php';
+error_log('Triskelion Toolkit: Autoloader cargado');
+
+\Triskelion\TriskelionToolkit\Core\Kernel::boot();
+
+if ( is_admin() ) {
+	new \Triskelion\TriskelionToolkit\Core\AdminManager();
+}
