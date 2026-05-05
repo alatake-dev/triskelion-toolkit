@@ -1,0 +1,165 @@
+/* ==========================================================================
+   TSK CODE SHOWCASE - INTEGRACIÓN TOTAL (BEM + HLJS)
+   ========================================================================== */
+
+.tsk-code-showcase {
+  // 1. VARIABLES DE ENTORNO (Tu centro de mando)
+  --hljs-bg: #1e1e1e;
+  --hljs-text: #d4d4d4;
+  --header-bg: #2d2d2d;
+  --font-mono: 'Fira Code', monospace;
+  // Alturas dinámicas (Consistencia de Diseño)
+  --terminal-height-mobile: 200px;
+  --terminal-height: 400px;
+
+  // Colores de sintaxis (HLJS) - Cámbialos aquí y se aplican en todo el bloque
+  --syntax-keyword: #569cd6;
+  --syntax-string: #ce9178;
+  --syntax-comment: #6a9955;
+  --syntax-function: #dcdcaa;
+  --syntax-number: #b5cea8;
+
+
+  background: var(--hljs-bg);
+  border-radius: 8px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  overflow: hidden;
+  font-family: var(--font-mono);
+  margin: 2em 0;
+  width: 100%;
+
+  // --- HEADER & WINDOW BUTTONS ---
+  &__header {
+    display: flex;
+    align-items: center;
+    background: var(--header-bg);
+    padding: 0 15px;
+    height: 45px;
+    gap: 15px;
+  }
+
+  &__window-buttons {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  &__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block; // Veto: sin esto el span mide 0x0
+
+    &--red { background: #ff5f56; }
+    &--yellow { background: #ffbd2e; }
+    &--green { background: #27c93f; }
+  }
+
+  // --- TABS & NAVIGATION ---
+  &__tabs {
+    display: flex;
+    flex: 1;
+    overflow-x: auto;
+    height: 100%;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  &__tab {
+    all: unset;
+    color: rgba(255,255,255,0.4);
+    padding: 0 20px;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    height: 100%;
+    border-right: 1px solid rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+
+    &.is-active {
+      color: #fff;
+      background: var(--hljs-bg);
+    }
+  }
+
+  // --- CUERPO Y MOTOR DE RESALTADO (HLJS) ---
+  &__body {
+    background: var(--hljs-bg);
+
+    pre {
+      margin: 0 !important;
+      padding: 1.5em !important;
+      background: transparent !important;
+      height: var(--terminal-height); // Consistencia de altura
+      overflow: auto;
+
+      code.hljs {
+        display: block;
+        min-width: max-content;
+        color: var(--hljs-text);
+        line-height: 1.5;
+        font-size: 13px !important;
+        white-space: pre;
+
+        /**
+         * MAPEO HLJS: Aquí es donde recuperas tus colores.
+         * Mapeamos las clases de highlight.js a nuestras variables.
+         */
+        .hljs-keyword, .hljs-selector-tag, .hljs-literal { color: var(--syntax-keyword); font-weight: bold; }
+        .hljs-string, .hljs-title, .hljs-section { color: var(--syntax-string); }
+        .hljs-comment { color: var(--syntax-comment); font-style: italic; }
+        .hljs-number { color: var(--syntax-number); }
+        .hljs-function, .hljs-params { color: var(--syntax-function); }
+        // Agrega más según necesites
+      }
+    }
+  }
+
+  &__copy {
+    all: unset;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.4);
+    &:hover { color: #fff; }
+    &.is-success { color: #27c93f; }
+  }
+
+  &__mobile-selector {
+    display: none; // Veto a la redundancia: oculto por defecto en desktop
+    flex: 1;
+    position: relative;
+    background: #1e1e1e;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    height: 36px;
+  }
+
+  &__select {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    color: #fff;
+    border: none;
+    padding: 0 12px;
+    font-size: 16px; // Tamaño mínimo para evitar zoom automático en iOS (UX First)
+    font-family: var(--font-mono);
+    appearance: none; // Limpiamos estilos nativos de flecha de sistema
+    outline: none;
+  }
+
+  // --- MEDIA QUERY: EL INTERRUPTOR ---
+  @media (max-width: 600px) {
+    &__tabs {
+      display: none !important;
+    }
+
+    &__mobile-selector {
+      display: flex !important;
+    }
+
+    &__header {
+      justify-content: space-between;
+      padding: 0 10px;
+      gap: 5px;
+    }
+  }
+}

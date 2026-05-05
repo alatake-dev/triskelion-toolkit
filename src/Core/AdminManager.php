@@ -20,7 +20,7 @@ class AdminManager {
         // Usamos TSK_PATH para la ruta física y plugin_dir_url para la pública
         wp_enqueue_style(
                 'tsk-admin-layout',
-                plugin_dir_url(TSK_PATH . 'triskelion-toolkit.php') . 'assets/css/admin-layout.css',
+                plugin_dir_url(TSK_PATH . 'triskelion-toolkit.php') . 'build/admin-layout.css',
                 [],
                 '1.0.0'
         );

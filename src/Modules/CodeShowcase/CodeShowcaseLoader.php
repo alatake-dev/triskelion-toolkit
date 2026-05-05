@@ -16,7 +16,7 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
     }
 
     public function register_showcase_block(): void {
-        $block_path = TSK_PATH . 'build/blocks/CodeShowcase/block';
+        $block_path = TSK_PATH . 'build/Modules/CodeShowcase';
 
         if ( file_exists( $block_path . '/block.json' ) ) {
 	        register_block_type( $block_path, [
@@ -38,18 +38,19 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
         $highlighter = new \Highlight\Highlighter();
 
         ob_start(); ?>
-        <div class="tsk-code-showcase-container">
-            <div class="tsk-code-header">
-                <!-- Semántica macOS: Botones de control -->
-                <div class="tsk-window-buttons" aria-hidden="true">
-                    <span class="dot red"></span>
-                    <span class="dot yellow"></span>
-                    <span class="dot green"></span>
+        <div class="tsk-code-showcase"> <!-- Bloque BEM -->
+            <div class="tsk-code-showcase__header">
+
+                <!-- Semántica macOS -->
+                <div class="tsk-code-showcase__window-buttons" aria-hidden="true">
+                    <span class="tsk-code-showcase__dot tsk-code-showcase__dot--red"></span>
+                    <span class="tsk-code-showcase__dot tsk-code-showcase__dot--yellow"></span>
+                    <span class="tsk-code-showcase__dot tsk-code-showcase__dot--green"></span>
                 </div>
 
-                <!-- Selector Móvil: UX First -->
-                <div class="tsk-mobile-selector">
-                    <select class="tsk-file-select" aria-label="Seleccionar archivo">
+                <!-- Selector Móvil: UX Correcta -->
+                <div class="tsk-code-showcase__mobile-selector">
+                    <select class="tsk-code-showcase__select" aria-label="Seleccionar archivo">
                         <?php foreach ( $files as $index => $file ) : ?>
                             <option value="<?php echo $index; ?>" <?php selected($active_tab, $index); ?>>
                                 <?php echo esc_html( $file['fileName'] ); ?>
@@ -58,42 +59,43 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
                     </select>
                 </div>
 
-                <!-- Pestañas Desktop: BEM __tabs -->
-                <div class="tsk-tabs-wrapper" role="tablist">
+                <!-- Pestañas Desktop -->
+                <div class="tsk-code-showcase__tabs" role="tablist">
                     <?php foreach ( $files as $index => $file ) :
                         $is_active = $index === $active_tab; ?>
                         <button
-                                class="tsk-tab <?php echo $is_active ? 'active' : ''; ?>"
+                                class="tsk-code-showcase__tab <?php echo $is_active ? 'is-active' : ''; ?>"
                                 data-index="<?php echo $index; ?>"
                                 role="tab"
-                                aria-selected="<?php echo $is_active ? 'true' : 'false'; ?>"
+                                aria-selected="<?php echo $is_active ? 'true' : 'false' ?>"
                         >
                             <?php echo esc_html( $file['fileName'] ); ?>
                         </button>
                     <?php endforeach; ?>
                 </div>
 
-                <button class="tsk-copy-button" aria-label="Copiar código">
+                <button class="tsk-code-showcase__copy" aria-label="Copiar código">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
                     </svg>
                 </button>
             </div>
 
-            <div class="tsk-code-body">
+            <div class="tsk-code-showcase__body">
                 <?php foreach ( $files as $index => $file ) :
                     $lang = $file['language'] ?? 'plaintext';
                     $is_active = $index === $active_tab;
-                    $content = $file['content'] ?? '';
 
-                    try {
-                        $highlighted = $highlighter->highlight($lang, $content ?? '');
-                        $code_output = $highlighted->value;
-                    } catch ( Exception $e ) {
-                        $code_output = htmlspecialchars($content, ENT_NOQUOTES, 'UTF-8');
-                    }
-                    ?>
-                    <div class="tsk-code-pane <?php echo $is_active ? 'active' : ''; ?>"
+                    $content = html_entity_decode( $file['content'] ?? '', ENT_QUOTES, 'UTF-8' );
+
+                try {
+                    $highlighted = $highlighter->highlight($lang, $content);
+                    $code_output = $highlighted->value;
+                } catch ( Exception $e ) {
+                    $code_output = htmlspecialchars($content, ENT_NOQUOTES, 'UTF-8');
+                }
+                ?>
+                    <div class="tsk-code-showcase__pane <?php echo $is_active ? 'is-active' : ''; ?>"
                          id="pane-<?php echo $index; ?>"
                          role="tabpanel"
                             <?php echo ! $is_active ? 'hidden' : ''; ?>>

@@ -6,9 +6,8 @@
   "license": "GPL-2.0-or-later",
   "private": true,
   "scripts": {
-    "start": "wp-scripts start --webpack-src-dir=src/Modules --output-path=build/blocks",
-    "build": "wp-scripts build --webpack-src-dir=src/Modules --output-path=build/blocks",
-    "dev": "wp-scripts start --webpack-src-dir=src/Modules --output-path=build/blocks",
+    "start": "wp-scripts start",
+    "build": "wp-scripts build",
     "lint:php": "docker exec -it triskelion-wp ./vendor/bin/phpcs"
   },
   "devDependencies": {

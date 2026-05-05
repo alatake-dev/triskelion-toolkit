@@ -61,7 +61,7 @@ class Kernel {
 
 	/**
 	 * Devuelve los módulos que están corriendo actualmente.
-	 * Útil para que la ViewLayer del Admin sepa qué pestañas pintar.
+	 * Útil para que la Capa de Visualización del Admin sepa qué pestañas pintar.
 	 */
 	public static function get_active_modules() {
 		return self::$loaded_modules;
