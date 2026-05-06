@@ -9,8 +9,6 @@ import {
 } from '@wordpress/components';
 
 export default function Edit( { attributes, setAttributes } ) {
-    console.log('TSK Debug: Bloque montado');
-    console.log('Atributos iniciales:', attributes);
     const { files = [], activeTabIndex = 0 } = attributes || {};
     const blockProps = useBlockProps();
 

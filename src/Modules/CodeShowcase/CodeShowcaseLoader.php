@@ -245,7 +245,16 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
     public function register_showcase_block(): void {
         $path = TSK_PATH . 'build/Modules/CodeShowcase';
         if ( file_exists( $path . '/block.json' ) ) {
+            error_log( 'Registering CodeShowcase block' );
             register_block_type( $path, [ 'render_callback' => [ $this, 'render_frontend' ] ] );
+
+            wp_set_script_translations(
+                    'triskelion-code-showcase-editor-script',
+                    'triskelion-toolkit',
+                    TSK_PATH . 'languages'
+            );
+        } else {
+            error_log( 'CodeShowcase block not found' );
         }
     }
 

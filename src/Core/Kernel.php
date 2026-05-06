@@ -107,5 +107,29 @@ class Kernel {
 			// FALLBACK: Si no hay traducción, cargamos el .pot (inglés) por defecto
 			load_plugin_textdomain( $domain, false, dirname( plugin_basename( TSK_FILE ) ) . '/languages' );
 		}
+
+		add_filter( 'load_script_translation_file', function( $file, $handle, $current_domain ) use ( $domain ) {
+			// Solo afectamos a nuestro plugin
+			if ( $domain !== $current_domain ) {
+				return $file;
+			}
+
+			$locale = determine_locale();
+
+			// Si el idioma es español (ej. es_MX, es_AR) pero NO es el "es" base
+			if ( $locale !== 'es' && str_starts_with( $locale, 'es' ) ) {
+
+				// $file contiene la ruta que WP está intentando cargar (ej. .../triskelion-toolkit-es_MX-hash.json)
+				// Reemplazamos "-es_MX-" por "-es-" en la ruta del archivo
+				$fallback_file = str_replace( '-' . $locale . '-', '-es-', $file );
+
+				// Si nuestro archivo base 'es' existe, obligamos a WP a usarlo
+				if ( file_exists( $fallback_file ) ) {
+					return $fallback_file;
+				}
+			}
+
+			return $file;
+		}, 10, 3 );
 	}
 }
