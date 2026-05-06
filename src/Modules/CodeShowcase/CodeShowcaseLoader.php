@@ -2,18 +2,128 @@
 
 namespace Triskelion\TriskelionToolkit\Modules\CodeShowcase;
 
+use Highlight\Highlighter;
 use Triskelion\TriskelionToolkit\Core\AbstractModule;
+use Triskelion\TriskelionToolkit\Core\Data\ModuleConfig;
 use Triskelion\TriskelionToolkit\Core\Data\ModuleConfigBuilder;
 use Triskelion\TriskelionToolkit\Core\Interfaces\HasSettingsInterface;
 use Triskelion\TriskelionToolkit\Core\Interfaces\RegistrableModuleInterface;
-use Triskelion\TriskelionToolkit\Core\Data\ModuleConfig;
 
 class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInterface, HasSettingsInterface {
 
-    protected function register(): void {
-        add_action( 'init', [ $this, 'register_showcase_block' ] );
-        add_action( 'enqueue_block_editor_assets', [ $this, 'enqueue_block_assets' ] );
-        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
+    public static function get_config(): ModuleConfig {
+        return ( new ModuleConfigBuilder() )
+                ->set_id( 'code_showcase' )
+                ->set_name( 'Code Showcase' )
+                ->set_description( 'Display code snippets with a premium macOS terminal aesthetic.' )
+                ->set_class( self::class )
+                ->set_priority( 100 )
+                ->set_is_core( false )
+                ->set_icon( 'dashicons-rest-api' )
+                ->build();
+
+    }
+
+    public function enqueue_admin_assets( $hook ): void {
+        if ( ! str_contains( $hook, 'triskelion-toolkit' ) ) {
+            return;
+        }
+
+        $js_path = 'src/Modules/CodeShowcase/assets/admin-inventory.js';
+        wp_enqueue_script( 'tsk-admin-inventory', TSK_URL . $js_path, [], filemtime( TSK_PATH . $js_path ), true );
+        wp_enqueue_style( 'tsk-showcase-admin-styles', TSK_URL . 'src/Modules/CodeShowcase/assets/admin-module.css', [], '1.0.0' );
+        wp_enqueue_style( 'tsk-showcase-hljs-styles', TSK_URL . 'src/Modules/CodeShowcase/assets/syntax-highlighting.css', [], '1.0.0' );
+
+        $json = TSK_PATH . 'src/Modules/CodeShowcase/assets/languages.json';
+        if ( file_exists( $json ) ) {
+            wp_localize_script( 'tsk-admin-inventory', 'tskInventoryData', [
+                    'allLanguages' => json_decode( file_get_contents( $json ), true ) ?: [ 'php', 'javascript' ]
+            ] );
+        }
+    }
+
+    public function render_settings(): string {
+        $settings    = $this->get_settings();
+        $theme       = $settings['active_theme'];
+        $themes_data = $this->get_themes_config();
+        ob_start(); ?>
+        <h1><?php echo self::i18n_config()['name']; ?></h1>
+        <p class="description"><?php echo self::i18n_config()['description'] ?></p>
+        <div class="tsk-settings-container">
+            <?php echo $this->get_theme_inline_css( $theme, true ); ?>
+            <h2><?php esc_html_e( 'Code Showcase Configuration', 'triskelion-toolkit' ); ?></h2>
+            <form action="options.php" method="post">
+                <?php settings_fields( 'triskelion_showcase_group' ); ?>
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><?php esc_html_e( 'Theme', 'triskelion-toolkit' ); ?> </th>
+                        <td>
+                            <select name="tsk_showcase_settings[active_theme]">
+                                <?php foreach ( $themes_data as $id => $data ) : ?>
+                                    <option value="<?php echo esc_attr( $id ); ?>" <?php selected( $theme, $id ); ?>>
+                                        <?php echo esc_html( $data['label'] ); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><?php esc_html_e( 'Preview View', 'triskelion-toolkit' ); ?></th>
+                        <td>
+                            <div class="tsk-code-showcase-preview is-theme-<?php echo esc_attr( $theme ); ?>">
+                                <div class="tsk-window-header">
+                                    <div class="tsk-dots"><span class="dot red"></span><span
+                                                class="dot yellow"></span><span
+                                                class="dot green"></span></div>
+                                    <div class="tsk-tabs">
+                                        <div class="tsk-tab is-active">preview.php</div>
+                                    </div>
+                                </div>
+                                <div class="tsk-window-content">
+                                <pre><code class="hljs php"><?php
+                                        $hl = new Highlighter();
+                                        echo $hl->highlight( 'php', "function hello() {\n    echo 'Triskelion Power';\n}" )->value;
+                                        ?></code></pre>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><?php esc_html_e( 'Languages inventory', 'triskelion-toolkit' ); ?></th>
+                        <td>
+                            <div class="tsk-search-group">
+                                <input type="text" id="tsk-lang-finder"
+                                       placeholder="<?php echo esc_attr__( 'Add language...', 'triskelion-toolkit' ); ?>"
+                                       class="regular-text">
+                                <ul id="tsk-search-results" class="tsk-results-list" hidden></ul>
+
+                            </div>
+                            <div class="tsk-pills" id="tsk-active-langs">
+                                <?php foreach ( $settings['active_languages'] as $lang ) : ?>
+                                    <div class="tsk-pill">
+                                        <span><?php echo strtoupper( $lang ); ?></span>
+                                        <input type="hidden" name="tsk_showcase_settings[active_languages][]"
+                                               value="<?php echo $lang; ?>">
+                                        <button type="button" class="tsk-pill__remove">&times;</button>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <?php submit_button(); ?>
+            </form>
+        </div>
+        <?php return ob_get_clean();
+    }
+
+    private function get_settings(): array {
+        $defaults = [
+                'active_theme'     => 'triskelion-dark',
+                'active_languages' => [ 'php', 'javascript', 'css', 'html', 'json', 'sql' ]
+        ];
+
+        return wp_parse_args( get_option( 'tsk_showcase_settings', [] ), $defaults );
     }
 
     private function get_themes_config(): array {
@@ -54,6 +164,13 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
         ];
     }
 
+    public static function i18n_config(): array {
+        return [
+                'name'        => __( 'Code Showcase', 'triskelion-toolkit' ),
+                'description' => __( 'Display code snippets with a premium macOS terminal aesthetic.', 'triskelion-toolkit' )
+        ];
+    }
+
     private function get_theme_inline_css( $active_theme, $is_admin = false ): string {
         $themes_config = $this->get_themes_config();
         $css           = "";
@@ -61,135 +178,35 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
 
         foreach ( $targets as $id ) {
             $vars = $themes_config[ $id ];
-            $css  .= ".is-theme-{$id} { ";
+            $css  .= ".is-theme-$id { ";
             foreach ( $vars as $var => $val ) {
                 if ( $var === 'label' ) {
                     continue;
                 }
-                $css .= "{$var}: {$val}; ";
+                $css .= "$var: $val; ";
             }
             $css .= "}\n";
 
             // Cadenas y documentación especial
-            $css .= ".is-theme-{$id} .hljs-string, .is-theme-{$id} .hljs-doctag, .is-theme-{$id} .hljs-regexp { color: var(--tsk-syntax-string) !important; }\n";
+            $css .= ".is-theme-<$id> .hljs-string, .is-theme-$id .hljs-doctag, .is-theme-$id .hljs-regexp { color: var(--tsk-syntax-string) !important; }\n";
 
             // Palabras reservadas y tipos de sistema
-            $css .= ".is-theme-{$id} .hljs-keyword, .is-theme-{$id} .hljs-selector-tag, .is-theme-{$id} .hljs-built_in, .is-theme-{$id} .hljs-type { color: var(--tsk-syntax-keyword) !important; font-weight: bold !important; }\n";
+            $css .= ".is-theme-$id .hljs-keyword, .is-theme-$id .hljs-selector-tag, .is-theme-$id .hljs-built_in, .is-theme-$id .hljs-type { color: var(--tsk-syntax-keyword) !important; font-weight: bold !important; }\n";
 
             // Comentarios y citas
-            $css .= ".is-theme-{$id} .hljs-comment, .is-theme-{$id} .hljs-quote { color: var(--tsk-syntax-comment) !important; font-style: italic !important; }\n";
+            $css .= ".is-theme-$id .hljs-comment, .is-theme-$id .hljs-quote { color: var(--tsk-syntax-comment) !important; font-style: italic !important; }\n";
 
             // Números y constantes literales
-            $css .= ".is-theme-{$id} .hljs-number, .is-theme-{$id} .hljs-literal { color: var(--tsk-syntax-number) !important; }\n";
+            $css .= ".is-theme-$id .hljs-number, .is-theme-$id .hljs-literal { color: var(--tsk-syntax-number) !important; }\n";
 
             // Funciones, clases y títulos de sección
-            $css .= ".is-theme-{$id} .hljs-function, .is-theme-{$id} .hljs-title, .is-theme-{$id} .hljs-title.function_, .is-theme-{$id} .hljs-title.class_, .is-theme-{$id} .hljs-section { color: var(--tsk-syntax-function) !important; }\n";
+            $css .= ".is-theme-$id .hljs-function, .is-theme-$id .hljs-title, .is-theme-$id .hljs-title.function_, .is-theme-$id .hljs-title.class_, .is-theme-$id .hljs-section { color: var(--tsk-syntax-function) !important; }\n";
 
             // Atributos y variables (si quieres diferenciarlos, si no, usa el color de texto base)
-            $css .= ".is-theme-{$id} .hljs-attr, .is-theme-{$id} .hljs-variable, .is-theme-{$id} .hljs-template-variable { color: var(--tsk-syntax-number); }\n";        }
-
-        return "<style>{$css}</style>";
-    }
-
-    public function enqueue_admin_assets( $hook ) {
-        if ( ! str_contains( $hook, 'triskelion-toolkit' ) ) {
-            return;
+            $css .= ".is-theme-$id .hljs-attr, .is-theme-$id .hljs-variable, .is-theme-$id .hljs-template-variable { color: var(--tsk-syntax-number); }\n";
         }
 
-        $js_path = 'src/Modules/CodeShowcase/assets/admin-inventory.js';
-        wp_enqueue_script( 'tsk-admin-inventory', TSK_URL . $js_path, [], filemtime( TSK_PATH . $js_path ), true );
-        wp_enqueue_style( 'tsk-showcase-admin-styles', TSK_URL . 'src/Modules/CodeShowcase/assets/admin-module.css', [], '1.0.0' );
-        wp_enqueue_style( 'tsk-showcase-hljs-styles', TSK_URL . 'src/Modules/CodeShowcase/assets/syntax-highlighting.css', [], '1.0.0' );
-
-        $json = TSK_PATH . 'src/Modules/CodeShowcase/assets/languages.json';
-        if ( file_exists( $json ) ) {
-            wp_localize_script( 'tsk-admin-inventory', 'tskInventoryData', [
-                    'allLanguages' => json_decode( file_get_contents( $json ), true ) ?: [ 'php', 'javascript' ]
-            ] );
-        }
-    }
-
-    private function get_settings(): array {
-        $defaults = [
-                'active_theme'     => 'triskelion-dark',
-                'active_languages' => [ 'php', 'javascript', 'css', 'html', 'json', 'sql' ]
-        ];
-
-        return wp_parse_args( get_option( 'tsk_showcase_settings', [] ), $defaults );
-    }
-
-    public function render_settings(): string {
-        $settings    = $this->get_settings();
-        $theme       = $settings['active_theme'];
-        $themes_data = $this->get_themes_config();
-        ob_start(); ?>
-        <h1><?php echo self::i18n_config()['name']; ?></h1>
-        <p class="description"><?php echo self::i18n_config()['description'] ?></p>
-        <div class="tsk-settings-container">
-            <?php echo $this->get_theme_inline_css( $theme, true ); ?>
-            <h2><?php esc_html_e('Code Showcase Configuration', 'triskelion-toolkit');?></h2>
-            <form action="options.php" method="post">
-                <?php settings_fields( 'triskelion_showcase_group' ); ?>
-                <table class="form-table">
-                    <tr>
-                        <th scope="row"><?php esc_html_e('Theme', 'triskelion-toolkit' ); ?> </th>
-                        <td>
-                            <select name="tsk_showcase_settings[active_theme]">
-                                <?php foreach ( $themes_data as $id => $data ) : ?>
-                                    <option value="<?php echo esc_attr( $id ); ?>" <?php selected( $theme, $id ); ?>>
-                                        <?php echo esc_html( $data['label'] ); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><?php esc_html_e( 'Preview View', 'triskelion-toolkit' ); ?></th>
-                        <td>
-                            <div class="tsk-code-showcase-preview is-theme-<?php echo esc_attr( $theme ); ?>">
-                                <div class="tsk-window-header">
-                                    <div class="tsk-dots"><span class="dot red"></span><span
-                                                class="dot yellow"></span><span
-                                                class="dot green"></span></div>
-                                    <div class="tsk-tabs">
-                                        <div class="tsk-tab is-active">preview.php</div>
-                                    </div>
-                                </div>
-                                <div class="tsk-window-content">
-                                <pre><code class="hljs php"><?php
-                                        $hl = new \Highlight\Highlighter();
-                                        echo $hl->highlight( 'php', "function hello() {\n    echo 'Triskelion Power';\n}" )->value;
-                                        ?></code></pre>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><?php esc_html_e( 'Languages inventory', 'triskelion-toolkit' ); ?></th>
-                        <td>
-                            <div class="tsk-search-group">
-                                <input type="text" id="tsk-lang-finder" placeholder="<?php echo esc_attr__( 'Add language...', 'triskelion-toolkit' ); ?>"
-                                       class="regular-text">
-                                <ul id="tsk-search-results" class="tsk-results-list" hidden></ul>
-
-                            </div>
-                            <div class="tsk-pills" id="tsk-active-langs">
-                                <?php foreach ( $settings['active_languages'] as $lang ) : ?>
-                                    <div class="tsk-pill">
-                                        <span><?php echo strtoupper( $lang ); ?></span>
-                                        <input type="hidden" name="tsk_showcase_settings[active_languages][]"
-                                               value="<?php echo $lang; ?>">
-                                        <button type="button" class="tsk-pill__remove">&times;</button>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-                <?php submit_button(); ?>
-            </form>
-        </div>
-        <?php return ob_get_clean();
+        return "<style>$css</style>";
     }
 
     public function render_frontend( $attributes ): string {
@@ -201,7 +218,7 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
         }
 
         $active_tab = (int) ( $attributes['activeTabIndex'] ?? 0 );
-        $hl         = new \Highlight\Highlighter();
+        $hl         = new Highlighter();
         ob_start(); ?>
         <?php echo $this->get_theme_inline_css( $theme ); ?>
         <div class="tsk-code-showcase is-theme-<?php echo esc_attr( $theme ); ?>">
@@ -220,7 +237,8 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
                     <?php endforeach; ?>
                 </div>
                 <!-- Botón Copy Exclusivo del Front -->
-                <button class="tsk-code-showcase__copy" aria-label="<?php esc_attr_e( 'Copy code', 'triskelion-toolkit' ); ?>">
+                <button class="tsk-code-showcase__copy"
+                        aria-label="<?php esc_attr_e( 'Copy code', 'triskelion-toolkit' ); ?>">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
@@ -284,23 +302,9 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
         ];
     }
 
-    public static function get_config(): ModuleConfig {
-        return ( new ModuleConfigBuilder() )
-                ->set_id( 'code_showcase' )
-                ->set_name( 'Code Showcase')
-                ->set_description( 'Display code snippets with a premium macOS terminal aesthetic.' )
-                ->set_class( self::class )
-                ->set_priority( 100 )
-                ->set_is_core( false )
-                ->set_icon( 'dashicons-rest-api' )
-                ->build();
-
-    }
-
-    public static function i18n_config(): array {
-        return [
-            'name' => __( 'Code Showcase', 'triskelion-toolkit'),
-            'description' =>   __( 'Display code snippets with a premium macOS terminal aesthetic.', 'triskelion-toolkit' )
-        ];
+    protected function register(): void {
+        add_action( 'init', [ $this, 'register_showcase_block' ] );
+        add_action( 'enqueue_block_editor_assets', [ $this, 'enqueue_block_assets' ] );
+        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
     }
 }

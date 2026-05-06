@@ -63,7 +63,9 @@
     border-bottom-color: var(--tsk-border-color);
   }
 
-  .dashicons { margin-right: 12px; }
+  .dashicons {
+    margin-right: 12px;
+  }
 }
 
 .tsk-module-card {
@@ -75,7 +77,9 @@
   transition: background-color 0.2s ease;
   margin: 0 -15px;
 
-  &:hover { background-color: #f6f7f7; }
+  &:hover {
+    background-color: #f6f7f7;
+  }
 
   &:last-of-type {
     border-bottom: none;
@@ -88,7 +92,11 @@
     cursor: not-allowed;
     opacity: 0.8;
 
-    .tsk-switch { pointer-events: none; } // Evita interacción física
+    .tsk-switch {
+      pointer-events: none;
+    }
+
+    // Evita interacción física
   }
 }
 
@@ -103,11 +111,16 @@
   cursor: pointer;
 
   input {
-    opacity: 0; width: 0; height: 0;
+    opacity: 0;
+    width: 0;
+    height: 0;
 
     &:checked + .tsk-slider {
       background-color: var(--tsk-primary);
-      &::before { transform: translateX(22px); }
+
+      &::before {
+        transform: translateX(22px);
+      }
     }
 
     /* Accesibilidad: Focus visible */
@@ -125,7 +138,10 @@
 
 .tsk-slider {
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: var(--tsk-border-color);
   transition: background-color 0.3s ease;
   border-radius: 22px;
@@ -133,12 +149,14 @@
   &::before {
     position: absolute;
     content: "";
-    height: 16px; width: 16px;
-    left: 3px; bottom: 3px;
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
     background-color: white;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 50%;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -159,7 +177,7 @@
   border-radius: 4px;
   font-size: 11px;
   font-weight: 600;
-  border: 1px solid rgba(0,0,0,0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
 
   &__remove {
     all: unset; // Limpiamos estilos de botón nativo
@@ -193,7 +211,7 @@
   background: #fff;
   border: 1px solid #ccd0d4;
   border-radius: 0 0 4px 4px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -206,7 +224,9 @@
     font-size: 13px;
     border-bottom: 1px solid #f0f0f1;
 
-    &:last-child { border-bottom: none; }
+    &:last-child {
+      border-bottom: none;
+    }
 
     &:hover {
       background: var(--tsk-admin-accent);

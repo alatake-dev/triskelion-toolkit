@@ -1,12 +1,20 @@
 <?php
+
 namespace Triskelion\TriskelionToolkit\Core;
 
 class Logger {
 	public const LEVEL_DEBUG = 'debug';
-	public const LEVEL_INFO  = 'info';
-	public const LEVEL_WARN  = 'warn';
+	public const LEVEL_INFO = 'info';
+	public const LEVEL_WARN = 'warn';
 	public const LEVEL_ERROR = 'error';
-	public const LEVEL_OFF   = 'off';
+	public const LEVEL_OFF = 'off';
+	private static string $log_path = '';
+private static int $max_size = 2097152;
+	private static bool $initialized = false;
+
+	public static function get_levels(): array {
+		return array_keys( self::get_severity_map() );
+	} // 2MB
 
 	public static function get_severity_map(): array {
 		return [
@@ -17,16 +25,46 @@ class Logger {
 			self::LEVEL_OFF   => 4,
 		];
 	}
-	public static function get_levels(): array {
-		return array_keys(self::get_severity_map());
-	}
-	private static string $log_path = '';
-	private static int $max_size = 2097152; // 2MB
 
-	private static bool $initialized = false;
+	public static function info( string $message, string $module = 'CORE' ): void {
+		self::write( $message, 'info', $module );
+	}
+
+	private static function write( string $message, string $level, string $module ): void {
+		self::init();
+		$config = self::get_config();
+		if ( ! $config['enabled'] ) {
+			return;
+		}
+
+		$severity      = self::get_severity_map();
+		$msg_weight    = $severity[ $level ] ?? 3;
+		$thresh_weight = $severity[ $config['level'] ] ?? 3;
+
+		if ( $msg_weight < $thresh_weight ) {
+			return;
+		}
+
+		$file = self::$log_path . '/triskelion.log';
+
+		if ( file_exists( $file ) && filesize( $file ) > self::$max_size ) {
+			rename( $file, self::$log_path . '/triskelion-' . date( 'Ymd-His' ) . '.bak' );
+			self::cleanup_backups();
+		}
+
+		$entry = sprintf(
+			"[%s] [%s] [%-12s] %s\n",
+			date( 'Y-m-d H:i:s' ),
+			str_pad( strtoupper( $level ), 5 ),
+			strtoupper( substr( $module, 0, 12 ) ),
+			$message
+		);
+
+		file_put_contents( $file, $entry, FILE_APPEND );
+	}
 
 	public static function init(): void {
-		if (self::$initialized) {
+		if ( self::$initialized ) {
 			return;
 		}
 		self::$initialized = true;
@@ -52,6 +90,11 @@ class Logger {
 		error_log( 'Logger init, log path: ' . self::$log_path );
 	}
 
+	private static function secure_directory(): void {
+		file_put_contents( self::$log_path . '/.htaccess', "Deny from all" );
+		file_put_contents( self::$log_path . '/index.php', "<?php // Silence" );
+	}
+
 	private static function get_config(): array {
 		$ret_val = [];
 		if ( defined( 'TSK_DEBUG' ) ) {
@@ -61,13 +104,13 @@ class Logger {
 			$level = (string) constant( 'TSK_LOG_LEVEL' );
 		}
 
-		if (! isset($enabled) || ! isset($level)) {
+		if ( ! isset( $enabled ) || ! isset( $level ) ) {
 			$settings = $settings ?? get_option( 'tsk_diagnostic_settings', [] );
-			if (! isset($enabled)) {
-				$enabled    = $settings['debug_enabled'] ?? false;
+			if ( ! isset( $enabled ) ) {
+				$enabled = $settings['debug_enabled'] ?? false;
 			}
-			if ( ! isset($level)){
-				$level    = $settings['level'] ?? 'error';
+			if ( ! isset( $level ) ) {
+				$level = $settings['level'] ?? 'error';
 			}
 		}
 		$ret_val['enabled'] = $enabled;
@@ -77,8 +120,12 @@ class Logger {
 		return $ret_val;
 	}
 
-	public static function info( string $message, string $module = 'CORE' ): void {
-		self::write( $message, 'info', $module );
+	private static function cleanup_backups(): void {
+		$files = glob( self::$log_path . '/*.bak' );
+		if ( count( $files ) > 3 ) {
+			array_multisort( array_map( 'filemtime', $files ), SORT_ASC, $files );
+			unlink( $files[0] );
+		}
 	}
 
 	public static function warn( string $message, string $module = 'CORE' ): void {
@@ -96,58 +143,11 @@ class Logger {
 		self::write( $message, 'debug', $module );
 	}
 
-
-
-	private static function write( string $message, string $level, string $module ): void {
-		self::init();
-		$config = self::get_config();
-		if ( ! $config['enabled'] ) {
-			return;
-		}
-
-		$severity = self::get_severity_map();
-		$msg_weight    = $severity[$level] ?? 3;
-		$thresh_weight = $severity[$config['level']] ?? 3;
-
-		if ( $msg_weight < $thresh_weight ) {
-			return;
-		}
-
-		$file = self::$log_path . '/triskelion.log';
-
-		if ( file_exists( $file ) && filesize( $file ) > self::$max_size ) {
-			rename( $file, self::$log_path . '/triskelion-' . date( 'Ymd-His' ) . '.bak' );
-			self::cleanup_backups();
-		}
-
-		$entry = sprintf(
-			"[%s] [%s] [%-12s] %s\n",
-			date( 'Y-m-d H:i:s' ),
-			str_pad( strtoupper( $level ), 5 ),
-			strtoupper( substr( $module, 0, 12 ) ),
-			$message
-		);
-
-		$result = file_put_contents( $file, $entry, FILE_APPEND );
-	}
-
-	private static function secure_directory(): void {
-		file_put_contents( self::$log_path . '/.htaccess', "Deny from all" );
-		file_put_contents( self::$log_path . '/index.php', "<?php // Silence" );
-	}
-
-	private static function cleanup_backups(): void {
-		$files = glob( self::$log_path . '/*.bak' );
-		if ( count( $files ) > 3 ) {
-			array_multisort( array_map( 'filemtime', $files ), SORT_ASC, $files );
-			unlink( $files[0] );
-		}
-	}
-
 	public static function get_log_path(): string {
 		if ( empty( self::$log_path ) ) {
 			self::init();
 		}
+
 		return self::$log_path . '/triskelion.log';
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Triskelion\TriskelionToolkit\Core;
 
 use Triskelion\TriskelionToolkit\Core\Data\ModuleCollection;
@@ -8,30 +9,30 @@ class AdminManager {
     private ModuleCollection $modules;
     private array $active_loaders;
 
-	public function __construct(ModuleCollection $modules, array $active_loaders) {
-        $this->modules = $modules;
+    public function __construct( ModuleCollection $modules, array $active_loaders ) {
+        $this->modules        = $modules;
         $this->active_loaders = $active_loaders;
-	}
+    }
 
     public function init(): void {
-        add_action('admin_menu', [$this, 'add_toolkit_menu']);
-        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
+        add_action( 'admin_menu', [ $this, 'add_toolkit_menu' ] );
+        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
 
-        $basename = plugin_basename(TSK_FILE);
-        add_filter("plugin_action_links_{$basename}", [$this, 'add_settings_link']);
+        $basename = plugin_basename( TSK_FILE );
+        add_filter( "plugin_action_links_$basename", [ $this, 'add_settings_link' ] );
         add_action( 'admin_init', [ $this, 'trigger_module_settings' ] );
-        add_filter( 'block_categories_all', function( $categories ) {
+        add_filter( 'block_categories_all', function ( $categories ) {
             return array_merge(
                     $categories,
                     [
                             [
                                     'slug'  => 'triskelion',
                                     'title' => __( 'Triskelion', 'triskelion-toolkit' ),
-                                    'icon'  => 'admin-generic', // Aquí puedes usar un dashicon o un SVG de tu logo
+                                    'icon'  => 'admin-generic',
                             ],
                     ]
             );
-        }, 10, 1 );
+        } );
     }
 
     public function trigger_module_settings(): void {
@@ -42,34 +43,36 @@ class AdminManager {
         }
     }
 
-    public function enqueue_admin_assets($hook): void {
-        if ('tools_page_triskelion-toolkit' !== $hook) {
+    public function enqueue_admin_assets( $hook ): void {
+        if ( 'tools_page_triskelion-toolkit' !== $hook ) {
             return;
         }
 
         wp_enqueue_style(
                 'tsk-admin-layout',
-                plugin_dir_url(TSK_FILE) . 'build/admin-layout.css',
+                plugin_dir_url( TSK_FILE ) . 'build/admin-layout.css',
                 [],
                 '1.0.0'
         );
     }
 
-    public function add_settings_link($links) {
-        $settings_link = '<a href="admin.php?page=triskelion-toolkit">' . __('Settings', 'triskelion-toolkit') . '</a>';
-        array_unshift($links, $settings_link);
+    public function add_settings_link( $links ) {
+        $settings_link = '<a href="admin.php?page=triskelion-toolkit">' . __( 'Settings', 'triskelion-toolkit' ) . '</a>';
+        array_unshift( $links, $settings_link );
+
         return $links;
     }
-	public function add_toolkit_menu(): void {
+
+    public function add_toolkit_menu(): void {
         add_submenu_page(
                 'tools.php',
-			esc_html__( 'Triskelion Toolkit', 'triskelion-toolkit' ),
-			esc_html__( 'Triskelion Toolkit', 'triskelion-toolkit' ),
-			'manage_options',
-			'triskelion-toolkit',
-			[$this, 'render_layout']
-		);
-	}
+                esc_html__( 'Triskelion Toolkit', 'triskelion-toolkit' ),
+                esc_html__( 'Triskelion Toolkit', 'triskelion-toolkit' ),
+                'manage_options',
+                'triskelion-toolkit',
+                [ $this, 'render_layout' ]
+        );
+    }
 
     public function render_layout(): void {
         $active_instances = $this->active_loaders;
@@ -77,9 +80,9 @@ class AdminManager {
         $sorted_configs = $this->modules->get_all_sorted();
 
         $final_menu = [];
-        foreach ($sorted_configs as $id => $config) {
-            if (isset($active_instances[$id])) {
-                $final_menu[$id] = $active_instances[$id];
+        foreach ( $sorted_configs as $id => $config ) {
+            if ( isset( $active_instances[ $id ] ) ) {
+                $final_menu[ $id ] = $active_instances[ $id ];
             }
         }
 
@@ -90,7 +93,9 @@ class AdminManager {
                 <nav class="tsk-admin-nav">
                     <?php
                     foreach ( $final_menu as $id => $obj ) :
-                        if ( ! ( $obj instanceof HasSettingsInterface ) ) continue;
+                        if ( ! ( $obj instanceof HasSettingsInterface ) ) {
+                            continue;
+                        }
 
                         $config = $obj::get_config();
 

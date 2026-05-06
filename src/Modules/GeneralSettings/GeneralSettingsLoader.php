@@ -6,10 +6,9 @@ use Triskelion\TriskelionToolkit\Core\AbstractModule;
 use Triskelion\TriskelionToolkit\Core\Data\ModuleCollection;
 use Triskelion\TriskelionToolkit\Core\Data\ModuleConfig;
 use Triskelion\TriskelionToolkit\Core\Data\ModuleConfigBuilder;
+use Triskelion\TriskelionToolkit\Core\Interfaces\HasSettingsInterface;
 use Triskelion\TriskelionToolkit\Core\Interfaces\NeedsModuleCollectionInterface;
 use Triskelion\TriskelionToolkit\Core\Interfaces\RegistrableModuleInterface;
-use Triskelion\TriskelionToolkit\Core\Interfaces\HasSettingsInterface;
-use Triskelion\TriskelionToolkit\Core\Kernel;
 use Triskelion\TriskelionToolkit\Core\Logger;
 
 class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterface, RegistrableModuleInterface, NeedsModuleCollectionInterface {
@@ -17,6 +16,7 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
     private ModuleCollection $module_collection;
 
     public function __construct() {
+        parent::__construct();
         add_action( 'admin_init', [ $this, 'register_module_settings' ] );
     }
 
@@ -34,12 +34,12 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
         ob_start(); ?>
         <div class="tsk-settings-container">
             <h1><?php esc_html_e( self::get_config()->name, 'triskelion-toolkit' ); ?></h1>
-            <p class="description"><?php esc_html_e( self::get_config()->description, 'triskelion-toolkit'); ?></p>
+            <p class="description"><?php esc_html_e( self::get_config()->description, 'triskelion-toolkit' ); ?></p>
 
             <form method="post" action="options.php">
                 <?php
                 settings_fields( 'tsk_settings_group' );
-                echo $this->render_module_grid(  $active_modules );
+                echo $this->render_module_grid( $active_modules );
                 submit_button( __( 'Save Changes', 'triskelion-toolkit' ) );
                 ?>
             </form>
@@ -48,31 +48,43 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
         return ob_get_clean();
     }
 
+    public static function get_config(): ModuleConfig {
+        return ( new ModuleConfigBuilder() )
+                ->set_id( 'general_settings' )
+                ->set_name( 'General Settings' )
+                ->set_description( 'General settings for the plugin.' )
+                ->set_class( self::class )
+                ->set_is_core( true )
+                ->set_priority( 0 )
+                ->set_icon( 'dashicons-admin-generic' )
+                ->build();
+    }
+
     /**
      * Componente de UI: El Grid de Módulos.
      * Aquí aplicamos el orden jerárquico y bloqueamos los módulos obligatorios.
      */
-    private function render_module_grid($active_modules): string {
+    private function render_module_grid( $active_modules ): string {
         $sorted_modules = $this->module_collection->get_all_sorted();
 
         ob_start(); ?>
 
         <div class="tsk-modules-grid">
-            <?php foreach ($sorted_modules as $config) :
-                $is_core   = $config->is_core;
-                $is_active = $is_core || in_array($config->id, $active_modules, true);
+            <?php foreach ( $sorted_modules as $config ) :
+                $is_core = $config->is_core;
+                $is_active = $is_core || in_array( $config->id, $active_modules, true );
 
-                $card_classes = 'tsk-module-card' . ($is_core ? ' tsk-module-card--core' : '');
+                $card_classes = 'tsk-module-card' . ( $is_core ? ' tsk-module-card--core' : '' );
                 ?>
-                <div class="<?php echo esc_attr($card_classes); ?>">
+                <div class="<?php echo esc_attr( $card_classes ); ?>">
                     <div class="tsk-module-toggle">
                         <label class="tsk-switch">
                             <input type="checkbox"
                                     <?php
                                     echo ! $is_core ? 'name="tsk_active_modules[]"' : ''; ?>
-                                   value="<?php echo esc_attr($config->id); ?>"
-                                    <?php checked($is_active); ?>
-                                    <?php disabled($is_core); ?>>
+                                   value="<?php echo esc_attr( $config->id ); ?>"
+                                    <?php checked( $is_active ); ?>
+                                    <?php disabled( $is_core ); ?>>
                             <span class="tsk-slider"></span>
                         </label>
                     </div>
@@ -80,13 +92,13 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
                     <div class="tsk-module-info">
                     <span class="tsk-module-title">
                         <?php error_log( "render_module_grid: " . $config->class ) ?>
-                        <?php echo esc_html($this->resolve_i18n_field( 'name', $config )); ?>
-                        <?php if ($is_core) : ?>
-                            <span class="tsk-badge tsk-badge--mandatory">(<?php _e('Core Module', 'triskelion-toolkit' ); ?>)</span>
+                        <?php echo esc_html( $this->resolve_i18n_field( 'name', $config ) ); ?>
+                        <?php if ( $is_core ) : ?>
+                            <span class="tsk-badge tsk-badge--mandatory">(<?php _e( 'Core Module', 'triskelion-toolkit' ); ?>)</span>
                         <?php endif; ?>
                     </span>
                         <p class="tsk-module-desc">
-                            <?php echo esc_html($this->resolve_i18n_field( 'description', $config )); ?>
+                            <?php echo esc_html( $this->resolve_i18n_field( 'description', $config ) ); ?>
                         </p>
                     </div>
                 </div>
@@ -95,42 +107,6 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 
         <?php
         return ob_get_clean();
-    }
-    public function sanitize_module_settings( $input ): array {
-        $submitted = is_array($input) ? $input : [];
-        $manifest = $this->module_collection;
-        $valid_ids = array_keys($manifest->get_all_sorted());
-
-        return array_values(array_filter($submitted, function($id) use ($valid_ids, $manifest) {
-            return in_array($id, $valid_ids, true) && ! $manifest->get($id)->is_core;
-        }));
-    }
-
-    public static function get_config(): ModuleConfig {
-        return ( new ModuleConfigBuilder() )
-                ->set_id( 'general_settings' )
-                ->set_name(  'General Settings' )
-                ->set_description(  'General settings for the plugin.')
-                ->set_class( self::class )
-                ->set_is_core( true )
-                ->set_priority( 0 )
-                ->set_icon( 'dashicons-admin-generic' )
-                ->build();
-    }
-
-    public function register(): void {
-        // Silencio absoluto. No ensuciamos el arranque de WP.
-    }
-
-    public function set_module_collection( ModuleCollection $collection ): void {
-        $this->module_collection = $collection;
-    }
-    public static function i18n_config(): array {
-        return [
-                'name' => __( 'General Settings', 'triskelion-toolkit' ),
-                'description' =>   __( 'General settings for the plugin.', 'triskelion-toolkit' )
-        ];
-
     }
 
     /**
@@ -145,11 +121,39 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
             if ( ! empty( $i18n[ $field ] ) ) {
                 error_log( "i18n field" . $field . " value:" . $i18n[ $field ] );
                 Logger::debug( "i18n field" . $field . " value:" . $i18n[ $field ], "GeneralSettings" );
+
                 return $i18n[ $field ];
             }
             error_log( "i18n field" . $field . " not available" );
         }
+
         return $config->$field ?? '';
+    }
+
+    public static function i18n_config(): array {
+        return [
+                'name'        => __( 'General Settings', 'triskelion-toolkit' ),
+                'description' => __( 'General settings for the plugin.', 'triskelion-toolkit' )
+        ];
+
+    }
+
+    public function sanitize_module_settings( $input ): array {
+        $submitted = is_array( $input ) ? $input : [];
+        $manifest  = $this->module_collection;
+        $valid_ids = array_keys( $manifest->get_all_sorted() );
+
+        return array_values( array_filter( $submitted, function ( $id ) use ( $valid_ids, $manifest ) {
+            return in_array( $id, $valid_ids, true ) && ! $manifest->get( $id )->is_core;
+        } ) );
+    }
+
+    public function register(): void {
+        // Silencio absoluto. No ensuciamos el arranque de WP.
+    }
+
+    public function set_module_collection( ModuleCollection $collection ): void {
+        $this->module_collection = $collection;
     }
 
 }

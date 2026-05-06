@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Triskelion Toolkit
  * Description: Modular utility suite for Triskelion.
- * Version:     1.1.0
+ * Version:     1.2.0
  * Author:      Triskelion
  * License:     GPLv2 or later
  * Text Domain: triskelion-toolkit
@@ -11,24 +11,28 @@
  */
 
 // Si alguien intenta acceder directamente al archivo, adiós.
-if ( ! defined( 'ABSPATH' ) ) exit;
+use Triskelion\TriskelionToolkit\Core\Kernel;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 // --- Rutas y Archivos (Dinámicos) ---
-define( 'TSK_FILE',    __FILE__ );
-define( 'TSK_PATH',    plugin_dir_path( __FILE__ ) );
-define( 'TSK_URL',     plugin_dir_url( __FILE__ ) );
+define( 'TSK_FILE', __FILE__ );
+define( 'TSK_PATH', plugin_dir_path( __FILE__ ) );
+define( 'TSK_URL', plugin_dir_url( __FILE__ ) );
 
 // --- Identificadores y Versión (Estáticos) ---
-define( 'TSK_VERSION',              '1.1.0' ); // Súbele a 1.1.0 por el refactor
-define( 'TRISKELION_TOOLKIT_CORE',  'triskelion-toolkit-core' );
+define( 'TSK_VERSION', '1.1.0' ); // Súbele a 1.1.0 por el refactor
+define( 'TRISKELION_TOOLKIT_CORE', 'triskelion-toolkit-core' );
 
 // --- Base de Datos y Settings ---
-define( 'TSK_ACTIVE_MODULES',       'tsk_active_modules' );
-define( 'TSK_SETTINGS_GROUP',       'tsk_settings_group' );
+define( 'TSK_ACTIVE_MODULES', 'tsk_active_modules' );
+define( 'TSK_SETTINGS_GROUP', 'tsk_settings_group' );
 
 // --- Hooks del Framework ---
-define( 'HOOK_REGISTER_SCRIPTS',    'tsk_register_vendor_scripts' );
-define( 'HOOK_REGISTER_STYLES',     'tsk_register_vendor_styles' );
+define( 'HOOK_REGISTER_SCRIPTS', 'tsk_register_vendor_scripts' );
+define( 'HOOK_REGISTER_STYLES', 'tsk_register_vendor_styles' );
 
 
 /* Autoloader (PSR-4 Style) */
@@ -85,14 +89,13 @@ add_filter( 'plugin_locale', function( $locale, $domain ) {
 */
 
 
-
-if ( !file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
+if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	return;
 }
 require_once __DIR__ . '/vendor/autoload.php';
 
-add_action( 'plugins_loaded', function() {
-	$tsk_kernel = new \Triskelion\TriskelionToolkit\Core\Kernel();
+add_action( 'plugins_loaded', function () {
+	$tsk_kernel = new Kernel();
 	$tsk_kernel->boot();
 }, 5 );
 

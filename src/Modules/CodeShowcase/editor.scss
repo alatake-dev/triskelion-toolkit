@@ -37,9 +37,20 @@
           border-radius: 50%;
           display: inline-block;
 
-          &.red { background: #ff5f56; border: 1px solid #e0443e; }
-          &.yellow { background: #ffbd2e; border: 1px solid #dea123; }
-          &.green { background: #27c93f; border: 1px solid #1aab29; }
+          &.red {
+            background: #ff5f56;
+            border: 1px solid #e0443e;
+          }
+
+          &.yellow {
+            background: #ffbd2e;
+            border: 1px solid #dea123;
+          }
+
+          &.green {
+            background: #27c93f;
+            border: 1px solid #1aab29;
+          }
         }
       }
 

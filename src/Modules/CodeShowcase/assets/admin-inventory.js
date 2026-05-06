@@ -67,7 +67,7 @@
          * Solo actúa si existen los elementos en el DOM de la página de ajustes.
          */
         if (themeSelect && previewBox) {
-            themeSelect.addEventListener('change', function() {
+            themeSelect.addEventListener('change', function () {
                 const classes = previewBox.className.split(" ").filter(c => !c.startsWith('is-theme-'));
                 previewBox.className = classes.join(" ");
                 previewBox.classList.add(`is-theme-${this.value}`);

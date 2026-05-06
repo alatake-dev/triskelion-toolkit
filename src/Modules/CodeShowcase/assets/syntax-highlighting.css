@@ -11,8 +11,24 @@
  * MAPEO DE LENGUAJE:
  * Aquí usamos el prefijo --tsk- para que coincida con lo que escupe el PHP.
  */
-.hljs-keyword, .hljs-selector-tag { color: var(--tsk-syntax-keyword); font-weight: bold; }
-.hljs-string, .hljs-doctag { color: var(--tsk-syntax-string); }
-.hljs-comment, .hljs-quote { color: var(--tsk-syntax-comment); font-style: italic; }
-.hljs-number, .hljs-literal { color: var(--tsk-syntax-number); }
-.hljs-function, .hljs-title { color: var(--tsk-syntax-function); }
+.hljs-keyword, .hljs-selector-tag {
+    color: var(--tsk-syntax-keyword);
+    font-weight: bold;
+}
+
+.hljs-string, .hljs-doctag {
+    color: var(--tsk-syntax-string);
+}
+
+.hljs-comment, .hljs-quote {
+    color: var(--tsk-syntax-comment);
+    font-style: italic;
+}
+
+.hljs-number, .hljs-literal {
+    color: var(--tsk-syntax-number);
+}
+
+.hljs-function, .hljs-title {
+    color: var(--tsk-syntax-function);
+}
