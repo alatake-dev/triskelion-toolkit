@@ -19,7 +19,6 @@ define( 'TSK_PATH',    plugin_dir_path( __FILE__ ) );
 define( 'TSK_URL',     plugin_dir_url( __FILE__ ) );
 
 // --- Identificadores y Versión (Estáticos) ---
-define( 'TSK_DOMAIN',               'triskelion-toolkit' );
 define( 'TSK_VERSION',              '1.1.0' ); // Súbele a 1.1.0 por el refactor
 define( 'TRISKELION_TOOLKIT_CORE',  'triskelion-toolkit-core' );
 
@@ -31,30 +30,12 @@ define( 'TSK_SETTINGS_GROUP',       'tsk_settings_group' );
 define( 'HOOK_REGISTER_SCRIPTS',    'tsk_register_vendor_scripts' );
 define( 'HOOK_REGISTER_STYLES',     'tsk_register_vendor_styles' );
 
-define( 'TSK_LOG_LEVEL', 'debug' );
-//define( 'TSK_LOG_ENABLED', true );
 
 /* Autoloader (PSR-4 Style) */
-spl_autoload_register(function ($class) {
-	$prefix = 'Triskelion\\Toolkit\\';
-	$base_dir = TSK_PATH . 'src/ServiceLayer/';
-
-	$len = strlen($prefix);
-	if (strncmp($prefix, $class, $len) !== 0) return;
-
-	$relative_class = substr($class, $len);
-
-	$file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
-
-	if (file_exists($file)) {
-		require $file;
-	}
-});
-
-
+/*
 
 add_action( 'init', function() {
-	$domain = TSK_DOMAIN;
+	$domain = 'triskelion-toolkit';
 	$locale = get_locale(); // Supongamos que es 'es_PE'
 
 	load_plugin_textdomain( $domain, false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
@@ -71,7 +52,7 @@ add_action( 'init', function() {
 
 add_filter( 'load_script_translation_file', function( $file, $handle, $domain ) {
 	// Solo actuamos sobre nuestro dominio
-	if ( TSK_DOMAIN !== $domain ) {
+	if ( 'triskelion-toolkit' !== $domain ) {
 		return $file;
 	}
 
@@ -91,7 +72,7 @@ add_filter( 'load_script_translation_file', function( $file, $handle, $domain ) 
 }, 10, 3 );
 
 add_filter( 'plugin_locale', function( $locale, $domain ) {
-	if ( TSK_DOMAIN === $domain ) {
+	if ( 'triskelion-toolkit' === $domain ) {
 		// Si el locale empieza con "es_" (es_MX, es_PE, es_ES, etc.)
 		// forzamos a que busque simplemente "es"
 		if ( str_starts_with( $locale, 'es_' ) ) {
@@ -101,19 +82,13 @@ add_filter( 'plugin_locale', function( $locale, $domain ) {
 	return $locale;
 }, 10, 2 );
 
-add_filter( 'block_categories_all', function( $categories ) {
-	return array_merge(
-		$categories,
-		[
-			[
-				'slug'  => 'triskelion',
-				'title' => 'Triskelion Assets',
-				'icon'  => 'shield', // Puedes usar cualquier Dashicon de WP
-			],
-		]
-	);
-} );
+*/
 
+if ( !file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
+	return;
+}
+require_once __DIR__ . '/vendor/autoload.php';
+error_log('Triskelion Toolkit: Autoloader cargado');
 
-// Inicializar el Toolkit
-Triskelion\Toolkit\Core\Toolkit::init();
+$tsk_kernel = new \Triskelion\TriskelionToolkit\Core\Kernel();
+$tsk_kernel->boot();

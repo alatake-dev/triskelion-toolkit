@@ -1,0 +1,132 @@
+// 1. Editor de Gutenberg
+.wp-block-triskelion-code-showcase {
+  --tsk-bg-dark: #1e1e1e;
+  --terminal-editor-height: 400px;
+
+  background: var(--tsk-bg-dark);
+  border-radius: 8px;
+  overflow: hidden;
+
+  .tsk-code-header {
+    display: flex; align-items: center; background: #2d2d2d; height: 45px; padding: 0 15px;
+  }
+
+  .tsk-tabs-wrapper {
+    display: flex; flex-grow: 1;
+    .tsk-tab {
+      padding: 0 20px; color: #888; font-size: 12px; cursor: pointer;
+      height: 45px; display: flex; align-items: center;
+      &.active { background: var(--tsk-bg-dark); color: #fff; }
+    }
+  }
+
+  button.tsk-add-tab {
+    background: transparent; color: #fff !important; border: 1px dashed #555;
+    border-radius: 4px; padding: 2px 8px; margin-left: 10px;
+  }
+
+  .tsk-code-body textarea {
+    background: transparent !important; color: #d4d4d4 !important;
+    font-family: 'Fira Code', monospace !important; border: none !important;
+    padding: 20px !important; min-height: var(--terminal-editor-height) !important;
+
+    // Scrollbar Look macOS
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+
+    &::-webkit-scrollbar { width: 10px; height: 10px; }
+    &::-webkit-scrollbar-track { background: transparent; }
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      border: 2px solid var(--tsk-bg-dark);
+    }
+  }
+}
+
+// 2. Settings Page Preview
+.tsk-code-showcase-preview {
+  --tsk-bg: #1e1e1e;
+  --tsk-header: #323232;
+  --tsk-text: #d4d4d4;
+  --tsk-border: rgba(255, 255, 255, 0.1);
+
+  background: var(--tsk-bg);
+  border-radius: 8px;
+  border: 1px solid var(--tsk-border);
+  overflow: hidden;
+  font-family: 'Fira Code', monospace;
+  margin: 20px 0;
+
+  .tsk-window-header {
+    background: var(--tsk-header);
+    height: 45px;
+    padding-left: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 1px solid var(--tsk-border);
+
+    .tsk-dots {
+      display: flex;
+      gap: 8px;
+      .dot {
+        width: 12px; height: 12px; border-radius: 50%;
+        &.red { background: #ff5f56; }
+        &.yellow { background: #ffbd2e; }
+        &.green { background: #27c93f; }
+      }
+    }
+
+    .tsk-tabs {
+      display: flex;
+      gap: 2px;
+      overflow-x: auto;
+      flex: 1;
+
+      .tsk-tab {
+        background: rgba(255, 255, 255, 0.05);
+        color: #888;
+        padding: 0 15px;
+        font-size: 12px;
+        border-radius: 4px 4px 0 0;
+        height: 100%;
+        display: flex;
+        align-items: center;
+
+        &.is-active {
+          background: var(--tsk-bg);
+          color: var(--tsk-text);
+        }
+      }
+    }
+  }
+
+  .tsk-window-content {
+    padding: 0;
+    pre {
+      margin: 0;
+      padding: 20px;
+      background: transparent;
+      overflow: auto;
+
+      // Scrollbar Look macOS para el preview
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+
+      &::-webkit-scrollbar { width: 10px; height: 10px; }
+      &::-webkit-scrollbar-track { background: transparent; }
+      &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        border: 2px solid var(--tsk-bg);
+      }
+
+      code {
+        font-family: inherit;
+        font-size: 13px;
+        color: var(--tsk-text, #d4d4d4);
+      }
+    }
+  }
+}

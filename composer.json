@@ -1,0 +1,23 @@
+{
+    "name": "triskelion/triskelion-toolkit",
+    "description": "Herramientas de alto rendimiento para WP",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "autoload": {
+        "psr-4": {
+            "Triskelion\\TriskelionToolkit\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "AlAtaKe",
+            "email": "me@alatake.dev"
+        }
+    ],
+    "require": {
+        "scrivo/highlight.php": "v9.18.1.10"
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}
