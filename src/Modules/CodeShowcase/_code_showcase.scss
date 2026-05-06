@@ -1,0 +1,20 @@
+.tsk-mobile-selector {
+  display: none;
+}
+
+.tsk-code-pane {
+  display: none;
+
+  &.active {
+    display: block;
+  }
+}
+
+@media (max-width: 600px) {
+  .tsk-tabs-wrapper {
+    display: none !important;
+  }
+  .tsk-mobile-selector {
+    display: flex !important;
+  }
+}

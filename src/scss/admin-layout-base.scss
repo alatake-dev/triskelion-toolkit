@@ -1,0 +1,236 @@
+/* ==========================================================================
+   ADMIN LAYOUT
+   ========================================================================== */
+.tsk-admin {
+  &-page {
+    margin-top: 20px;
+    max-width: 1200px;
+  }
+
+  &-layout {
+    display: flex;
+    background: var(--tsk-bg-main);
+    border: 1px solid var(--tsk-border-color);
+    box-shadow: var(--tsk-shadow);
+    min-height: 600px;
+  }
+
+  /* Navegación lateral */
+  &-nav {
+    width: 220px;
+    background: var(--tsk-bg-side);
+    border-right: 1px solid var(--tsk-border-color);
+    flex-shrink: 0;
+  }
+
+  /* Contenido principal */
+  &-main {
+    flex: 1;
+    padding: 40px;
+    background: var(--tsk-bg-main);
+
+    h1 {
+      margin: 0 0 30px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--tsk-bg-side);
+    }
+  }
+}
+
+/* ==========================================================================
+   COMPONENTS: TABS & CARDS
+   ========================================================================== */
+.tsk-tab-link {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  text-decoration: none;
+  color: var(--tsk-text-main);
+  border-bottom: 1px solid #dcdcde;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #e5e5e5;
+    color: var(--tsk-primary);
+  }
+
+  &.active {
+    background: var(--tsk-bg-main);
+    color: var(--tsk-primary);
+    font-weight: 600;
+    width: calc(100% + 1px);
+    border-right: 4px solid var(--tsk-primary);
+    border-bottom-color: var(--tsk-border-color);
+  }
+
+  .dashicons {
+    margin-right: 12px;
+  }
+}
+
+.tsk-module-card {
+  display: flex;
+  align-items: flex-start;
+  padding: 25px 15px;
+  border-bottom: 1px solid var(--tsk-bg-side);
+  gap: 20px;
+  transition: background-color 0.2s ease;
+  margin: 0 -15px;
+
+  &:hover {
+    background-color: #f6f7f7;
+  }
+
+  &:last-of-type {
+    border-bottom: none;
+    margin-bottom: 20px;
+  }
+
+  /* Bloqueo visual para módulos CORE */
+  &--core {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+    opacity: 0.8;
+
+    .tsk-switch {
+      pointer-events: none;
+    }
+
+    // Evita interacción física
+  }
+}
+
+/* ==========================================================================
+   COMPONENT: THE SMART SWITCH
+   ========================================================================== */
+.tsk-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 22px;
+  cursor: pointer;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:checked + .tsk-slider {
+      background-color: var(--tsk-primary);
+
+      &::before {
+        transform: translateX(22px);
+      }
+    }
+
+    /* Accesibilidad: Focus visible */
+    &:focus + .tsk-slider {
+      box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--tsk-primary);
+    }
+
+    /* Estado deshabilitado */
+    &:disabled + .tsk-slider {
+      background-color: var(--tsk-border-color);
+      filter: grayscale(1);
+    }
+  }
+}
+
+.tsk-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--tsk-border-color);
+  transition: background-color 0.3s ease;
+  border-radius: 22px;
+
+  &::before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* --- Pills / Tags --- */
+.tsk-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.tsk-pill {
+  display: flex;
+  align-items: center;
+  background: var(--tsk-admin-pill-bg);
+  color: var(--tsk-admin-pill-text);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+
+  &__remove {
+    all: unset; // Limpiamos estilos de botón nativo
+    margin-left: 8px;
+    cursor: pointer;
+    color: var(--tsk-admin-danger);
+    font-size: 16px;
+    line-height: 1;
+    transition: transform 0.2s;
+
+    &:hover {
+      transform: scale(1.2);
+      color: #000;
+    }
+  }
+}
+
+/* --- Search Group & Results --- */
+.tsk-search-group {
+  position: relative; // Vital para que los resultados floten correctamente
+  width: 100%;
+  max-width: 450px;
+}
+
+.tsk-results-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: #fff;
+  border: 1px solid #ccd0d4;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 200px;
+  overflow-y: auto;
+
+  &__item {
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 13px;
+    border-bottom: 1px solid #f0f0f1;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background: var(--tsk-admin-accent);
+      color: #fff;
+    }
+  }
+}

@@ -1,0 +1,28 @@
+/* ==========================================================================
+   TSK ADMIN UI - DESIGN TOKENS
+   ========================================================================== */
+:root {
+  // core
+  --tsk-primary: #2271b1;
+  --tsk-primary-dark: #135e96;
+  --tsk-bg-main: #fff;
+  --tsk-bg-side: #f0f0f1;
+  --tsk-border-color: #ccd0d4;
+  --tsk-text-main: #2c3338;
+  --tsk-text-dark: #1d2327;
+  --tsk-text-muted: #646970;
+  --tsk-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  // diagnostics
+  --tsk-terminal-header: #2c3338;
+  --tsk-terminal-bg: #000000;
+  --tsk-terminal-text: #ffffff;
+  --tsk-accent: #2c3338;
+  --tsk-success: #2e7d32;
+  --tsk-radius: 6px;
+  --tsk-font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  // pills
+  --tsk-admin-pill-bg: #e2e8f0;
+  --tsk-admin-pill-text: #475569;
+  --tsk-admin-accent: #2271b1;
+  --tsk-admin-danger: #d63638;
+}

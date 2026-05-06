@@ -1,18 +1,48 @@
-# Triskelion Toolkit v1.0.0
+# Triskelion Toolkit v1.2.0
 
-A modular, high-performance WordPress plugin suite designed for the Triskelion premium ecosystem.
+A modular utility suite for WordPress, engineered with professional backend architecture and modern Gutenberg components.
+
+## Featured Modules
+- **Code Showcase**: A premium Gutenberg block designed to display code snippets with a macOS terminal aesthetic. Supports multiple tabs, syntax highlighting, and custom themes.
+
+## Development Requirements
+To modify or extend the Gutenberg (React) components, the following environment is required:
+- **Node.js** (v18 or higher recommended)
+- **NPM** or **PNPM**
+- **Composer** (for PHP dependency management and PSR-4 autoloading)
+- **Docker** (for local deployment and development environment)
+
+## Local Setup
+1. Clone the repository into your WordPress plugins directory.
+2. Install PHP dependencies:
+   $ composer install
+3. Install JS dependencies and compile blocks:
+   $ npm install
+4. For active development (with hot-reloading):
+   $ npm start
+5. For production-ready assets:
+   $ npm run build
+
+## Internationalization (i18n)
+The plugin supports Spanish (es_MX and base es). Block translations are managed via JSON files located in the /languages directory. Due to WordPress translation loading priorities, handle-specific naming is maintained for consistent editor localization.
+
 
 ## 🏗 Architecture Overview
+
 The toolkit operates as a service container with a strictly decoupled architecture:
+
 - **Core Modules**: Essential infrastructure (Settings, Diagnostic) that is always available and cannot be deactivated.
 - **Feature Modules**: Independent, toggleable features that load only when activated.
 - **Lazy Loading**: Classes are only instantiated when their specific tab is active or their functionality is required.
+
 ---
 
 ## 🚀 Environment Setup (Docker)
+
 This project is developed using a dedicated Docker environment.
 
 **docker-compose.yml sample**
+
 ```yaml
 services:
    db:
@@ -45,10 +75,9 @@ services:
             define( 'WP_DEBUG_LOG', true );
             define( 'WP_DEBUG_DISPLAY', false );
       volumes:
-         - /path/to/youre/code/triskelion-toolkit:/var/www/html/wp-content/plugins/triskelion-toolkit
+         - /path/to/plugin/code/triskelion-toolkit:/var/www/html/wp-content/plugins/triskelion-toolkit
          - triskelion_wp_uploads:/var/www/html/wp-content/uploads
 
-   # El servicio salvador: WP-CLI
    cli:
       image: wordpress:cli
       container_name: triskelion-cli
@@ -56,8 +85,7 @@ services:
          - db
          - wordpress
       volumes:
-         # Montamos el plugin también aquí para que el CLI pueda escanearlo
-         - /Users/alatake/Documents/code/php/plugins/triskelion-toolkit:/var/www/html/wp-content/plugins/triskelion-toolkit
+         - /path/to/plugin/code/triskelion-toolkit:/var/www/html/wp-content/plugins/triskelion-toolkit
          - triskelion_wp_uploads:/var/www/html/wp-content/uploads
       environment:
          WORDPRESS_DB_HOST: db
@@ -70,6 +98,7 @@ volumes:
    triskelion_wp_uploads:
 
 ```
+
 *Adjust the paths to match your environment.*
 
 1. **Start the environment**:
@@ -85,6 +114,7 @@ volumes:
    /var/www/html/wp-content/plugins/triskelion-toolkit
 
 ## 📝 Logging & Troubleshooting
+
 The toolkit includes a proprietary, independent logging system.
 
 - **Storage**: Logs are stored in `/wp-content/uploads/triskelion-logs/atk_debug_[hash].log`.
@@ -94,43 +124,10 @@ The toolkit includes a proprietary, independent logging system.
   ```
 - **Access Control:** The log directory is protected via .htaccess and index.php to prevent direct web access.
 
-## 🛠 How to Add a New Module
-
-To maintain the Triskelion Standard, follow these steps:
-1. Create the Module Folder
-    Navigate to src/Modules/ and create your feature folder:
-    
-    src/Modules/MyNewFeature/MyNewFeatureLoader.php
-
-2. Extend the Abstract Class
-   Your loader must extend AbstractModuleLoader and implement the load() method:
-    ```php
-    namespace Triskelion\Toolkit\Modules\MyNewFeature;
-    
-    use Triskelion\Toolkit\Core\AbstractModuleLoader;
-    
-    class MyNewFeatureLoader extends AbstractModuleLoader {
-        public function load(): void {
-            // Hooks, Block registrations, etc.
-        }
-    }
-    ```
-3. Register in the Toolkit
-   Add your module to the array in `src/Core/Toolkit.php`. Use the following schema:
-    ```php
-    'my_new_feature' => [
-        'name'         => __( 'My Feature', TSK_DOMAIN ),
-        'description'  => __( 'A brief description.', TSK_DOMAIN ),
-        'class'        => \Triskelion\Toolkit\Modules\MyNewFeature\MyNewFeatureLoader::class,
-        'is_core'      => false,     // true for system utilities, false for toggleable features
-        'priority'     => 100,       // 0-99: System, 100-899: Features, 900+: Support
-        'has_settings' => true,
-        'icon'         => 'dashicons-star-filled'
-    ],
-    ```
-   
 ## 📜 Development Rules
+
 1. **Zero Bloat**: Only enqueue assets if the feature is active and present.
-2. **Encapsulation**: Each module loader is responsible for its own rendering. The `Admin` class only orchestrates.
+2. **Encapsulation**: Each module loader is responsible for its own rendering.
 3. **The "Opener-Closer" Rule**: Any method opening an HTML tag (div, section, main) MUST be responsible for closing it.
-4. **Log Everything**: Use `Toolkit::log()` for critical failures or complex logic tracing. Avoid `var_dump` in production-ready code.
+4. **Log Everything**: Use `Logger::xxxx` for critical failures or complex logic tracing. Avoid `var_dump` in
+   production-ready code.

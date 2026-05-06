@@ -1,0 +1,65 @@
+/**
+ * Estilos específicos para el módulo Code Showcase en el Admin.
+ * Aplicamos BEM y CSS Variables para facilitar la "tematización".
+ */
+.tsk-code-showcase-preview {
+    /* Variables base: Triskelion Dark por defecto */
+    --tsk-bg: #1e1e1e;
+    --tsk-header: #323232;
+    --tsk-text: #d4d4d4;
+    --tsk-border: rgba(255, 255, 255, 0.1);
+
+    background: var(--tsk-bg);
+    border-radius: 8px;
+    border: 1px solid var(--tsk-border);
+    overflow: hidden;
+    max-width: 600px;
+    margin: 10px 0;
+}
+
+/* Variante de Tema: Monokai */
+.tsk-code-showcase-preview.is-theme-monokai {
+    --tsk-bg: #272822;
+    --tsk-header: #1e1f1c;
+    --tsk-text: #f8f8f2;
+    --tsk-border: rgba(255, 255, 255, 0.05);
+}
+
+.tsk-window-header {
+    background: var(--tsk-header);
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.tsk-dots {
+    display: flex;
+    gap: 5px;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.dot.red {
+    background: #ff5f56;
+}
+
+.dot.yellow {
+    background: #ffbd2e;
+}
+
+.dot.green {
+    background: #27c93f;
+}
+
+.tsk-window-content {
+    padding: 15px;
+    color: var(--tsk-text);
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 1.4;
+}

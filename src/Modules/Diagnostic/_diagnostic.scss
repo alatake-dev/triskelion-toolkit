@@ -1,0 +1,96 @@
+/* ==========================================================================
+   COMPONENT: TRISKELION TERMINAL (Professional Grade)
+   ========================================================================== */
+.tsk-terminal {
+  margin: 2.5rem 0;
+  border-radius: var(--tsk-radius);
+  background: #000; // Fondo negro absoluto para máximo contraste
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  &__header {
+    background: var(--tsk-terminal-header); // Debe ser #2c3338
+    padding: 0.8rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+  }
+
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #fff;
+
+    .dashicons {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  &__title {
+    font-family: var(--tsk-font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    opacity: 0.9;
+  }
+
+  &__btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    padding: 5px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+
+    &:hover {
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .dashicons {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &__body {
+    width: 100%;
+    height: 480px;
+    background: #000 !important; // Forzamos el negro para evitar overrides de WP
+    color: #00ff41 !important; // Verde Matrix / Telemetry para legibilidad extrema
+    padding: 1.5rem;
+    font-family: var(--tsk-font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+    border: none;
+    resize: vertical;
+    outline: none;
+    margin: 0;
+    display: block;
+    white-space: pre;
+    -webkit-font-smoothing: antialiased;
+
+    // Scrollbar minimalista
+    &::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #0a0a0a;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #222;
+      border: 2px solid #0a0a0a;
+      border-radius: 5px;
+    }
+  }
+}

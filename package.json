@@ -1,13 +1,13 @@
 {
   "name": "triskelion-toolkit",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Suite of utilities and custom blocks for the Triskelion ecosystem.",
   "author": "Triskelion",
   "license": "GPL-2.0-or-later",
   "private": true,
   "scripts": {
-    "start": "wp-scripts start --webpack-src-dir=src/ViewLayer/blocks --output-path=build/blocks",
-    "build": "wp-scripts build --webpack-src-dir=src/ViewLayer/blocks --output-path=build/blocks",
+    "start": "wp-scripts start",
+    "build": "wp-scripts build",
     "lint:php": "docker exec -it triskelion-wp ./vendor/bin/phpcs"
   },
   "devDependencies": {

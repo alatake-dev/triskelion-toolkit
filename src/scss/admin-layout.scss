@@ -1,0 +1,14 @@
+/**
+ * TRISKELION TOOLKIT - ADMIN BUNDLE
+ * Punto de entrada para el compilador.
+ */
+
+@use 'base/variables';
+@use 'admin-layout-base';
+
+// Estilos de cada módulo
+@use '../Modules/Diagnostic/diagnostic';
+@use '../Modules/CodeShowcase/code_showcase';
+
+// Fin
+

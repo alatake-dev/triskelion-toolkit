@@ -2,23 +2,22 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Triskelion Toolkit 1.0.0\n"
+"Project-Id-Version: Triskelion Toolkit 1.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/triskelion-toolkit\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-04-15T00:34:31+00:00\n"
+"POT-Creation-Date: 2026-05-06T15:30:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: triskelion-toolkit\n"
 
 #. Plugin Name of the plugin
 #: triskelion-toolkit.php
-#: src/ServiceLayer/Admin/Admin.php:23
-#: src/ServiceLayer/Admin/Admin.php:24
-#: src/ServiceLayer/Admin/Admin.php:85
+#: src/Core/AdminManager.php:66
+#: src/Core/AdminManager.php:67
 msgid "Triskelion Toolkit"
 msgstr ""
 
@@ -29,140 +28,171 @@ msgstr ""
 
 #. Author of the plugin
 #: triskelion-toolkit.php
+#: src/Core/AdminManager.php:29
 msgid "Triskelion"
 msgstr ""
 
-#: src/ServiceLayer/Admin/Admin.php:118
-msgid "This module is active but its settings are not available."
+#: src/Core/AdminManager.php:59
+msgid "Settings"
 msgstr ""
 
-#: src/ServiceLayer/Admin/Admin.php:141
-msgid "Access Denied"
+#: src/Core/AdminManager.php:113
+msgid "Module not available or without settings."
 msgstr ""
 
-#: src/ServiceLayer/Admin/Admin.php:142
-msgid "This section is not available or does not require configuration."
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:30
+msgid "Triskelion Dark"
 msgstr ""
 
-#: src/ServiceLayer/Admin/Admin.php:144
-msgid "Back to General"
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:41
+msgid "Monokai Original"
 msgstr ""
 
-#: src/ServiceLayer/Core/Toolkit.php:42
-msgid "General Settings"
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:52
+msgid "Cyber (High Contrast)"
 msgstr ""
 
-#: src/ServiceLayer/Core/Toolkit.php:51
-#: src/ServiceLayer/Modules/CodeShowcase/CodeShowcaseBlockLoader.php:86
-msgid "Code Showcase"
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:130
+msgid "Code Showcase Configuration"
 msgstr ""
 
-#: src/ServiceLayer/Core/Toolkit.php:52
-msgid "Display code snippets in a beautiful macOS-style terminal with multiple tabs and syntax highlighting."
-msgstr ""
-
-#: src/ServiceLayer/Core/Toolkit.php:60
-msgid "Insight Cards"
-msgstr ""
-
-#: src/ServiceLayer/Core/Toolkit.php:61
-msgid "Transform standard quotes into visual callouts for Tips, Warnings, and Ideas with custom styles."
-msgstr ""
-
-#: src/ServiceLayer/Modules/CodeShowcase/CodeShowcaseBlockLoader.php:57
-msgid "Select file"
-msgstr ""
-
-#: src/ServiceLayer/Modules/CodeShowcase/CodeShowcaseBlockLoader.php:67
-msgid "Copy Code"
-msgstr ""
-
-#: src/ServiceLayer/Modules/CodeShowcase/CodeShowcaseBlockLoader.php:87
-msgid "Dynamic block is active and managing Prism highlighting."
-msgstr ""
-
-#: src/ServiceLayer/Modules/GeneralSettings/GeneralSettingsLoader.php:14
-msgid "Suite Management"
-msgstr ""
-
-#: src/ServiceLayer/Modules/GeneralSettings/GeneralSettingsLoader.php:15
-msgid "Activate or deactivate modules."
-msgstr ""
-
-#: src/ServiceLayer/Modules/InsightCards/InsightCardsLoader.php:21
-msgid "InsightCards"
-msgstr ""
-
-#: src/ServiceLayer/Modules/InsightCards/InsightCardsLoader.php:22
-msgid "InsightCards configuration"
-msgstr ""
-
-#: build/blocks/code-showcase/index.js:50
-#: src/ViewLayer/blocks/code-showcase/edit.js:24
-msgid "new-file.js"
-msgstr ""
-
-#: build/blocks/code-showcase/index.js:83
-#: src/ViewLayer/blocks/code-showcase/edit.js:54
-msgid "Current File"
-msgstr ""
-
-#: build/blocks/code-showcase/index.js:85
-#: src/ViewLayer/blocks/code-showcase/edit.js:56
-msgid "File Name"
-msgstr ""
-
-#: build/blocks/code-showcase/index.js:89
-#: src/ViewLayer/blocks/code-showcase/edit.js:61
-msgid "Language"
-msgstr ""
-
-#: build/blocks/code-showcase/index.js:110
-#: src/ViewLayer/blocks/code-showcase/edit.js:73
-msgid "Remove Tab"
-msgstr ""
-
-#: build/blocks/code-showcase/index.js:123
-#: src/ViewLayer/blocks/code-showcase/edit.js:78
-msgid "Ordering:"
-msgstr ""
-
-#: build/blocks/code-showcase/index.js:130
-#: src/ViewLayer/blocks/code-showcase/edit.js:86
-msgid "Move left"
-msgstr ""
-
-#: build/blocks/code-showcase/index.js:137
-#: src/ViewLayer/blocks/code-showcase/edit.js:94
-msgid "Move right"
-msgstr ""
-
-#: build/blocks/code-showcase/index.js:141
-#: src/ViewLayer/blocks/code-showcase/edit.js:99
-msgid "Visual Settings"
-msgstr ""
-
-#: build/blocks/code-showcase/index.js:144
-#: src/ViewLayer/blocks/code-showcase/edit.js:101
-msgid "Line numbers"
-msgstr ""
-
-#: build/blocks/code-showcase/index.js:150
-#: src/ViewLayer/blocks/code-showcase/edit.js:106
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:135
 msgid "Theme"
 msgstr ""
 
-#: build/blocks/code-showcase/index.js:184
-#: src/ViewLayer/blocks/code-showcase/edit.js:131
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:147
+msgid "Preview View"
+msgstr ""
+
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:168
+msgid "Languages inventory"
+msgstr ""
+
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:171
+msgid "Add language..."
+msgstr ""
+
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:223
+msgid "Copy code"
+msgstr ""
+
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:293
+msgid "Code Showcase"
+msgstr ""
+
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:294
+msgid "Display code snippets with a premium macOS terminal aesthetic."
+msgstr ""
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:68
+#: src/Modules/Diagnostic/DiagnosticLoader.php:183
+msgid "Logs & Diagnostic"
+msgstr ""
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:72
+msgid "Configuration managed via code (wp-config.php)."
+msgstr ""
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:79
+msgid "Enable Logging"
+msgstr ""
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:92
+msgid "Log Level"
+msgstr ""
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:106
+#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:42
+msgid "Save Changes"
+msgstr ""
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:127
+msgid "Triskelion Logs"
+msgstr ""
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:130
+msgid "Copy to Clipboard"
+msgstr ""
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:133
+msgid "Refresh Log"
+msgstr ""
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:184
+msgid "Monitor system health and view activity logs."
+msgstr ""
+
+#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:84
+msgid "Core Module"
+msgstr ""
+
+#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:129
+msgid "General Settings"
+msgstr ""
+
+#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:130
+msgid "General settings for the plugin."
+msgstr ""
+
+#: src/Modules/CodeShowcase/edit.js:40
+msgid "new-file.js"
+msgstr ""
+
+#: src/Modules/CodeShowcase/edit.js:70
+msgid "Current File Settings"
+msgstr ""
+
+#: src/Modules/CodeShowcase/edit.js:72
+msgid "File Name"
+msgstr ""
+
+#: src/Modules/CodeShowcase/edit.js:79
+msgid "Language"
+msgstr ""
+
+#: src/Modules/CodeShowcase/edit.js:87
+msgid "Delete File"
+msgstr ""
+
+#: src/Modules/CodeShowcase/edit.js:125
 msgid "unnamed"
 msgstr ""
 
-#: build/blocks/code-showcase/index.js:189
-#: src/ViewLayer/blocks/code-showcase/edit.js:138
-msgid "Add Tab"
+#: src/Modules/CodeShowcase/edit.js:135
+msgid "Paste code here..."
 msgstr ""
 
-#: build/blocks/code-showcase/index.js:197
-#: src/ViewLayer/blocks/code-showcase/edit.js:145
-msgid "Paste your code here..."
+#: src/Modules/CodeShowcase/block.json
+msgctxt "block title"
+msgid "Code Showcase"
+msgstr ""
+
+#: src/Modules/CodeShowcase/block.json
+msgctxt "block keyword"
+msgid "terminal"
+msgstr ""
+
+#: src/Modules/CodeShowcase/block.json
+msgctxt "block keyword"
+msgid "code"
+msgstr ""
+
+#: src/Modules/CodeShowcase/block.json
+msgctxt "block keyword"
+msgid "syntax"
+msgstr ""
+
+#: src/Modules/CodeShowcase/block.json
+msgctxt "block keyword"
+msgid "showcase"
+msgstr ""
+
+#: src/Modules/CodeShowcase/block.json
+msgctxt "block keyword"
+msgid "triskelion"
+msgstr ""
+
+#: src/Modules/CodeShowcase/block.json
+msgctxt "block description"
+msgid "Display code snippets with a premium macOS terminal aesthetic."
 msgstr ""
