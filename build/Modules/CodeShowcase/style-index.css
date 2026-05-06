@@ -1,0 +1,131 @@
+/*!************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[4].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[4].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[4].use[3]!./src/Modules/CodeShowcase/style.scss ***!
+  \************************************************************************************************************************************************************************************************************************************************************/
+.tsk-code-showcase {
+  --terminal-height: 400px;
+  --hljs-bg: var(--tsk-bg, #1e1e1e);
+  --header-bg: var(--tsk-header, #2d2d2d);
+  --font-mono: 'Fira Code', monospace;
+  background: #1e1e1e;
+  background: var(--hljs-bg, #1e1e1e);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  width: 100%;
+}
+.tsk-code-showcase__header {
+  display: flex;
+  align-items: center;
+  background: var(--header-bg);
+  height: 45px;
+  padding-left: 15px;
+  padding-right: 0;
+  gap: 15px;
+}
+.tsk-code-showcase__window-buttons {
+  display: flex;
+  gap: 8px;
+}
+.tsk-code-showcase__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.tsk-code-showcase__dot--red {
+  background: #ff5f56;
+}
+.tsk-code-showcase__dot--yellow {
+  background: #ffbd2e;
+}
+.tsk-code-showcase__dot--green {
+  background: #27c93f;
+}
+.tsk-code-showcase__tabs {
+  flex: 1;
+  display: flex;
+  overflow-x: auto;
+  height: 100%;
+  scrollbar-width: none;
+}
+.tsk-code-showcase__tabs::-webkit-scrollbar {
+  display: none;
+}
+.tsk-code-showcase__tab {
+  all: unset;
+  padding: 0 20px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  border-right: 1px solid rgba(0, 0, 0, 0.15);
+  height: 100%;
+  transition: all 0.2s ease;
+}
+.tsk-code-showcase__tab.is-active {
+  color: #fff;
+  background: var(--hljs-bg);
+}
+.tsk-code-showcase__tab:hover:not(.is-active) {
+  background: rgba(255, 255, 255, 0.05);
+}
+.tsk-code-showcase__copy {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.4);
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+.tsk-code-showcase__copy:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+.tsk-code-showcase__copy:focus {
+  outline: none;
+}
+.tsk-code-showcase__copy svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+.tsk-code-showcase__body {
+  min-height: var(--terminal-height);
+  background: var(--hljs-bg);
+}
+.tsk-code-showcase__body pre {
+  margin: 0 !important;
+  padding: 1.5em !important;
+  background: transparent !important;
+  height: var(--terminal-height) !important;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+.tsk-code-showcase__body pre::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.tsk-code-showcase__body pre::-webkit-scrollbar-track {
+  background: transparent;
+}
+.tsk-code-showcase__body pre::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  border: 2px solid var(--hljs-bg);
+}
+.tsk-code-showcase__body pre::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+.tsk-code-showcase__body pre code.hljs {
+  display: block;
+  line-height: 1.5;
+  font-size: 13px !important;
+  color: var(--tsk-text, #d4d4d4);
+  /* Los mapeos de color de HLJS se manejan 100% en el Loader PHP para evitar discrepancias */
+}
+
+/*# sourceMappingURL=style-index.css.map*/

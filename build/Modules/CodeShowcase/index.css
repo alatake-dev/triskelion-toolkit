@@ -1,0 +1,126 @@
+/*!*************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[4].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[4].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[4].use[3]!./src/Modules/CodeShowcase/editor.scss ***!
+  \*************************************************************************************************************************************************************************************************************************************************************/
+@charset "UTF-8";
+/**
+ * editor.scss
+ * Estilos específicos para el editor de bloques (Gutenberg).
+ */
+.wp-block-triskelion-code-showcase {
+  margin: 20px 0;
+}
+.wp-block-triskelion-code-showcase .tsk-code-showcase-preview {
+  background: #1e1e1e;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  font-family: "Fira Code", "Courier New", monospace;
+  border: 1px solid #333;
+}
+.wp-block-triskelion-code-showcase .tsk-code-showcase-preview .tsk-window-header {
+  background: #323232;
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  border-bottom: 1px solid #252525;
+  gap: 15px;
+}
+.wp-block-triskelion-code-showcase .tsk-code-showcase-preview .tsk-window-header .tsk-dots {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.wp-block-triskelion-code-showcase .tsk-code-showcase-preview .tsk-window-header .tsk-dots .dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.wp-block-triskelion-code-showcase .tsk-code-showcase-preview .tsk-window-header .tsk-dots .dot.red {
+  background: #ff5f56;
+  border: 1px solid #e0443e;
+}
+.wp-block-triskelion-code-showcase .tsk-code-showcase-preview .tsk-window-header .tsk-dots .dot.yellow {
+  background: #ffbd2e;
+  border: 1px solid #dea123;
+}
+.wp-block-triskelion-code-showcase .tsk-code-showcase-preview .tsk-window-header .tsk-dots .dot.green {
+  background: #27c93f;
+  border: 1px solid #1aab29;
+}
+.wp-block-triskelion-code-showcase .tsk-code-showcase-preview .tsk-window-header .tsk-tabs {
+  display: flex;
+  gap: 5px;
+  overflow-x: auto;
+}
+.wp-block-triskelion-code-showcase .tsk-code-showcase-preview .tsk-window-header .tsk-tabs .tsk-tab {
+  background: #252525;
+  color: #969696;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 4px 4px 0 0;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.wp-block-triskelion-code-showcase .tsk-code-showcase-preview .tsk-window-header .tsk-tabs .tsk-tab:hover {
+  background: #2d2d2d;
+  color: #ccc;
+}
+.wp-block-triskelion-code-showcase .tsk-code-showcase-preview .tsk-window-header .tsk-tabs .tsk-tab.is-active {
+  background: #1e1e1e;
+  color: #fff;
+  box-shadow: 0 -2px 0 #3498db;
+}
+.wp-block-triskelion-code-showcase .tsk-code-showcase-preview .tsk-window-header .tsk-tabs .tsk-add-tab {
+  background: transparent;
+  color: #666;
+  border: 1px dashed #444;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  line-height: 1;
+}
+.wp-block-triskelion-code-showcase .tsk-code-showcase-preview .tsk-window-header .tsk-tabs .tsk-add-tab:hover {
+  color: #fff;
+  border-color: #666;
+}
+.wp-block-triskelion-code-showcase .tsk-code-showcase-preview .tsk-window-content {
+  padding: 0;
+  background: #1e1e1e;
+}
+.wp-block-triskelion-code-showcase .tsk-code-showcase-preview .tsk-window-content .components-base-control {
+  margin-bottom: 0;
+}
+.wp-block-triskelion-code-showcase .tsk-code-showcase-preview .tsk-window-content .components-base-control .components-base-control__field {
+  margin-bottom: 0;
+}
+.wp-block-triskelion-code-showcase .tsk-code-showcase-preview .tsk-window-content textarea.components-textarea-control__input {
+  background: #1e1e1e !important;
+  color: #d4d4d4 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  font-family: "Fira Code", "Monaco", "Consolas", monospace !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  padding: 20px !important;
+  width: 100% !important;
+  min-height: 200px !important;
+  box-shadow: none !important;
+  outline: none !important;
+  resize: vertical;
+}
+.wp-block-triskelion-code-showcase .tsk-code-showcase-preview .tsk-window-content textarea.components-textarea-control__input::-moz-placeholder {
+  color: #555;
+  font-style: italic;
+}
+.wp-block-triskelion-code-showcase .tsk-code-showcase-preview .tsk-window-content textarea.components-textarea-control__input::placeholder {
+  color: #555;
+  font-style: italic;
+}
+.wp-block-triskelion-code-showcase.is-selected .tsk-code-showcase-preview {
+  box-shadow: 0 0 0 1px #3498db, 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/*# sourceMappingURL=index.css.map*/

@@ -9,15 +9,12 @@ import {
 } from '@wordpress/components';
 
 export default function Edit( { attributes, setAttributes } ) {
-    const { files, activeTabIndex } = attributes;
+    console.log('TSK Debug: Bloque montado');
+    console.log('Atributos iniciales:', attributes);
+    const { files = [], activeTabIndex = 0 } = attributes || {};
     const blockProps = useBlockProps();
 
-    /**
-     * MENTORÍA TÉCNICA: Sincronización de Lenguajes.
-     * Recuperamos los lenguajes activos guardados en el Admin.
-     * Si por alguna razón tskSettings no carga (ej. error de script),
-     * usamos el fallback de JS/PHP para no romper el editor.
-     */
+
     const languageOptions = ( window.tskSettings?.activeLanguages || ['javascript', 'php'] ).map( lang => ( {
         // Transformamos el slug (ej. 'javascript') en una etiqueta legible (ej. 'JAVASCRIPT')
         label: lang.toUpperCase(),
