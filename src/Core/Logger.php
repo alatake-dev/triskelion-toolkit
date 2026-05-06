@@ -1,12 +1,20 @@
 <?php
+
 namespace Triskelion\TriskelionToolkit\Core;
 
 class Logger {
 	public const LEVEL_DEBUG = 'debug';
-	public const LEVEL_INFO  = 'info';
-	public const LEVEL_WARN  = 'warn';
+	public const LEVEL_INFO = 'info';
+	public const LEVEL_WARN = 'warn';
 	public const LEVEL_ERROR = 'error';
-	public const LEVEL_OFF   = 'off';
+	public const LEVEL_OFF = 'off';
+	private static string $log_path = '';
+private static int $max_size = 2097152;
+	private static bool $initialized = false;
+
+	public static function get_levels(): array {
+		return array_keys( self::get_severity_map() );
+	} // 2MB
 
 	public static function get_severity_map(): array {
 		return [
@@ -17,91 +25,21 @@ class Logger {
 			self::LEVEL_OFF   => 4,
 		];
 	}
-	public static function get_levels(): array {
-		return array_keys(self::get_severity_map());
-	}
-	private static string $log_path = '';
-	private static int $max_size = 2097152; // 2MB
-
-	public static function init(): void {
-		// Si ya corrió o no estamos en WP, abortamos
-		if ( ! empty( self::$log_path ) || ! function_exists( 'wp_upload_dir' ) ) {
-			return;
-		}
-
-		$upload_dir = wp_upload_dir();
-
-		// Si WP reporta error en uploads (común en Docker/Permisos)
-		if ( ! empty( $upload_dir['error'] ) ) {
-			return;
-		}
-
-		self::$log_path = wp_normalize_path( $upload_dir['basedir'] . '/triskelion-logs' );
-
-		if ( ! file_exists( self::$log_path ) ) {
-			wp_mkdir_p( self::$log_path );
-		}
-
-		if ( file_exists( self::$log_path ) ) {
-			self::secure_directory();
-		}
-	}
-
-	private static function get_config(): array {
-		$ret_val = [];
-		if ( defined( 'TSK_DEBUG' ) ) {
-			$enabled = (bool) constant( 'TSK_DEBUG' );
-		}
-		if ( defined( 'TSK_LOG_LEVEL' ) ) {
-			$level = (string) constant( 'TSK_LOG_LEVEL' );
-		}
-
-		if (! isset($enabled) || ! isset($level)) {
-			$settings = $settings ?? get_option( 'tsk_settings_diagnostic', [] );
-			if (! isset($enabled)) {
-				$enabled    = $settings['debug_enabled'] ?? false;
-			}
-			if ( ! isset($level)){
-				$level    = $settings['level'] ?? 'error';
-			}
-		}
-		$ret_val['enabled'] = $enabled;
-		$ret_val['level']   = strtolower( $level );
-
-
-		return $ret_val;
-	}
 
 	public static function info( string $message, string $module = 'CORE' ): void {
 		self::write( $message, 'info', $module );
 	}
 
-	public static function warn( string $message, string $module = 'CORE' ): void {
-		self::write( $message, 'warn', $module );
-	}
-
-	public static function error( string $message, string $module = 'CORE', array $context = [] ): void {
-		if ( ! empty( $context ) ) {
-			$message .= ' | Context: ' . json_encode( $context );
-		}
-		self::write( $message, 'error', $module );
-	}
-
-	public static function debug( string $message, string $module = 'CORE' ): void {
-		self::write( $message, 'debug', $module );
-	}
-
-
-
 	private static function write( string $message, string $level, string $module ): void {
+		self::init();
 		$config = self::get_config();
 		if ( ! $config['enabled'] ) {
 			return;
 		}
 
-		$severity = self::get_severity_map();
-		$msg_weight    = $severity[$level] ?? 3;
-		$thresh_weight = $severity[$config['level']] ?? 3;
+		$severity      = self::get_severity_map();
+		$msg_weight    = $severity[ $level ] ?? 3;
+		$thresh_weight = $severity[ $config['level'] ] ?? 3;
 
 		if ( $msg_weight < $thresh_weight ) {
 			return;
@@ -123,12 +61,63 @@ class Logger {
 		);
 
 		file_put_contents( $file, $entry, FILE_APPEND );
-		error_log( $module . ': ' . $message );
+	}
+
+	public static function init(): void {
+		if ( self::$initialized ) {
+			return;
+		}
+		self::$initialized = true;
+		if ( ! empty( self::$log_path ) || ! function_exists( 'wp_upload_dir' ) ) {
+			return;
+		}
+
+		$upload_dir = wp_upload_dir();
+
+		if ( ! empty( $upload_dir['error'] ) ) {
+			return;
+		}
+
+		self::$log_path = wp_normalize_path( $upload_dir['basedir'] . '/triskelion-logs' );
+
+		if ( ! file_exists( self::$log_path ) ) {
+			wp_mkdir_p( self::$log_path );
+		}
+
+		if ( file_exists( self::$log_path ) ) {
+			self::secure_directory();
+		}
+		error_log( 'Logger init, log path: ' . self::$log_path );
 	}
 
 	private static function secure_directory(): void {
 		file_put_contents( self::$log_path . '/.htaccess', "Deny from all" );
 		file_put_contents( self::$log_path . '/index.php', "<?php // Silence" );
+	}
+
+	private static function get_config(): array {
+		$ret_val = [];
+		if ( defined( 'TSK_DEBUG' ) ) {
+			$enabled = (bool) constant( 'TSK_DEBUG' );
+		}
+		if ( defined( 'TSK_LOG_LEVEL' ) ) {
+			$level = (string) constant( 'TSK_LOG_LEVEL' );
+		}
+
+		if ( ! isset( $enabled ) || ! isset( $level ) ) {
+			$settings = $settings ?? get_option( 'tsk_diagnostic_settings', [] );
+			if ( ! isset( $enabled ) ) {
+				$enabled = $settings['debug_enabled'] ?? false;
+			}
+			if ( ! isset( $level ) ) {
+				$level = $settings['level'] ?? 'error';
+			}
+		}
+		$ret_val['enabled'] = $enabled;
+		$ret_val['level']   = strtolower( $level );
+
+
+		return $ret_val;
 	}
 
 	private static function cleanup_backups(): void {
@@ -139,10 +128,26 @@ class Logger {
 		}
 	}
 
+	public static function warn( string $message, string $module = 'CORE' ): void {
+		self::write( $message, 'warn', $module );
+	}
+
+	public static function error( string $message, string $module = 'CORE', array $context = [] ): void {
+		if ( ! empty( $context ) ) {
+			$message .= ' | Context: ' . json_encode( $context );
+		}
+		self::write( $message, 'error', $module );
+	}
+
+	public static function debug( string $message, string $module = 'CORE' ): void {
+		self::write( $message, 'debug', $module );
+	}
+
 	public static function get_log_path(): string {
 		if ( empty( self::$log_path ) ) {
 			self::init();
 		}
+
 		return self::$log_path . '/triskelion.log';
 	}
 }

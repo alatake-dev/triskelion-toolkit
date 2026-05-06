@@ -1,132 +1,146 @@
-// 1. Editor de Gutenberg
+/**
+ * editor.scss
+ * Estilos específicos para el editor de bloques (Gutenberg).
+ */
+
+// Usamos la clase que WordPress asigna automáticamente al bloque
 .wp-block-triskelion-code-showcase {
-  --tsk-bg-dark: #1e1e1e;
-  --terminal-editor-height: 400px;
-
-  background: var(--tsk-bg-dark);
-  border-radius: 8px;
-  overflow: hidden;
-
-  .tsk-code-header {
-    display: flex; align-items: center; background: #2d2d2d; height: 45px; padding: 0 15px;
-  }
-
-  .tsk-tabs-wrapper {
-    display: flex; flex-grow: 1;
-    .tsk-tab {
-      padding: 0 20px; color: #888; font-size: 12px; cursor: pointer;
-      height: 45px; display: flex; align-items: center;
-      &.active { background: var(--tsk-bg-dark); color: #fff; }
-    }
-  }
-
-  button.tsk-add-tab {
-    background: transparent; color: #fff !important; border: 1px dashed #555;
-    border-radius: 4px; padding: 2px 8px; margin-left: 10px;
-  }
-
-  .tsk-code-body textarea {
-    background: transparent !important; color: #d4d4d4 !important;
-    font-family: 'Fira Code', monospace !important; border: none !important;
-    padding: 20px !important; min-height: var(--terminal-editor-height) !important;
-
-    // Scrollbar Look macOS
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-
-    &::-webkit-scrollbar { width: 10px; height: 10px; }
-    &::-webkit-scrollbar-track { background: transparent; }
-    &::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 8px;
-      border: 2px solid var(--tsk-bg-dark);
-    }
-  }
-}
-
-// 2. Settings Page Preview
-.tsk-code-showcase-preview {
-  --tsk-bg: #1e1e1e;
-  --tsk-header: #323232;
-  --tsk-text: #d4d4d4;
-  --tsk-border: rgba(255, 255, 255, 0.1);
-
-  background: var(--tsk-bg);
-  border-radius: 8px;
-  border: 1px solid var(--tsk-border);
-  overflow: hidden;
-  font-family: 'Fira Code', monospace;
   margin: 20px 0;
 
-  .tsk-window-header {
-    background: var(--tsk-header);
-    height: 45px;
-    padding-left: 15px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    border-bottom: 1px solid var(--tsk-border);
+  // Contenedor principal (Tu BEM original)
+  .tsk-code-showcase-preview {
+    background: #1e1e1e;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    font-family: 'Fira Code', 'Courier New', monospace;
+    border: 1px solid #333;
 
-    .tsk-dots {
+    // Cabecera de la terminal
+    .tsk-window-header {
+      background: #323232;
       display: flex;
-      gap: 8px;
-      .dot {
-        width: 12px; height: 12px; border-radius: 50%;
-        &.red { background: #ff5f56; }
-        &.yellow { background: #ffbd2e; }
-        &.green { background: #27c93f; }
+      align-items: center;
+      padding: 10px 15px;
+      border-bottom: 1px solid #252525;
+      gap: 15px;
+
+      // Los tres puntos de macOS
+      .tsk-dots {
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+
+        .dot {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          display: inline-block;
+
+          &.red {
+            background: #ff5f56;
+            border: 1px solid #e0443e;
+          }
+
+          &.yellow {
+            background: #ffbd2e;
+            border: 1px solid #dea123;
+          }
+
+          &.green {
+            background: #27c93f;
+            border: 1px solid #1aab29;
+          }
+        }
+      }
+
+      // Tabs de archivos
+      .tsk-tabs {
+        display: flex;
+        gap: 5px;
+        overflow-x: auto;
+
+        .tsk-tab {
+          background: #252525;
+          color: #969696;
+          border: none;
+          padding: 4px 12px;
+          border-radius: 4px 4px 0 0;
+          font-size: 12px;
+          cursor: pointer;
+          white-space: nowrap;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background: #2d2d2d;
+            color: #ccc;
+          }
+
+          &.is-active {
+            background: #1e1e1e;
+            color: #fff;
+            box-shadow: 0 -2px 0 #3498db; // Un detalle para resaltar el tab activo
+          }
+        }
+
+        .tsk-add-tab {
+          background: transparent;
+          color: #666;
+          border: 1px dashed #444;
+          padding: 2px 8px;
+          border-radius: 4px;
+          cursor: pointer;
+          line-height: 1;
+
+          &:hover {
+            color: #fff;
+            border-color: #666;
+          }
+        }
       }
     }
 
-    .tsk-tabs {
-      display: flex;
-      gap: 2px;
-      overflow-x: auto;
-      flex: 1;
+    // Contenido / Área de edición
+    .tsk-window-content {
+      padding: 0; // Dejamos que el textarea llene el espacio
+      background: #1e1e1e;
 
-      .tsk-tab {
-        background: rgba(255, 255, 255, 0.05);
-        color: #888;
-        padding: 0 15px;
-        font-size: 12px;
-        border-radius: 4px 4px 0 0;
-        height: 100%;
-        display: flex;
-        align-items: center;
+      // Reset de los componentes de Gutenberg (Textarea)
+      .components-base-control {
+        margin-bottom: 0;
 
-        &.is-active {
-          background: var(--tsk-bg);
-          color: var(--tsk-text);
+        .components-base-control__field {
+          margin-bottom: 0;
+        }
+      }
+
+      textarea.components-textarea-control__input {
+        background: #1e1e1e !important;
+        color: #d4d4d4 !important;
+        border: none !important;
+        border-radius: 0 !important;
+        font-family: 'Fira Code', 'Monaco', 'Consolas', monospace !important;
+        font-size: 14px !important;
+        line-height: 1.5 !important;
+        padding: 20px !important;
+        width: 100% !important;
+        min-height: 200px !important;
+        box-shadow: none !important;
+        outline: none !important;
+        resize: vertical;
+
+        &::placeholder {
+          color: #555;
+          font-style: italic;
         }
       }
     }
   }
 
-  .tsk-window-content {
-    padding: 0;
-    pre {
-      margin: 0;
-      padding: 20px;
-      background: transparent;
-      overflow: auto;
-
-      // Scrollbar Look macOS para el preview
-      scrollbar-width: thin;
-      scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-
-      &::-webkit-scrollbar { width: 10px; height: 10px; }
-      &::-webkit-scrollbar-track { background: transparent; }
-      &::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 8px;
-        border: 2px solid var(--tsk-bg);
-      }
-
-      code {
-        font-family: inherit;
-        font-size: 13px;
-        color: var(--tsk-text, #d4d4d4);
-      }
+  // Estilos adicionales cuando el bloque está seleccionado
+  &.is-selected {
+    .tsk-code-showcase-preview {
+      box-shadow: 0 0 0 1px #3498db, 0 10px 30px rgba(0, 0, 0, 0.5);
     }
   }
 }

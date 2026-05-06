@@ -12,7 +12,8 @@ class ModuleConfig {
 		public readonly int $priority = 500,
 		public readonly bool $is_core = false,
 		public readonly string $icon = 'dashicons-admin-generic'
-	) {}
+	) {
+	}
 
 	public function is_system(): bool {
 		return $this->priority < 100 || $this->priority >= 900;

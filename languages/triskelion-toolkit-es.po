@@ -1,0 +1,213 @@
+# Copyright (C) 2026 Triskelion
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Triskelion Toolkit 1.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/triskelion-"
+"toolkit\n"
+"POT-Creation-Date: 2026-05-06T15:30:58+00:00\n"
+"PO-Revision-Date: 2026-05-06 09:31-0600\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.9\n"
+"X-Domain: triskelion-toolkit\n"
+
+#. Plugin Name of the plugin
+#: triskelion-toolkit.php src/Core/AdminManager.php:66
+#: src/Core/AdminManager.php:67
+msgid "Triskelion Toolkit"
+msgstr "Herramientas Triskelion"
+
+#. Description of the plugin
+#: triskelion-toolkit.php
+msgid "Modular utility suite for Triskelion."
+msgstr "Utilerías modulares de Triskelion."
+
+#. Author of the plugin
+#: triskelion-toolkit.php src/Core/AdminManager.php:29
+msgid "Triskelion"
+msgstr "Triskelion"
+
+#: src/Core/AdminManager.php:59
+msgid "Settings"
+msgstr "Configuración"
+
+#: src/Core/AdminManager.php:113
+msgid "Module not available or without settings."
+msgstr "El módulo no esta disponible  o no tiene settings."
+
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:30
+msgid "Triskelion Dark"
+msgstr "Triskelion Dark"
+
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:41
+msgid "Monokai Original"
+msgstr "Monokai Original"
+
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:52
+msgid "Cyber (High Contrast)"
+msgstr "Cyber (Alto contraste)"
+
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:130
+msgid "Code Showcase Configuration"
+msgstr "Configuración Code Showcase"
+
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:135
+msgid "Theme"
+msgstr "Tema"
+
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:147
+msgid "Preview View"
+msgstr "Vista previa"
+
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:168
+msgid "Languages inventory"
+msgstr "Inventario de Lenguajes"
+
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:171
+msgid "Add language..."
+msgstr "Agrega lenguaje…"
+
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:223
+msgid "Copy code"
+msgstr "Copiar código"
+
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:293
+msgid "Code Showcase"
+msgstr "Code Showcase"
+
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:294
+msgid "Display code snippets with a premium macOS terminal aesthetic."
+msgstr "Muestra bloques de código en una terminal con estética macOS."
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:68
+#: src/Modules/Diagnostic/DiagnosticLoader.php:183
+msgid "Logs & Diagnostic"
+msgstr "Logs y diagnóstico"
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:72
+msgid "Configuration managed via code (wp-config.php)."
+msgstr "Configuración registrada vía código (wp-config.php)."
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:79
+msgid "Enable Logging"
+msgstr "Habilitar Log"
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:92
+msgid "Log Level"
+msgstr "Nivel de Log"
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:106
+#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:42
+msgid "Save Changes"
+msgstr "Guardar Cambios"
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:127
+msgid "Triskelion Logs"
+msgstr "Logs Triskelion"
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:130
+msgid "Copy to Clipboard"
+msgstr "Copiar"
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:133
+msgid "Refresh Log"
+msgstr "Recargar Los"
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:184
+msgid "Monitor system health and view activity logs."
+msgstr "Monitor de sistema y log de actividades."
+
+#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:84
+msgid "Core Module"
+msgstr "Módulo requerido"
+
+#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:129
+msgid "General Settings"
+msgstr "Configuración General"
+
+#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:130
+msgid "General settings for the plugin."
+msgstr "Configuración general del plugin."
+
+#: src/Modules/CodeShowcase/edit.js:40
+msgid "new-file.js"
+msgstr "nuevo.js"
+
+#: src/Modules/CodeShowcase/edit.js:70
+msgid "Current File Settings"
+msgstr "Archivo Actual"
+
+#: src/Modules/CodeShowcase/edit.js:72
+msgid "File Name"
+msgstr "Nombre del archivo"
+
+#: src/Modules/CodeShowcase/edit.js:79
+msgid "Language"
+msgstr "Lenguaje"
+
+#: src/Modules/CodeShowcase/edit.js:87
+msgid "Delete File"
+msgstr "Elimina archivo"
+
+#: src/Modules/CodeShowcase/edit.js:125
+msgid "unnamed"
+msgstr "sin-nombre"
+
+#: src/Modules/CodeShowcase/edit.js:135
+msgid "Paste code here..."
+msgstr "Pega tu código aquí…"
+
+#: src/Modules/CodeShowcase/block.json
+msgctxt "block title"
+msgid "Code Showcase"
+msgstr "Code Showcase"
+
+#: src/Modules/CodeShowcase/block.json
+msgctxt "block keyword"
+msgid "terminal"
+msgstr ""
+
+#: src/Modules/CodeShowcase/block.json
+msgctxt "block keyword"
+msgid "code"
+msgstr ""
+
+#: src/Modules/CodeShowcase/block.json
+msgctxt "block keyword"
+msgid "syntax"
+msgstr ""
+
+#: src/Modules/CodeShowcase/block.json
+msgctxt "block keyword"
+msgid "showcase"
+msgstr "showcase"
+
+#: src/Modules/CodeShowcase/block.json
+msgctxt "block keyword"
+msgid "triskelion"
+msgstr "triskelion"
+
+#: src/Modules/CodeShowcase/block.json
+msgctxt "block description"
+msgid "Display code snippets with a premium macOS terminal aesthetic."
+msgstr "Muestra bloques de código en una terminal con estética macOS."
+
+#~ msgid "Visual theme"
+#~ msgstr "Tema"
+
+#~ msgid "Triskelion Suite"
+#~ msgstr "Herramientas Triskelion"
+
+#~ msgid "Code with syntax highlighting in pseudo macOS terminal"
+#~ msgstr "Bloque de código con formato de terminal macOS"
+
+#~ msgid "Save Diagnostic Settings"
+#~ msgstr "Guardar Configuración"
+
+#~ msgid "Save Configuration"
+#~ msgstr "Guardar configuración"

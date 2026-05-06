@@ -1,4 +1,5 @@
 <?php
+
 namespace Triskelion\TriskelionToolkit\Core;
 
 use Triskelion\TriskelionToolkit\Core\Data\ModuleCollection;
@@ -17,8 +18,63 @@ class Kernel {
 	}
 
 	public function boot(): void {
-		add_action( 'plugins_loaded', [ $this, 'init_i18n' ], 1 );
+		$this->init_i18n();
 		$this->setup();
+	}
+
+	/**
+	 * Carga el dominio de traducción principal.
+	 */
+	public function init_i18n(): void {
+		$domain = 'triskelion-toolkit';
+		$locale = determine_locale(); // Detecta el idioma actual del WP (es_MX, en_US, es, etc.)
+
+		// EXCEPCIÓN: Normalización del Español
+		// Si es cualquier variante de español (es_MX, es_ES, es_AR, o solo es)
+		if ( str_starts_with( $locale, 'es' ) ) {
+			$mo_file = TSK_PATH . 'languages/' . $domain . '-es.mo';
+
+			if ( file_exists( $mo_file ) ) {
+				load_textdomain( $domain, $mo_file );
+
+				return;
+			}
+		}
+
+		// LÓGICA GENERAL: Para otros idiomas (inglés, francés, etc.)
+		// Intentamos cargar el archivo específico del locale actual
+		$specific_mo = TSK_PATH . "languages/$domain-$locale.mo";
+
+		if ( file_exists( $specific_mo ) ) {
+			load_textdomain( $domain, $specific_mo );
+		} else {
+			// FALLBACK: Si no hay traducción, cargamos .pot (inglés) por defecto
+			load_plugin_textdomain( $domain, false, dirname( plugin_basename( TSK_FILE ) ) . '/languages' );
+		}
+
+		add_filter( 'load_script_translation_file', function ( $file, $handle, $current_domain ) use ( $domain ) {
+			// Solo afectamos a nuestro plugin
+			if ( $domain !== $current_domain ) {
+				return $file;
+			}
+
+			$locale = determine_locale();
+
+			// Si el idioma es español (ej. es_MX, es_AR) pero NO es el "es" base
+			if ( $locale !== 'es' && str_starts_with( $locale, 'es' ) ) {
+
+				// $file contiene la ruta que WP está intentando cargar (ej. .../triskelion-toolkit-es_MX-hash.json)
+				// Reemplazamos "-es_MX-" por "-es-" en la ruta del archivo
+				$fallback_file = str_replace( '-' . $locale . '-', '-es-', $file );
+
+				// Si nuestro archivo base 'es' existe, obligamos a WP a usarlo
+				if ( file_exists( $fallback_file ) ) {
+					return $fallback_file;
+				}
+			}
+
+			return $file;
+		}, 10, 3 );
 	}
 
 	public function setup(): void {
@@ -41,7 +97,7 @@ class Kernel {
 			$class = $this->resolve_namespace( $file );
 			if ( class_exists( $class ) ) {
 				$this->modules->add( $class::get_config() );
-				Logger::debug("Triskelion Debug: Cargando módulo {$class}", "Kernel");
+				Logger::debug( "Triskelion Debug: Loading module $class", "Kernel" );
 			}
 		}
 		// Creation
@@ -50,7 +106,7 @@ class Kernel {
 
 				$class    = $config->class;
 				$instance = new $class();
-				Logger::debug("Triskelion Debug: Inyectando colección de módulos en {$class}", "Kernel");
+				Logger::debug( "Triskelion Debug: Inyectando colección de módulos en $class", "Kernel" );
 
 				// Inyección de la bolsa completa
 				if ( $instance instanceof NeedsModuleCollectionInterface ) {
@@ -61,9 +117,10 @@ class Kernel {
 			}
 		}
 	}
-	private function resolve_namespace(string $file_path): string {
 
-		$relative_path = str_replace([ TSK_PATH . 'src/', '.php', '/' ], [ '', '', '\\' ], $file_path);
+	private function resolve_namespace( string $file_path ): string {
+
+		$relative_path = str_replace( [ TSK_PATH . 'src/', '.php', '/' ], [ '', '', '\\' ], $file_path );
 
 		return 'Triskelion\\TriskelionToolkit\\' . $relative_path;
 	}
@@ -74,16 +131,5 @@ class Kernel {
 	 */
 	public function get_active_modules(): array {
 		return $this->loaded_modules;
-	}
-
-	/**
-	 * Carga el dominio de traducción principal.
-	 */
-	public function init_i18n(): void {
-		load_plugin_textdomain(
-			'triskelion-toolkit',
-			false,
-			dirname(plugin_basename(TSK_FILE)) . '/languages'
-		);
 	}
 }
