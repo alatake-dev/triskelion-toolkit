@@ -20,6 +20,18 @@ class AdminManager {
         $basename = plugin_basename(TSK_FILE);
         add_filter("plugin_action_links_{$basename}", [$this, 'add_settings_link']);
         add_action( 'admin_init', [ $this, 'trigger_module_settings' ] );
+        add_filter( 'block_categories_all', function( $categories ) {
+            return array_merge(
+                    $categories,
+                    [
+                            [
+                                    'slug'  => 'triskelion',
+                                    'title' => __( 'Triskelion', 'triskelion-toolkit' ),
+                                    'icon'  => 'admin-generic', // Aquí puedes usar un dashicon o un SVG de tu logo
+                            ],
+                    ]
+            );
+        }, 10, 1 );
     }
 
     public function trigger_module_settings(): void {

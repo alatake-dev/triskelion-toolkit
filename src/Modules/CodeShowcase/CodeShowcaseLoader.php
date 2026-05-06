@@ -27,7 +27,7 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
                         '--tsk-bg'              => '#1e1e1e',
                         '--tsk-header'          => '#323232',
                         '--tsk-text'            => '#d4d4d4',
-                        'label'                 => 'Triskelion Dark' // Agregamos etiquetas
+                        'label'                 => __( 'Triskelion Dark', 'triskelion-toolkit' )
                 ],
                 'monokai'         => [
                         '--tsk-syntax-keyword'  => '#f92672',
@@ -38,7 +38,7 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
                         '--tsk-bg'              => '#272822',
                         '--tsk-header'          => '#1e1f1c',
                         '--tsk-text'            => '#f8f8f2',
-                        'label'                 => 'Monokai Original'
+                        'label'                 => __( 'Monokai Original', 'triskelion-toolkit' )
                 ],
                 'cyber'           => [
                         '--tsk-syntax-keyword'  => '#00ffff',
@@ -49,7 +49,7 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
                         '--tsk-bg'              => '#000000',
                         '--tsk-header'          => '#00008b',
                         '--tsk-text'            => '#ffffff',
-                        'label'                 => 'Cyber (High Contrast)'
+                        'label'                 => __( 'Cyber (High Contrast)', 'triskelion-toolkit' )
                 ]
         ];
     }

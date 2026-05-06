@@ -41,7 +41,7 @@ class Kernel {
 			$class = $this->resolve_namespace( $file );
 			if ( class_exists( $class ) ) {
 				$this->modules->add( $class::get_config() );
-				Logger::debug("Triskelion Debug: Cargando módulo {$class}", "Kernel");
+				Logger::debug("Triskelion Debug: Loading module {$class}", "Kernel");
 			}
 		}
 		// Creation
