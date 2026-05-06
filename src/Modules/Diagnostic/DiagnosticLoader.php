@@ -141,7 +141,6 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
 
         <script>
             (function() {
-                // Delegación de eventos: un solo listener para manejar todo el bloque
                 const terminal = document.querySelector('.tsk-terminal');
                 const output = terminal?.querySelector('.tsk-terminal__body');
 
