@@ -58,22 +58,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (copyBtn) {
             copyBtn.addEventListener('click', () => {
-                // Buscamos el bloque de código que está visible actualmente
-                const activeCode = container.querySelector('.tsk-code-showcase__pane.is-active code');
+                const pane = document.querySelector('.tsk-code-showcase__pane.is-active code');
+                const originalSVG = copyBtn.innerHTML;
+                const checkSVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#27c93f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
 
-                if (activeCode) {
-                    // Usamos la API nativa de Clipboard (moderna y segura)
-                    navigator.clipboard.writeText(activeCode.innerText).then(() => {
-                        copyBtn.classList.add('is-success');
+                navigator.clipboard.writeText(pane.innerText).then(() => {
+                    copyBtn.innerHTML = checkSVG;
+                    copyBtn.classList.add('is-success');
 
-                        // Feedback visual temporal
-                        setTimeout(() => {
-                            copyBtn.classList.remove('is-success');
-                        }, 2000);
-                    }).catch(err => {
-                        console.error('Error al copiar: ', err);
-                    });
-                }
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalSVG;
+                        copyBtn.classList.remove('is-success');
+                    }, 3000);
+                });
             });
         }
     });

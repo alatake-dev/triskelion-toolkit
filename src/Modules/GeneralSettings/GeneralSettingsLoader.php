@@ -3,28 +3,31 @@
 namespace Triskelion\TriskelionToolkit\Modules\GeneralSettings;
 
 use Triskelion\TriskelionToolkit\Core\AbstractModule;
+use Triskelion\TriskelionToolkit\Core\Data\ModuleCollection;
 use Triskelion\TriskelionToolkit\Core\Data\ModuleConfig;
 use Triskelion\TriskelionToolkit\Core\Data\ModuleConfigBuilder;
+use Triskelion\TriskelionToolkit\Core\Interfaces\NeedsModuleCollectionInterface;
 use Triskelion\TriskelionToolkit\Core\Interfaces\RegistrableModuleInterface;
-use Triskelion\TriskelionToolkit\Core\Interfaces\SettingsInterface;
+use Triskelion\TriskelionToolkit\Core\Interfaces\HasSettingsInterface;
 use Triskelion\TriskelionToolkit\Core\Kernel;
 
-class GeneralSettingsLoader extends AbstractModule implements SettingsInterface, RegistrableModuleInterface {
+class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterface, RegistrableModuleInterface, NeedsModuleCollectionInterface {
+
+    private ModuleCollection $module_collection;
 
     public function __construct() {
-        add_action( 'admin_init', [ $this, 'register_settings' ] );
+        add_action( 'admin_init', [ $this, 'register_module_settings' ] );
     }
 
-    public function register_settings(): void {
+    public function register_module_settings(): void {
         register_setting( 'tsk_settings_group', 'tsk_active_modules', [
                 'type'              => 'array',
-                'sanitize_callback' => [ $this, 'sanitize_active_modules' ],
+                'sanitize_callback' => [ $this, 'sanitize_module_settings' ],
                 'default'           => [],
         ] );
     }
 
     public function render_settings(): string {
-        $manifest       = Kernel::get_manifest();
         $active_modules = get_option( 'tsk_active_modules', [] );
 
         ob_start(); ?>
@@ -35,7 +38,7 @@ class GeneralSettingsLoader extends AbstractModule implements SettingsInterface,
             <form method="post" action="options.php">
                 <?php
                 settings_fields( 'tsk_settings_group' );
-                echo $this->render_module_grid( $manifest, $active_modules );
+                echo $this->render_module_grid(  $active_modules );
                 submit_button( __( 'Save Configuration', 'triskelion-toolkit' ) );
                 ?>
             </form>
@@ -48,8 +51,8 @@ class GeneralSettingsLoader extends AbstractModule implements SettingsInterface,
      * Componente de UI: El Grid de Módulos.
      * Aquí aplicamos el orden jerárquico y bloqueamos los módulos obligatorios.
      */
-    private function render_module_grid($manifest_collection, $active_modules): string {
-        $sorted_modules = $manifest_collection->get_all_sorted();
+    private function render_module_grid($active_modules): string {
+        $sorted_modules = $this->module_collection->get_all_sorted();
 
         ob_start(); ?>
 
@@ -91,9 +94,9 @@ class GeneralSettingsLoader extends AbstractModule implements SettingsInterface,
         <?php
         return ob_get_clean();
     }
-    public function sanitize_active_modules( $input ): array {
+    public function sanitize_module_settings( $input ): array {
         $submitted = is_array($input) ? $input : [];
-        $manifest = \Triskelion\TriskelionToolkit\Core\Kernel::get_manifest();
+        $manifest = $this->module_collection;
         $valid_ids = array_keys($manifest->get_all_sorted());
 
         return array_values(array_filter($submitted, function($id) use ($valid_ids, $manifest) {
@@ -106,7 +109,7 @@ class GeneralSettingsLoader extends AbstractModule implements SettingsInterface,
                 ->set_id( 'general_settings' )
                 ->set_name( __( 'General Settings', 'triskelion-toolkit' ) )
                 ->set_description( __( 'General settings for the plugin.', 'triskelion-toolkit' ) )
-                ->set_class( \Triskelion\TriskelionToolkit\Modules\GeneralSettings\GeneralSettingsLoader::class )
+                ->set_class( self::class )
                 ->set_is_core( true )
                 ->set_priority( 0 )
                 ->set_icon( 'dashicons-admin-generic' )
@@ -116,4 +119,9 @@ class GeneralSettingsLoader extends AbstractModule implements SettingsInterface,
     public function register(): void {
         // Silencio absoluto. No ensuciamos el arranque de WP.
     }
+
+    public function set_module_collection( ModuleCollection $collection ): void {
+        $this->module_collection = $collection;
+    }
+
 }

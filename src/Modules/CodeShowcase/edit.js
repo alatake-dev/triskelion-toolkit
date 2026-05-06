@@ -4,14 +4,27 @@ import {
     PanelBody,
     TextControl,
     SelectControl,
-    ToggleControl,
     TextareaControl,
     Button
 } from '@wordpress/components';
 
 export default function Edit( { attributes, setAttributes } ) {
-    const { files, activeTabIndex, showLineNumbers, terminalTheme } = attributes;
+    const { files, activeTabIndex } = attributes;
     const blockProps = useBlockProps();
+
+    /**
+     * MENTORÍA TÉCNICA: Sincronización de Lenguajes.
+     * Recuperamos los lenguajes activos guardados en el Admin.
+     * Si por alguna razón tskSettings no carga (ej. error de script),
+     * usamos el fallback de JS/PHP para no romper el editor.
+     */
+    const languageOptions = ( window.tskSettings?.activeLanguages || ['javascript', 'php'] ).map( lang => ( {
+        // Transformamos el slug (ej. 'javascript') en una etiqueta legible (ej. 'JAVASCRIPT')
+        label: lang.toUpperCase(),
+        value: lang
+    } ) );
+
+    // --- LÓGICA DE GESTIÓN DE ARCHIVOS (INTACTA) ---
 
     const updateFile = ( index, key, value ) => {
         const newFiles = [ ...files ];
@@ -20,9 +33,12 @@ export default function Edit( { attributes, setAttributes } ) {
     };
 
     const addFile = () => {
+        // Al añadir, tomamos por defecto el primer lenguaje del inventario configurado
+        const defaultLang = languageOptions[0]?.value || 'javascript';
+
         const newFiles = [ ...files, {
             fileName: __( 'new-file.js', 'triskelion-toolkit' ),
-            language: 'javascript',
+            language: defaultLang,
             content: ''
         } ];
         setAttributes( { files: newFiles } );
@@ -51,105 +67,72 @@ export default function Edit( { attributes, setAttributes } ) {
     return (
         <div { ...blockProps }>
             <InspectorControls>
-                <PanelBody title={ __( 'Current File', 'triskelion-toolkit') }>
+                <PanelBody title={ __( 'Current File Settings', 'triskelion-toolkit') }>
                     <TextControl
                         label={ __( 'File Name', 'triskelion-toolkit' ) }
                         value={ files[ activeTabIndex ]?.fileName }
                         onChange={ ( val ) => updateFile( activeTabIndex, 'fileName', val ) }
                     />
+
+                    {/* El SelectControl ahora es dinámico según tu Admin */}
                     <SelectControl
                         label={ __( 'Language', 'triskelion-toolkit' ) }
                         value={ files[ activeTabIndex ]?.language }
-                        options={ [
-                            { label: 'JavaScript / React (JSX)', value: 'javascript' }, // Highlight.php maneja JSX dentro de JS
-                            { label: 'PHP', value: 'php' },
-                            { label: 'Python', value: 'python' },
-                            { label: 'Java', value: 'java' },
-                            { label: 'HTML / XML', value: 'xml' },
-                            { label: 'CSS', value: 'css' },
-                            { label: 'SCSS', value: 'scss' },
-                            { label: 'SQL', value: 'sql' },
-                            { label: 'JSON', value: 'json' },
-                            { label: 'Bash/Shell', value: 'bash' },
-                            { label: 'YAML', value: 'yaml' },
-                        ] }
+                        options={ languageOptions }
                         onChange={ ( val ) => updateFile( activeTabIndex, 'language', val ) }
                     />
 
-                    <Button isDestructive variant="link" onClick={ () => removeFile( activeTabIndex ) } disabled={ files.length <= 1 }>
-                        { __( 'Remove Tab', 'triskelion-toolkit' ) }
-                    </Button>
+                    <div style={ { marginTop: '15px', display: 'flex', justifyContent: 'space-between' } }>
+                        <Button isDestructive variant="link" onClick={ () => removeFile( activeTabIndex ) } disabled={ files.length <= 1 }>
+                            { __( 'Delete File', 'triskelion-toolkit' ) }
+                        </Button>
 
-                    <div style={ { marginTop: '15px', display: 'flex', gap: '10px', alignItems: 'center' } }>
-                        <span style={ { fontSize: '12px', fontWeight: 'bold' } }>
-                            { __( 'Ordering:', 'triskelion-toolkit' ) }
-                        </span>
-                        <Button
-                            variant="secondary"
-                            isSmall
-                            icon="arrow-left-alt"
-                            onClick={ () => moveFile( activeTabIndex, -1 ) }
-                            disabled={ activeTabIndex === 0 }
-                            label={ __( 'Move left', 'triskelion-toolkit' ) }
-                        />
-                        <Button
-                            variant="secondary"
-                            isSmall
-                            icon="arrow-right-alt"
-                            onClick={ () => moveFile( activeTabIndex, 1 ) }
-                            disabled={ activeTabIndex === files.length - 1 }
-                            label={ __( 'Move right', 'triskelion-toolkit' ) }
-                        />
+                        <div style={ { display: 'flex', gap: '5px' } }>
+                            <Button
+                                variant="secondary"
+                                isSmall
+                                icon="arrow-left-alt"
+                                onClick={ () => moveFile( activeTabIndex, -1 ) }
+                                disabled={ activeTabIndex === 0 }
+                            />
+                            <Button
+                                variant="secondary"
+                                isSmall
+                                icon="arrow-right-alt"
+                                onClick={ () => moveFile( activeTabIndex, 1 ) }
+                                disabled={ activeTabIndex === files.length - 1 }
+                            />
+                        </div>
                     </div>
-                </PanelBody>
-
-                <PanelBody title={ __( 'Visual Settings', 'triskelion-toolkit' ) } initialOpen={ false }>
-                    <ToggleControl
-                        label={ __( 'Line numbers', 'triskelion-toolkit' ) }
-                        checked={ showLineNumbers }
-                        onChange={ ( val ) => setAttributes( { showLineNumbers: val } ) }
-                    />
-                    <SelectControl
-                        label={ __( 'Theme', 'triskelion-toolkit' ) }
-                        value={ terminalTheme }
-                        options={ [
-                            { label: 'Dark (Monokai)', value: 'dark' },
-                            { label: 'Light (Classic)', value: 'light' },
-                        ] }
-                        onChange={ ( val ) => setAttributes( { terminalTheme: val } ) }
-                    />
                 </PanelBody>
             </InspectorControls>
 
-            <div className="tsk-code-showcase-container">
-                <div className="tsk-code-header">
-                    <div className="tsk-window-buttons">
+            {/* --- PREVIEW DEL EDITOR (UX MACOS) --- */}
+            <div className="tsk-code-showcase-preview">
+                <div className="tsk-window-header">
+                    <div className="tsk-dots">
                         <span className="dot red"></span>
                         <span className="dot yellow"></span>
                         <span className="dot green"></span>
                     </div>
-                    <div className="tsk-tabs-wrapper">
+                    <div className="tsk-tabs">
                         { files.map( ( file, index ) => (
                             <button
                                 key={ index }
-                                className={ `tsk-tab ${ activeTabIndex === index ? 'active' : '' }` }
+                                className={ `tsk-tab ${ activeTabIndex === index ? 'is-active' : '' }` }
                                 onClick={ () => setAttributes( { activeTabIndex: index } ) }
                             >
                                 { file.fileName || __( 'unnamed', 'triskelion-toolkit' ) }
                             </button>
                         ) ) }
+                        <button className="tsk-add-tab" onClick={ addFile }>+</button>
                     </div>
-                    <Button
-                        onClick={ addFile }
-                        className="tsk-add-tab"
-                        label={ __( 'Add Tab', 'triskelion-toolkit' ) }
-                    >+</Button>
                 </div>
-                <div className="tsk-code-body">
+                <div className="tsk-window-content">
                     <TextareaControl
                         value={ files[ activeTabIndex ]?.content }
                         onChange={ ( val ) => updateFile( activeTabIndex, 'content', val ) }
-                        placeholder={ __( 'Paste your code here...', 'triskelion-toolkit' ) }
+                        placeholder={ __( 'Paste code here...', 'triskelion-toolkit' ) }
                         spellCheck={ false }
                     />
                 </div>

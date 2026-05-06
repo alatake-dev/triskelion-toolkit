@@ -15,9 +15,7 @@ registerBlockType( metadata.name, {
      */
     edit: Edit,
 
-    save: ( { attributes } ) => {
-        // Si planeas usar un render_callback en PHP (recomendado para SSR),
-        // el save debe retornar null.
+    save: ( ) => {
         return null;
     },
 } );

@@ -123,6 +123,7 @@ class Logger {
 		);
 
 		file_put_contents( $file, $entry, FILE_APPEND );
+		error_log( $module . ': ' . $message );
 	}
 
 	private static function secure_directory(): void {

@@ -33,23 +33,6 @@ define( 'HOOK_REGISTER_STYLES',     'tsk_register_vendor_styles' );
 
 /* Autoloader (PSR-4 Style) */
 /*
-spl_autoload_register(function ($class) {
-	$prefix = 'Triskelion\\Toolkit\\';
-	$base_dir = TSK_PATH . 'src/ServiceLayer/';
-
-	$len = strlen($prefix);
-	if (strncmp($prefix, $class, $len) !== 0) return;
-
-	$relative_class = substr($class, $len);
-
-	$file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
-
-	if (file_exists($file)) {
-		require $file;
-	}
-});
-
-
 
 add_action( 'init', function() {
 	$domain = 'triskelion-toolkit';
@@ -99,41 +82,13 @@ add_filter( 'plugin_locale', function( $locale, $domain ) {
 	return $locale;
 }, 10, 2 );
 
-add_filter( 'block_categories_all', function( $categories ) {
-	return array_merge(
-		$categories,
-		[
-			[
-				'slug'  => 'triskelion',
-				'title' => 'Triskelion Assets',
-				'icon'  => 'shield', // Puedes usar cualquier Dashicon de WP
-			],
-		]
-	);
-} );
-
-
-// Inicializar el Toolkit
-Triskelion\Toolkit\Core\Toolkit::init();
 */
 
-/*
-if (file_exists(__DIR__ . '/vendor/autoload.php')) {
-	require_once __DIR__ . '/vendor/autoload.php';
+if ( !file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
+	return;
 }
+require_once __DIR__ . '/vendor/autoload.php';
+error_log('Triskelion Toolkit: Autoloader cargado');
 
-$bootstrap = require_once __DIR__ . '/src/bootstrap.php';
-\Triskelion\TriskelionToolkit\Core\Kernel::boot($bootstrap);
-*/
-
-if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
-	require_once __DIR__ . '/vendor/autoload.php';
-	error_log('Triskelion Toolkit: Autoloader cargado');
-}
-
-
-\Triskelion\TriskelionToolkit\Core\Kernel::boot();
-
-if ( is_admin() ) {
-	new \Triskelion\TriskelionToolkit\Core\AdminManager();
-}
+$tsk_kernel = new \Triskelion\TriskelionToolkit\Core\Kernel();
+$tsk_kernel->boot();

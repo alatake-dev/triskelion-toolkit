@@ -6,30 +6,30 @@ use Triskelion\TriskelionToolkit\Core\AbstractModule;
 use Triskelion\TriskelionToolkit\Core\Data\ModuleConfig;
 use Triskelion\TriskelionToolkit\Core\Data\ModuleConfigBuilder;
 use Triskelion\TriskelionToolkit\Core\Interfaces\RegistrableModuleInterface;
-use Triskelion\TriskelionToolkit\Core\Interfaces\SettingsInterface;
+use Triskelion\TriskelionToolkit\Core\Interfaces\HasSettingsInterface;
 use Triskelion\TriskelionToolkit\Core\Logger;
 
-class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterface, SettingsInterface {
+class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterface, HasSettingsInterface {
 
     protected function register(): void {
         if ( is_admin() ) {
-            add_action( 'admin_init', [ $this, 'register_settings' ] );
+            add_action( 'admin_init', [ $this, 'register_module_settings' ] );
         }
     }
 
-    public function register_settings(): void {
+    public function register_module_settings(): void {
         register_setting(
                 'tsk_diagnostic_group',
                 'tsk_diagnostic_settings',
                 [
                         'type'              => 'array',
-                        'sanitize_callback' => [ $this, 'sanitize_diagnostic_settings' ],
+                        'sanitize_callback' => [ $this, 'sanitize_module_settings' ],
                         'default'           => [ 'debug_enabled' => false, 'level' => Logger::LEVEL_ERROR ]
                 ]
         );
     }
 
-    public function sanitize_diagnostic_settings( $input ): array {
+    public function sanitize_module_settings( $input ): array {
         $severity_map = Logger::get_severity_map();
 
         $level = ( isset($input['level']) && isset($severity_map[$input['level']]) )
@@ -170,9 +170,12 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
                 ->set_name( __( 'Logs & Diagnostic', 'triskelion-toolkit' ) )
                 ->set_description( __( 'Monitor system health and view activity logs.', 'triskelion-toolkit' ) )
                 ->set_class( self::class )
-                ->set_priority( 120 )
-                ->set_is_core( false )
+                ->set_priority( 1000 )
+                ->set_is_core( true )
                 ->set_icon( 'dashicons-rest-api' )
                 ->build();
     }
+
+
+
 }

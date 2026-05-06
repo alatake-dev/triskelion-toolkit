@@ -1,1449 +1,279 @@
 <?php
+
 namespace Triskelion\TriskelionToolkit\Modules\CodeShowcase;
 
-
-
-use Exception;
 use Triskelion\TriskelionToolkit\Core\AbstractModule;
 use Triskelion\TriskelionToolkit\Core\Data\ModuleConfigBuilder;
+use Triskelion\TriskelionToolkit\Core\Interfaces\HasSettingsInterface;
 use Triskelion\TriskelionToolkit\Core\Interfaces\RegistrableModuleInterface;
 use Triskelion\TriskelionToolkit\Core\Data\ModuleConfig;
 
-class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInterface {
+class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInterface, HasSettingsInterface {
 
-    protected function register() {
+    protected function register(): void {
         add_action( 'init', [ $this, 'register_showcase_block' ] );
+        add_action( 'enqueue_block_editor_assets', [ $this, 'enqueue_block_assets' ] );
+        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
     }
 
-    public function register_showcase_block(): void {
-        $block_path = TSK_PATH . 'build/Modules/CodeShowcase';
+    private function get_themes_config(): array {
+        return [
+                'triskelion-dark' => [
+                        '--tsk-syntax-keyword'  => '#ff79c6',
+                        '--tsk-syntax-string'   => '#f1fa8c',
+                        '--tsk-syntax-comment'  => '#6272a4',
+                        '--tsk-syntax-number'   => '#bd93f9',
+                        '--tsk-syntax-function' => '#50fa7b',
+                        '--tsk-bg'              => '#1e1e1e',
+                        '--tsk-header'          => '#323232',
+                        '--tsk-text'            => '#d4d4d4',
+                        'label'                 => 'Triskelion Dark' // Agregamos etiquetas
+                ],
+                'monokai'         => [
+                        '--tsk-syntax-keyword'  => '#f92672',
+                        '--tsk-syntax-string'   => '#e6db74',
+                        '--tsk-syntax-comment'  => '#75715e',
+                        '--tsk-syntax-number'   => '#ae81ff',
+                        '--tsk-syntax-function' => '#a6e22e',
+                        '--tsk-bg'              => '#272822',
+                        '--tsk-header'          => '#1e1f1c',
+                        '--tsk-text'            => '#f8f8f2',
+                        'label'                 => 'Monokai Original'
+                ],
+                'cyber'           => [
+                        '--tsk-syntax-keyword'  => '#00ffff',
+                        '--tsk-syntax-string'   => '#ff00ff',
+                        '--tsk-syntax-comment'  => '#ffff00',
+                        '--tsk-syntax-number'   => '#00ff00',
+                        '--tsk-syntax-function' => '#ffffff',
+                        '--tsk-bg'              => '#000000',
+                        '--tsk-header'          => '#00008b',
+                        '--tsk-text'            => '#ffffff',
+                        'label'                 => 'Cyber (High Contrast)'
+                ]
+        ];
+    }
 
-        if ( file_exists( $block_path . '/block.json' ) ) {
-	        register_block_type( $block_path, [
-		        // Esta es la clave: delegamos el renderizado al servidor
-		        'render_callback' => [ $this, 'render_frontend' ],
-	        ] );
+    private function get_theme_inline_css( $active_theme, $is_admin = false ): string {
+        $themes_config = $this->get_themes_config();
+        $css           = "";
+        $targets       = $is_admin ? array_keys( $themes_config ) : [ $active_theme ];
+
+        foreach ( $targets as $id ) {
+            $vars = $themes_config[ $id ];
+            $css  .= ".is-theme-{$id} { ";
+            foreach ( $vars as $var => $val ) {
+                if ( $var === 'label' ) {
+                    continue;
+                }
+                $css .= "{$var}: {$val}; ";
+            }
+            $css .= "}\n";
+
+            // Cadenas y documentación especial
+            $css .= ".is-theme-{$id} .hljs-string, .is-theme-{$id} .hljs-doctag, .is-theme-{$id} .hljs-regexp { color: var(--tsk-syntax-string) !important; }\n";
+
+            // Palabras reservadas y tipos de sistema
+            $css .= ".is-theme-{$id} .hljs-keyword, .is-theme-{$id} .hljs-selector-tag, .is-theme-{$id} .hljs-built_in, .is-theme-{$id} .hljs-type { color: var(--tsk-syntax-keyword) !important; font-weight: bold !important; }\n";
+
+            // Comentarios y citas
+            $css .= ".is-theme-{$id} .hljs-comment, .is-theme-{$id} .hljs-quote { color: var(--tsk-syntax-comment) !important; font-style: italic !important; }\n";
+
+            // Números y constantes literales
+            $css .= ".is-theme-{$id} .hljs-number, .is-theme-{$id} .hljs-literal { color: var(--tsk-syntax-number) !important; }\n";
+
+            // Funciones, clases y títulos de sección
+            $css .= ".is-theme-{$id} .hljs-function, .is-theme-{$id} .hljs-title, .is-theme-{$id} .hljs-title.function_, .is-theme-{$id} .hljs-title.class_, .is-theme-{$id} .hljs-section { color: var(--tsk-syntax-function) !important; }\n";
+
+            // Atributos y variables (si quieres diferenciarlos, si no, usa el color de texto base)
+            $css .= ".is-theme-{$id} .hljs-attr, .is-theme-{$id} .hljs-variable, .is-theme-{$id} .hljs-template-variable { color: var(--tsk-syntax-number); }\n";        }
+
+        return "<style>{$css}</style>";
+    }
+
+    public function enqueue_admin_assets( $hook ) {
+        if ( ! str_contains( $hook, 'triskelion-toolkit' ) ) {
+            return;
+        }
+
+        $js_path = 'src/Modules/CodeShowcase/assets/admin-inventory.js';
+        wp_enqueue_script( 'tsk-admin-inventory', TSK_URL . $js_path, [], filemtime( TSK_PATH . $js_path ), true );
+        wp_enqueue_style( 'tsk-showcase-admin-styles', TSK_URL . 'src/Modules/CodeShowcase/assets/admin-module.css', [], '1.0.0' );
+        wp_enqueue_style( 'tsk-showcase-hljs-styles', TSK_URL . 'src/Modules/CodeShowcase/assets/syntax-highlighting.css', [], '1.0.0' );
+
+        $json = TSK_PATH . 'src/Modules/CodeShowcase/assets/languages.json';
+        if ( file_exists( $json ) ) {
+            wp_localize_script( 'tsk-admin-inventory', 'tskInventoryData', [
+                    'allLanguages' => json_decode( file_get_contents( $json ), true ) ?: [ 'php', 'javascript' ]
+            ] );
         }
     }
 
-    /**
-     * Renderiza el bloque con resaltado desde el servidor.
-     * Adiós Prism.js, hola rendimiento real.
-     */
-    public function render_frontend( $attributes ): string {
-        $files = $attributes['files'] ?? [];
-        if ( empty( $files ) ) return '';
+    private function get_settings(): array {
+        $defaults = [
+                'active_theme'     => 'triskelion-dark',
+                'active_languages' => [ 'php', 'javascript', 'css', 'html', 'json', 'sql' ]
+        ];
 
-        $active_tab = (int) ($attributes['activeTabIndex'] ?? 0);
-        $highlighter = new \Highlight\Highlighter();
+        return wp_parse_args( get_option( 'tsk_showcase_settings', [] ), $defaults );
+    }
 
+    public function render_settings(): string {
+        $settings    = $this->get_settings();
+        $theme       = $settings['active_theme'];
+        $themes_data = $this->get_themes_config();
         ob_start(); ?>
-        <div class="tsk-code-showcase"> <!-- Bloque BEM -->
-            <div class="tsk-code-showcase__header">
+        <div class="tsk-settings-container">
+            <?php echo $this->get_theme_inline_css( $theme, true ); ?>
+            <h2>Configuración del Showcase</h2>
+            <form action="options.php" method="post">
+                <?php settings_fields( 'triskelion_showcase_group' ); ?>
+                <table class="form-table">
+                    <tr>
+                        <th scope="row">Visual theme</th>
+                        <td>
+                            <select name="tsk_showcase_settings[active_theme]">
+                                <?php foreach ( $themes_data as $id => $data ) : ?>
+                                    <option value="<?php echo esc_attr( $id ); ?>" <?php selected( $theme, $id ); ?>>
+                                        <?php echo esc_html( $data['label'] ); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Vista Previa</th>
+                        <td>
+                            <div class="tsk-code-showcase-preview is-theme-<?php echo esc_attr( $theme ); ?>">
+                                <div class="tsk-window-header">
+                                    <div class="tsk-dots"><span class="dot red"></span><span
+                                                class="dot yellow"></span><span
+                                                class="dot green"></span></div>
+                                    <div class="tsk-tabs">
+                                        <div class="tsk-tab is-active">preview.php</div>
+                                    </div>
+                                </div>
+                                <div class="tsk-window-content">
+                                <pre><code class="hljs php"><?php
+                                        $hl = new \Highlight\Highlighter();
+                                        echo $hl->highlight( 'php', "function hello() {\n    echo 'Triskelion Power';\n}" )->value;
+                                        ?></code></pre>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Languages inventory</th>
+                        <td>
+                            <div class="tsk-search-group">
+                                <input type="text" id="tsk-lang-finder" placeholder="Añadir lenguaje..."
+                                       class="regular-text">
+                                <ul id="tsk-search-results" class="tsk-results-list" hidden></ul>
 
-                <!-- Semántica macOS -->
-                <div class="tsk-code-showcase__window-buttons" aria-hidden="true">
+                            </div>
+                            <div class="tsk-pills" id="tsk-active-langs">
+                                <?php foreach ( $settings['active_languages'] as $lang ) : ?>
+                                    <div class="tsk-pill">
+                                        <span><?php echo strtoupper( $lang ); ?></span>
+                                        <input type="hidden" name="tsk_showcase_settings[active_languages][]"
+                                               value="<?php echo $lang; ?>">
+                                        <button type="button" class="tsk-pill__remove">&times;</button>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <?php submit_button(); ?>
+            </form>
+        </div>
+        <?php return ob_get_clean();
+    }
+
+    public function render_frontend( $attributes ): string {
+        $settings = $this->get_settings();
+        $theme    = $settings['active_theme'];
+        $files    = $attributes['files'] ?? [];
+        if ( empty( $files ) ) {
+            return '';
+        }
+
+        $active_tab = (int) ( $attributes['activeTabIndex'] ?? 0 );
+        $hl         = new \Highlight\Highlighter();
+        ob_start(); ?>
+        <?php echo $this->get_theme_inline_css( $theme ); ?>
+        <div class="tsk-code-showcase is-theme-<?php echo esc_attr( $theme ); ?>">
+            <div class="tsk-code-showcase__header">
+                <div class="tsk-code-showcase__window-buttons">
                     <span class="tsk-code-showcase__dot tsk-code-showcase__dot--red"></span>
                     <span class="tsk-code-showcase__dot tsk-code-showcase__dot--yellow"></span>
                     <span class="tsk-code-showcase__dot tsk-code-showcase__dot--green"></span>
                 </div>
-
-                <!-- Selector Móvil: UX Correcta -->
-                <div class="tsk-code-showcase__mobile-selector">
-                    <select class="tsk-code-showcase__select" aria-label="Seleccionar archivo">
-                        <?php foreach ( $files as $index => $file ) : ?>
-                            <option value="<?php echo $index; ?>" <?php selected($active_tab, $index); ?>>
-                                <?php echo esc_html( $file['fileName'] ); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <!-- Pestañas Desktop -->
                 <div class="tsk-code-showcase__tabs" role="tablist">
-                    <?php foreach ( $files as $index => $file ) :
-                        $is_active = $index === $active_tab; ?>
-                        <button
-                                class="tsk-code-showcase__tab <?php echo $is_active ? 'is-active' : ''; ?>"
-                                data-index="<?php echo $index; ?>"
-                                role="tab"
-                                aria-selected="<?php echo $is_active ? 'true' : 'false' ?>"
-                        >
+                    <?php foreach ( $files as $index => $file ) : ?>
+                        <button class="tsk-code-showcase__tab <?php echo $index === $active_tab ? 'is-active' : ''; ?>"
+                                data-index="<?php echo $index; ?>" role="tab">
                             <?php echo esc_html( $file['fileName'] ); ?>
                         </button>
                     <?php endforeach; ?>
                 </div>
-
-                <button class="tsk-code-showcase__copy" aria-label="Copiar código">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                <!-- Botón Copy Exclusivo del Front -->
+                <button class="tsk-code-showcase__copy" aria-label="Copy">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
                     </svg>
                 </button>
             </div>
-
             <div class="tsk-code-showcase__body">
                 <?php foreach ( $files as $index => $file ) :
-                    $lang = $file['language'] ?? 'plaintext';
-                    $is_active = $index === $active_tab;
-
-                    $content = html_entity_decode( $file['content'] ?? '', ENT_QUOTES, 'UTF-8' );
-
-                try {
-                    $highlighted = $highlighter->highlight($lang, $content);
-                    $code_output = $highlighted->value;
-                } catch ( Exception $e ) {
-                    $code_output = htmlspecialchars($content, ENT_NOQUOTES, 'UTF-8');
-                }
-                ?>
-                    <div class="tsk-code-showcase__pane <?php echo $is_active ? 'is-active' : ''; ?>"
+                    $code = $hl->highlight( $file['language'] ?? 'php', html_entity_decode( $file['content'] ?? '' ) )->value;
+                    ?>
+                    <div class="tsk-code-showcase__pane <?php echo $index === $active_tab ? 'is-active' : ''; ?>"
                          id="pane-<?php echo $index; ?>"
-                         role="tabpanel"
-                            <?php echo ! $is_active ? 'hidden' : ''; ?>>
-                        <pre><code class="hljs <?php echo esc_attr($lang); ?>"><?php echo $code_output; ?></code></pre>
+                         role="tabpanel" <?php echo $index !== $active_tab ? 'hidden' : ''; ?>>
+                        <pre><code class="hljs <?php echo esc_attr( $file['language'] ?? 'php' ); ?>"><?php echo $code; ?></code></pre>
                     </div>
                 <?php endforeach; ?>
             </div>
         </div>
-        <?php
-        return ob_get_clean();
-    }
-    public static function get_config(): ModuleConfig {
-	    return ( new ModuleConfigBuilder() )
-		    ->set_id( 'code_showcase' )
-		    ->set_name( __( 'Code Showcase', 'triskelion-toolkit' ) )
-		    ->set_description( __( 'Display code snippets in a beautiful macOS-style terminal with multiple tabs and syntax highlighting.', 'triskelion-toolkit' ) )
-		    ->set_class( \Triskelion\TriskelionToolkit\Modules\CodeShowcase\CodeShowcaseLoader::class )
-		    ->set_priority( 110 ) // Un poco después de Diagnostic
-		    ->set_is_core( false )
-		    ->build();
+        <?php return ob_get_clean();
     }
 
-    /*
-    private const DEFAULT_LANGS = ['java', 'javascript', 'php', 'python'];
-
-    protected function get_block_name(): string {
-        return 'code-showcase';
+    public function register_showcase_block(): void {
+        $path = TSK_PATH . 'build/Modules/CodeShowcase';
+        if ( file_exists( $path . '/block.json' ) ) {
+            register_block_type( $path, [ 'render_callback' => [ $this, 'render_frontend' ] ] );
+        }
     }
 
-    public function load(): void {
-        VendorRegistry::use('prism');
-        parent::load();
+    public function enqueue_block_assets(): void {
+        $s = $this->get_settings();
+        wp_localize_script( 'triskelion-code-showcase-editor-script', 'tskSettings', [
+                'activeLanguages' => $s['active_languages'],
+                'theme'           => $s['active_theme']
+        ] );
     }
 
     public function register_module_settings(): void {
-        register_setting(
-                $this->get_settings_group(),
-                'tsk_showcase_settings',
-                [
-                        'type'         => 'object',
-                        'show_in_rest' => [
-                                'schema' => [
-                                        'type'       => 'object',
-                                        'properties' => [
-                                                'active_languages'    => [
-                                                        'type'  => 'array',
-                                                        'items' => [ 'type' => 'string' ],
-                                                ],
-                                                'line_numbers_global' => [
-                                                        'type'    => 'boolean',
-                                                ],
-                                        ],
-                                ],
-                        ],
-                        'default' => [
-                                'active_languages'    => self::DEFAULT_LANGS,
-                                'line_numbers_global' => true,
-                        ],
-                ]
-        );
+        register_setting( 'triskelion_showcase_group', "tsk_showcase_settings", [
+                'type'              => 'object',
+                'sanitize_callback' => [
+                        $this,
+                        'sanitize_module_settings'
+                ],
+                'show_in_rest'      => true
+        ] );
     }
 
-    public function sanitize_module_settings( $input ) {
-        $sanitized = [];
-
-        $sanitized['line_numbers_global'] = isset($input['line_numbers_global']) ? true : false;
-
-        if ( empty($input['active_languages']) ) {
-            $sanitized['active_languages'] = self::DEFAULT_LANGS;
-            add_settings_error(
-                    $this->get_settings_group(), // Usar el ID dinámico del grupo
-                    'empty_languages',
-                    __( 'At least one language must be active. Defaults restored.', 'triskelion-toolkit' ),
-                    'error'
-            );
-        } else {
-            $sanitized['active_languages'] = array_map('sanitize_text_field', $input['active_languages']);
-        }
-
-        return $sanitized;
-    }
-    protected function render_module_fields(): void {
-        $settings = get_option('tsk_showcase_settings', []);
-        $active_langs = $settings['active_languages'] ?? self::DEFAULT_LANGS;
-        $line_numbers = $settings['line_numbers_global'] ?? true;
-        ?>
-
-        <div class="tsk-settings-card">
-            <div class="tsk-field-row" style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <h4 style="margin:0;"><?php esc_html_e( 'Line Numbers', 'triskelion-toolkit' ); ?></h4>
-                    <p class="description"><?php esc_html_e( 'Enable line numbers column globally.', 'triskelion-toolkit' ); ?></p>
-                </div>
-                <label class="tsk-switch">
-                    <input type="checkbox" name="tsk_showcase_settings[line_numbers_global]" <?php checked($line_numbers); ?>>
-                    <span class="tsk-slider"></span>
-                </label>
-            </div>
-        </div>
-
-        <div class="tsk-settings-card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h4 style="margin:0;"><?php esc_html_e( 'Language Inventory', 'triskelion-toolkit' ); ?></h4>
-                <input type="text" id="tsk-lang-search"
-                       placeholder="<?php esc_attr_e( 'Search languages...', 'triskelion-toolkit' ); ?>"
-                       style="width:250px; border-radius:20px; padding:5px 15px;">
-            </div>
-
-            <div id="tsk-active-languages" class="tsk-lang-grid">
-                <?php foreach ( $active_langs as $lang ) : ?>
-                    <div class="tsk-lang-item active" data-lang="<?php echo esc_attr($lang); ?>">
-                        <label class="tsk-switch-label">
-                            <label class="tsk-switch">
-                                <input type="checkbox" name="tsk_showcase_settings[active_languages][]"
-                                       value="<?php echo esc_attr($lang); ?>" checked>
-                                <span class="tsk-slider"></span>
-                            </label>
-                            <span class="tsk-lang-text"><?php echo esc_html( ucfirst($lang) ); ?></span>
-                        </label>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-
-            <hr style="margin:20px 0; opacity:0.1;">
-
-            <div id="tsk-available-languages" class="tsk-lang-grid" style="opacity:0.6;">
-            </div>
-        </div>
-        <?php
-    }
-
-
-    public function enqueue_block_assets(): void {
-        $settings = get_option('tsk_showcase_settings', []);
-        $active_languages = $settings['active_languages'] ?? self::DEFAULT_LANGS;
-
-        wp_enqueue_style('tsk-prism-theme');
-        wp_enqueue_script('tsk-prism-autoloader');
-        wp_enqueue_script('tsk-prism-line-numbers');
-        wp_enqueue_script('tsk-prism-line-highlight');
-
-        wp_localize_script(
-                'triskelion-code-showcase-editor-script',
-                'tskShowcaseConfig',
-                [
-                        'activeLanguages' => $active_languages,
-                        'lineNumbersDefault' => $settings['line_numbers_global'] ?? true
-                ]
-        );
-    }
-*/
-    /**
-     * Master Map of supported languages and their extensions.
-     * Generated via Python Parser.
-     */
-    /*
-    private function get_all_prism_languages(): array {
+    public function sanitize_module_settings( $input ): array {
         return [
-                'abap' => [
-                        'label' => 'Abap',
-                        'ext'   => ['abap']
-                ],
-                'abnf' => [
-                        'label' => 'Abnf',
-                        'ext'   => ['abnf']
-                ],
-                'actionscript' => [
-                        'label' => 'Actionscript',
-                        'ext'   => ['as']
-                ],
-                'ada' => [
-                        'label' => 'Ada',
-                        'ext'   => ['ada']
-                ],
-                'agda' => [
-                        'label' => 'Agda',
-                        'ext'   => ['agda']
-                ],
-                'al' => [
-                        'label' => 'Al',
-                        'ext'   => ['al']
-                ],
-                'antlr4' => [
-                        'label' => 'Antlr4',
-                        'ext'   => ['antlr4']
-                ],
-                'apacheconf' => [
-                        'label' => 'Apacheconf',
-                        'ext'   => ['conf']
-                ],
-                'apex' => [
-                        'label' => 'Apex',
-                        'ext'   => ['apex']
-                ],
-                'apl' => [
-                        'label' => 'Apl',
-                        'ext'   => ['apl']
-                ],
-                'applescript' => [
-                        'label' => 'Applescript',
-                        'ext'   => ['applescript']
-                ],
-                'aql' => [
-                        'label' => 'Aql',
-                        'ext'   => ['aql']
-                ],
-                'arduino' => [
-                        'label' => 'Arduino',
-                        'ext'   => ['arduino']
-                ],
-                'arff' => [
-                        'label' => 'Arff',
-                        'ext'   => ['arff']
-                ],
-                'armasm' => [
-                        'label' => 'Armasm',
-                        'ext'   => ['armasm']
-                ],
-                'arturo' => [
-                        'label' => 'Arturo',
-                        'ext'   => ['arturo']
-                ],
-                'asciidoc' => [
-                        'label' => 'Asciidoc',
-                        'ext'   => ['asciidoc']
-                ],
-                'asm6502' => [
-                        'label' => 'Asm6502',
-                        'ext'   => ['asm6502']
-                ],
-                'asmatmel' => [
-                        'label' => 'Asmatmel',
-                        'ext'   => ['asmatmel']
-                ],
-                'aspnet' => [
-                        'label' => 'ASP.NET',
-                        'ext'   => ['aspnet']
-                ],
-                'autohotkey' => [
-                        'label' => 'Autohotkey',
-                        'ext'   => ['autohotkey']
-                ],
-                'autoit' => [
-                        'label' => 'Autoit',
-                        'ext'   => ['autoit']
-                ],
-                'avisynth' => [
-                        'label' => 'Avisynth',
-                        'ext'   => ['avisynth']
-                ],
-                'avro-idl' => [
-                        'label' => 'Avro Idl',
-                        'ext'   => ['avro-idl']
-                ],
-                'awk' => [
-                        'label' => 'Awk',
-                        'ext'   => ['awk']
-                ],
-                'bash' => [
-                        'label' => 'Bash',
-                        'ext'   => ['sh', 'bash', 'zsh']
-                ],
-                'basic' => [
-                        'label' => 'Basic',
-                        'ext'   => ['basic']
-                ],
-                'batch' => [
-                        'label' => 'Batch',
-                        'ext'   => ['batch']
-                ],
-                'bbcode' => [
-                        'label' => 'Bbcode',
-                        'ext'   => ['bbcode']
-                ],
-                'bbj' => [
-                        'label' => 'Bbj',
-                        'ext'   => ['bbj']
-                ],
-                'bicep' => [
-                        'label' => 'Bicep',
-                        'ext'   => ['bicep']
-                ],
-                'birb' => [
-                        'label' => 'Birb',
-                        'ext'   => ['birb']
-                ],
-                'bison' => [
-                        'label' => 'Bison',
-                        'ext'   => ['bison']
-                ],
-                'bnf' => [
-                        'label' => 'Bnf',
-                        'ext'   => ['bnf']
-                ],
-                'bqn' => [
-                        'label' => 'Bqn',
-                        'ext'   => ['bqn']
-                ],
-                'brainfuck' => [
-                        'label' => 'Brainfuck',
-                        'ext'   => ['brainfuck']
-                ],
-                'brightscript' => [
-                        'label' => 'Brightscript',
-                        'ext'   => ['brightscript']
-                ],
-                'bro' => [
-                        'label' => 'Bro',
-                        'ext'   => ['bro']
-                ],
-                'bsl' => [
-                        'label' => 'Bsl',
-                        'ext'   => ['bsl']
-                ],
-                'c' => [
-                        'label' => 'C',
-                        'ext'   => ['c']
-                ],
-                'cfscript' => [
-                        'label' => 'Cfscript',
-                        'ext'   => ['cfscript']
-                ],
-                'chaiscript' => [
-                        'label' => 'Chaiscript',
-                        'ext'   => ['chaiscript']
-                ],
-                'cil' => [
-                        'label' => 'Cil',
-                        'ext'   => ['cil']
-                ],
-                'cilkc' => [
-                        'label' => 'Cilkc',
-                        'ext'   => ['cilkc']
-                ],
-                'cilkcpp' => [
-                        'label' => 'Cilkcpp',
-                        'ext'   => ['cilkcpp']
-                ],
-                'clike' => [
-                        'label' => 'Clike',
-                        'ext'   => ['clike']
-                ],
-                'clojure' => [
-                        'label' => 'Clojure',
-                        'ext'   => ['clojure']
-                ],
-                'cmake' => [
-                        'label' => 'Cmake',
-                        'ext'   => ['cmake']
-                ],
-                'cobol' => [
-                        'label' => 'Cobol',
-                        'ext'   => ['cobol']
-                ],
-                'coffeescript' => [
-                        'label' => 'Coffeescript',
-                        'ext'   => ['coffeescript']
-                ],
-                'concurnas' => [
-                        'label' => 'Concurnas',
-                        'ext'   => ['concurnas']
-                ],
-                'cooklang' => [
-                        'label' => 'Cooklang',
-                        'ext'   => ['cooklang']
-                ],
-                'coq' => [
-                        'label' => 'Coq',
-                        'ext'   => ['coq']
-                ],
-                'cpp' => [
-                        'label' => 'C++',
-                        'ext'   => ['cpp']
-                ],
-                'crystal' => [
-                        'label' => 'Crystal',
-                        'ext'   => ['crystal']
-                ],
-                'csharp' => [
-                        'label' => 'C#',
-                        'ext'   => ['cs']
-                ],
-                'cshtml' => [
-                        'label' => 'Cshtml',
-                        'ext'   => ['cshtml']
-                ],
-                'csp' => [
-                        'label' => 'Csp',
-                        'ext'   => ['csp']
-                ],
-                'css-extras' => [
-                        'label' => 'Css Extras',
-                        'ext'   => ['css-extras']
-                ],
-                'css' => [
-                        'label' => 'CSS',
-                        'ext'   => ['css']
-                ],
-                'csv' => [
-                        'label' => 'Csv',
-                        'ext'   => ['csv']
-                ],
-                'cue' => [
-                        'label' => 'Cue',
-                        'ext'   => ['cue']
-                ],
-                'cypher' => [
-                        'label' => 'Cypher',
-                        'ext'   => ['cypher']
-                ],
-                'd' => [
-                        'label' => 'D',
-                        'ext'   => ['d']
-                ],
-                'dart' => [
-                        'label' => 'Dart',
-                        'ext'   => ['dart']
-                ],
-                'dataweave' => [
-                        'label' => 'Dataweave',
-                        'ext'   => ['dataweave']
-                ],
-                'dax' => [
-                        'label' => 'Dax',
-                        'ext'   => ['dax']
-                ],
-                'dhall' => [
-                        'label' => 'Dhall',
-                        'ext'   => ['dhall']
-                ],
-                'diff' => [
-                        'label' => 'Diff',
-                        'ext'   => ['diff']
-                ],
-                'django' => [
-                        'label' => 'Django',
-                        'ext'   => ['django']
-                ],
-                'dns-zone-file' => [
-                        'label' => 'Dns Zone File',
-                        'ext'   => ['dns-zone-file']
-                ],
-                'docker' => [
-                        'label' => 'Docker',
-                        'ext'   => ['docker']
-                ],
-                'dot' => [
-                        'label' => 'Dot',
-                        'ext'   => ['dot']
-                ],
-                'ebnf' => [
-                        'label' => 'Ebnf',
-                        'ext'   => ['ebnf']
-                ],
-                'editorconfig' => [
-                        'label' => 'Editorconfig',
-                        'ext'   => ['editorconfig']
-                ],
-                'eiffel' => [
-                        'label' => 'Eiffel',
-                        'ext'   => ['eiffel']
-                ],
-                'ejs' => [
-                        'label' => 'Ejs',
-                        'ext'   => ['ejs']
-                ],
-                'elixir' => [
-                        'label' => 'Elixir',
-                        'ext'   => ['elixir']
-                ],
-                'elm' => [
-                        'label' => 'Elm',
-                        'ext'   => ['elm']
-                ],
-                'erb' => [
-                        'label' => 'Erb',
-                        'ext'   => ['erb']
-                ],
-                'erlang' => [
-                        'label' => 'Erlang',
-                        'ext'   => ['erlang']
-                ],
-                'etlua' => [
-                        'label' => 'Etlua',
-                        'ext'   => ['etlua']
-                ],
-                'excel-formula' => [
-                        'label' => 'Excel Formula',
-                        'ext'   => ['excel-formula']
-                ],
-                'factor' => [
-                        'label' => 'Factor',
-                        'ext'   => ['factor']
-                ],
-                'false' => [
-                        'label' => 'False',
-                        'ext'   => ['false']
-                ],
-                'firestore-security-rules' => [
-                        'label' => 'Firestore Security Rules',
-                        'ext'   => ['firestore-security-rules']
-                ],
-                'flow' => [
-                        'label' => 'Flow',
-                        'ext'   => ['flow']
-                ],
-                'fortran' => [
-                        'label' => 'Fortran',
-                        'ext'   => ['fortran']
-                ],
-                'fsharp' => [
-                        'label' => 'Fsharp',
-                        'ext'   => ['fsharp']
-                ],
-                'ftl' => [
-                        'label' => 'Ftl',
-                        'ext'   => ['ftl']
-                ],
-                'gap' => [
-                        'label' => 'Gap',
-                        'ext'   => ['gap']
-                ],
-                'gcode' => [
-                        'label' => 'Gcode',
-                        'ext'   => ['gcode']
-                ],
-                'gdscript' => [
-                        'label' => 'Gdscript',
-                        'ext'   => ['gdscript']
-                ],
-                'gedcom' => [
-                        'label' => 'Gedcom',
-                        'ext'   => ['gedcom']
-                ],
-                'gettext' => [
-                        'label' => 'Gettext',
-                        'ext'   => ['gettext']
-                ],
-                'gherkin' => [
-                        'label' => 'Gherkin',
-                        'ext'   => ['gherkin']
-                ],
-                'git' => [
-                        'label' => 'Git',
-                        'ext'   => ['git']
-                ],
-                'glsl' => [
-                        'label' => 'Glsl',
-                        'ext'   => ['glsl']
-                ],
-                'gml' => [
-                        'label' => 'Gml',
-                        'ext'   => ['gml']
-                ],
-                'gn' => [
-                        'label' => 'Gn',
-                        'ext'   => ['gn']
-                ],
-                'go-module' => [
-                        'label' => 'Go Module',
-                        'ext'   => ['go-module']
-                ],
-                'go' => [
-                        'label' => 'Go',
-                        'ext'   => ['go']
-                ],
-                'gradle' => [
-                        'label' => 'Gradle',
-                        'ext'   => ['gradle']
-                ],
-                'graphql' => [
-                        'label' => 'Graphql',
-                        'ext'   => ['graphql']
-                ],
-                'groovy' => [
-                        'label' => 'Groovy',
-                        'ext'   => ['groovy']
-                ],
-                'haml' => [
-                        'label' => 'Haml',
-                        'ext'   => ['haml']
-                ],
-                'handlebars' => [
-                        'label' => 'Handlebars',
-                        'ext'   => ['handlebars']
-                ],
-                'haskell' => [
-                        'label' => 'Haskell',
-                        'ext'   => ['haskell']
-                ],
-                'haxe' => [
-                        'label' => 'Haxe',
-                        'ext'   => ['haxe']
-                ],
-                'hcl' => [
-                        'label' => 'Hcl',
-                        'ext'   => ['hcl']
-                ],
-                'hlsl' => [
-                        'label' => 'Hlsl',
-                        'ext'   => ['hlsl']
-                ],
-                'hoon' => [
-                        'label' => 'Hoon',
-                        'ext'   => ['hoon']
-                ],
-                'hpkp' => [
-                        'label' => 'Hpkp',
-                        'ext'   => ['hpkp']
-                ],
-                'hsts' => [
-                        'label' => 'Hsts',
-                        'ext'   => ['hsts']
-                ],
-                'http' => [
-                        'label' => 'Http',
-                        'ext'   => ['http']
-                ],
-                'ichigojam' => [
-                        'label' => 'Ichigojam',
-                        'ext'   => ['ichigojam']
-                ],
-                'icon' => [
-                        'label' => 'Icon',
-                        'ext'   => ['icon']
-                ],
-                'icu-message-format' => [
-                        'label' => 'Icu Message Format',
-                        'ext'   => ['icu-message-format']
-                ],
-                'idris' => [
-                        'label' => 'Idris',
-                        'ext'   => ['idris']
-                ],
-                'iecst' => [
-                        'label' => 'Iecst',
-                        'ext'   => ['iecst']
-                ],
-                'ignore' => [
-                        'label' => 'Ignore',
-                        'ext'   => ['ignore']
-                ],
-                'inform7' => [
-                        'label' => 'Inform7',
-                        'ext'   => ['inform7']
-                ],
-                'ini' => [
-                        'label' => 'Ini',
-                        'ext'   => ['ini']
-                ],
-                'io' => [
-                        'label' => 'Io',
-                        'ext'   => ['io']
-                ],
-                'j' => [
-                        'label' => 'J',
-                        'ext'   => ['j']
-                ],
-                'java' => [
-                        'label' => 'Java',
-                        'ext'   => ['java']
-                ],
-                'javadoc' => [
-                        'label' => 'Javadoc',
-                        'ext'   => ['javadoc']
-                ],
-                'javadoclike' => [
-                        'label' => 'Javadoclike',
-                        'ext'   => ['javadoclike']
-                ],
-                'javascript' => [
-                        'label' => 'JavaScript',
-                        'ext'   => ['js', 'jsx', 'mjs']
-                ],
-                'javastacktrace' => [
-                        'label' => 'Javastacktrace',
-                        'ext'   => ['javastacktrace']
-                ],
-                'jexl' => [
-                        'label' => 'Jexl',
-                        'ext'   => ['jexl']
-                ],
-                'jolie' => [
-                        'label' => 'Jolie',
-                        'ext'   => ['jolie']
-                ],
-                'jq' => [
-                        'label' => 'Jq',
-                        'ext'   => ['jq']
-                ],
-                'js-extras' => [
-                        'label' => 'Js Extras',
-                        'ext'   => ['js-extras']
-                ],
-                'js-templates' => [
-                        'label' => 'Js Templates',
-                        'ext'   => ['js-templates']
-                ],
-                'jsdoc' => [
-                        'label' => 'Jsdoc',
-                        'ext'   => ['jsdoc']
-                ],
-                'json' => [
-                        'label' => 'JSON',
-                        'ext'   => ['json']
-                ],
-                'json5' => [
-                        'label' => 'Json5',
-                        'ext'   => ['json5']
-                ],
-                'jsonp' => [
-                        'label' => 'Jsonp',
-                        'ext'   => ['jsonp']
-                ],
-                'jsstacktrace' => [
-                        'label' => 'Jsstacktrace',
-                        'ext'   => ['jsstacktrace']
-                ],
-                'jsx' => [
-                        'label' => 'Jsx',
-                        'ext'   => ['jsx']
-                ],
-                'julia' => [
-                        'label' => 'Julia',
-                        'ext'   => ['julia']
-                ],
-                'keepalived' => [
-                        'label' => 'Keepalived',
-                        'ext'   => ['keepalived']
-                ],
-                'keyman' => [
-                        'label' => 'Keyman',
-                        'ext'   => ['keyman']
-                ],
-                'kotlin' => [
-                        'label' => 'Kotlin',
-                        'ext'   => ['kotlin']
-                ],
-                'kumir' => [
-                        'label' => 'Kumir',
-                        'ext'   => ['kumir']
-                ],
-                'kusto' => [
-                        'label' => 'Kusto',
-                        'ext'   => ['kusto']
-                ],
-                'latex' => [
-                        'label' => 'Latex',
-                        'ext'   => ['latex']
-                ],
-                'latte' => [
-                        'label' => 'Latte',
-                        'ext'   => ['latte']
-                ],
-                'less' => [
-                        'label' => 'Less',
-                        'ext'   => ['less']
-                ],
-                'lilypond' => [
-                        'label' => 'Lilypond',
-                        'ext'   => ['lilypond']
-                ],
-                'linker-script' => [
-                        'label' => 'Linker Script',
-                        'ext'   => ['linker-script']
-                ],
-                'liquid' => [
-                        'label' => 'Liquid',
-                        'ext'   => ['liquid']
-                ],
-                'lisp' => [
-                        'label' => 'Lisp',
-                        'ext'   => ['lisp']
-                ],
-                'livescript' => [
-                        'label' => 'Livescript',
-                        'ext'   => ['livescript']
-                ],
-                'llvm' => [
-                        'label' => 'Llvm',
-                        'ext'   => ['llvm']
-                ],
-                'log' => [
-                        'label' => 'Log',
-                        'ext'   => ['log']
-                ],
-                'lolcode' => [
-                        'label' => 'Lolcode',
-                        'ext'   => ['lolcode']
-                ],
-                'lua' => [
-                        'label' => 'Lua',
-                        'ext'   => ['lua']
-                ],
-                'magma' => [
-                        'label' => 'Magma',
-                        'ext'   => ['magma']
-                ],
-                'makefile' => [
-                        'label' => 'Makefile',
-                        'ext'   => ['makefile']
-                ],
-                'markdown' => [
-                        'label' => 'Markdown',
-                        'ext'   => ['markdown']
-                ],
-                'markup-templating' => [
-                        'label' => 'Markup Templating',
-                        'ext'   => ['markup-templating']
-                ],
-                'markup' => [
-                        'label' => 'Markup',
-                        'ext'   => ['html', 'xml', 'svg']
-                ],
-                'mata' => [
-                        'label' => 'Mata',
-                        'ext'   => ['mata']
-                ],
-                'matlab' => [
-                        'label' => 'Matlab',
-                        'ext'   => ['matlab']
-                ],
-                'maxscript' => [
-                        'label' => 'Maxscript',
-                        'ext'   => ['maxscript']
-                ],
-                'mel' => [
-                        'label' => 'Mel',
-                        'ext'   => ['mel']
-                ],
-                'mermaid' => [
-                        'label' => 'Mermaid',
-                        'ext'   => ['mermaid']
-                ],
-                'metafont' => [
-                        'label' => 'Metafont',
-                        'ext'   => ['metafont']
-                ],
-                'mizar' => [
-                        'label' => 'Mizar',
-                        'ext'   => ['mizar']
-                ],
-                'mongodb' => [
-                        'label' => 'MongoDB',
-                        'ext'   => ['mongodb']
-                ],
-                'monkey' => [
-                        'label' => 'Monkey',
-                        'ext'   => ['monkey']
-                ],
-                'moonscript' => [
-                        'label' => 'Moonscript',
-                        'ext'   => ['moonscript']
-                ],
-                'n1ql' => [
-                        'label' => 'N1Ql',
-                        'ext'   => ['n1ql']
-                ],
-                'n4js' => [
-                        'label' => 'N4Js',
-                        'ext'   => ['n4js']
-                ],
-                'nand2tetris-hdl' => [
-                        'label' => 'Nand2Tetris Hdl',
-                        'ext'   => ['nand2tetris-hdl']
-                ],
-                'naniscript' => [
-                        'label' => 'Naniscript',
-                        'ext'   => ['naniscript']
-                ],
-                'nasm' => [
-                        'label' => 'Nasm',
-                        'ext'   => ['nasm']
-                ],
-                'neon' => [
-                        'label' => 'Neon',
-                        'ext'   => ['neon']
-                ],
-                'nevod' => [
-                        'label' => 'Nevod',
-                        'ext'   => ['nevod']
-                ],
-                'nginx' => [
-                        'label' => 'Nginx',
-                        'ext'   => ['nginx']
-                ],
-                'nim' => [
-                        'label' => 'Nim',
-                        'ext'   => ['nim']
-                ],
-                'nix' => [
-                        'label' => 'Nix',
-                        'ext'   => ['nix']
-                ],
-                'nsis' => [
-                        'label' => 'Nsis',
-                        'ext'   => ['nsis']
-                ],
-                'objectivec' => [
-                        'label' => 'Objective-C',
-                        'ext'   => ['objectivec']
-                ],
-                'ocaml' => [
-                        'label' => 'Ocaml',
-                        'ext'   => ['ocaml']
-                ],
-                'odin' => [
-                        'label' => 'Odin',
-                        'ext'   => ['odin']
-                ],
-                'opencl' => [
-                        'label' => 'Opencl',
-                        'ext'   => ['opencl']
-                ],
-                'openqasm' => [
-                        'label' => 'Openqasm',
-                        'ext'   => ['openqasm']
-                ],
-                'oz' => [
-                        'label' => 'Oz',
-                        'ext'   => ['oz']
-                ],
-                'parigp' => [
-                        'label' => 'Parigp',
-                        'ext'   => ['parigp']
-                ],
-                'parser' => [
-                        'label' => 'Parser',
-                        'ext'   => ['parser']
-                ],
-                'pascal' => [
-                        'label' => 'Pascal',
-                        'ext'   => ['pascal']
-                ],
-                'pascaligo' => [
-                        'label' => 'Pascaligo',
-                        'ext'   => ['pascaligo']
-                ],
-                'pcaxis' => [
-                        'label' => 'Pcaxis',
-                        'ext'   => ['pcaxis']
-                ],
-                'peoplecode' => [
-                        'label' => 'Peoplecode',
-                        'ext'   => ['peoplecode']
-                ],
-                'perl' => [
-                        'label' => 'Perl',
-                        'ext'   => ['perl']
-                ],
-                'php-extras' => [
-                        'label' => 'Php Extras',
-                        'ext'   => ['php-extras']
-                ],
-                'php' => [
-                        'label' => 'PHP',
-                        'ext'   => ['php']
-                ],
-                'phpdoc' => [
-                        'label' => 'Phpdoc',
-                        'ext'   => ['phpdoc']
-                ],
-                'plant-uml' => [
-                        'label' => 'Plant Uml',
-                        'ext'   => ['plant-uml']
-                ],
-                'plsql' => [
-                        'label' => 'Plsql',
-                        'ext'   => ['plsql']
-                ],
-                'powerquery' => [
-                        'label' => 'Powerquery',
-                        'ext'   => ['powerquery']
-                ],
-                'powershell' => [
-                        'label' => 'Powershell',
-                        'ext'   => ['ps1', 'psm1']
-                ],
-                'processing' => [
-                        'label' => 'Processing',
-                        'ext'   => ['processing']
-                ],
-                'prolog' => [
-                        'label' => 'Prolog',
-                        'ext'   => ['prolog']
-                ],
-                'promql' => [
-                        'label' => 'Promql',
-                        'ext'   => ['promql']
-                ],
-                'properties' => [
-                        'label' => 'Properties',
-                        'ext'   => ['properties']
-                ],
-                'protobuf' => [
-                        'label' => 'Protobuf',
-                        'ext'   => ['protobuf']
-                ],
-                'psl' => [
-                        'label' => 'Psl',
-                        'ext'   => ['psl']
-                ],
-                'pug' => [
-                        'label' => 'Pug',
-                        'ext'   => ['pug']
-                ],
-                'puppet' => [
-                        'label' => 'Puppet',
-                        'ext'   => ['puppet']
-                ],
-                'pure' => [
-                        'label' => 'Pure',
-                        'ext'   => ['pure']
-                ],
-                'purebasic' => [
-                        'label' => 'Purebasic',
-                        'ext'   => ['purebasic']
-                ],
-                'purescript' => [
-                        'label' => 'Purescript',
-                        'ext'   => ['purescript']
-                ],
-                'python' => [
-                        'label' => 'Python',
-                        'ext'   => ['py', 'pyw']
-                ],
-                'q' => [
-                        'label' => 'Q',
-                        'ext'   => ['q']
-                ],
-                'qml' => [
-                        'label' => 'Qml',
-                        'ext'   => ['qml']
-                ],
-                'qore' => [
-                        'label' => 'Qore',
-                        'ext'   => ['qore']
-                ],
-                'qsharp' => [
-                        'label' => 'Qsharp',
-                        'ext'   => ['qsharp']
-                ],
-                'r' => [
-                        'label' => 'R',
-                        'ext'   => ['r']
-                ],
-                'racket' => [
-                        'label' => 'Racket',
-                        'ext'   => ['racket']
-                ],
-                'reason' => [
-                        'label' => 'Reason',
-                        'ext'   => ['reason']
-                ],
-                'regex' => [
-                        'label' => 'Regex',
-                        'ext'   => ['regex']
-                ],
-                'rego' => [
-                        'label' => 'Rego',
-                        'ext'   => ['rego']
-                ],
-                'renpy' => [
-                        'label' => 'Renpy',
-                        'ext'   => ['renpy']
-                ],
-                'rescript' => [
-                        'label' => 'Rescript',
-                        'ext'   => ['rescript']
-                ],
-                'rest' => [
-                        'label' => 'Rest',
-                        'ext'   => ['rest']
-                ],
-                'rip' => [
-                        'label' => 'Rip',
-                        'ext'   => ['rip']
-                ],
-                'roboconf' => [
-                        'label' => 'Roboconf',
-                        'ext'   => ['roboconf']
-                ],
-                'robotframework' => [
-                        'label' => 'Robotframework',
-                        'ext'   => ['robotframework']
-                ],
-                'ruby' => [
-                        'label' => 'Ruby',
-                        'ext'   => ['rb']
-                ],
-                'rust' => [
-                        'label' => 'Rust',
-                        'ext'   => ['rs']
-                ],
-                'sas' => [
-                        'label' => 'Sas',
-                        'ext'   => ['sas']
-                ],
-                'sass' => [
-                        'label' => 'Sass',
-                        'ext'   => ['sass']
-                ],
-                'scala' => [
-                        'label' => 'Scala',
-                        'ext'   => ['scala']
-                ],
-                'scheme' => [
-                        'label' => 'Scheme',
-                        'ext'   => ['scheme']
-                ],
-                'scss' => [
-                        'label' => 'Scss',
-                        'ext'   => ['scss']
-                ],
-                'shell-session' => [
-                        'label' => 'Shell Session',
-                        'ext'   => ['shell-session']
-                ],
-                'smali' => [
-                        'label' => 'Smali',
-                        'ext'   => ['smali']
-                ],
-                'smalltalk' => [
-                        'label' => 'Smalltalk',
-                        'ext'   => ['smalltalk']
-                ],
-                'smarty' => [
-                        'label' => 'Smarty',
-                        'ext'   => ['smarty']
-                ],
-                'sml' => [
-                        'label' => 'Sml',
-                        'ext'   => ['sml']
-                ],
-                'solidity' => [
-                        'label' => 'Solidity',
-                        'ext'   => ['solidity']
-                ],
-                'solution-file' => [
-                        'label' => 'Solution File',
-                        'ext'   => ['solution-file']
-                ],
-                'soy' => [
-                        'label' => 'Soy',
-                        'ext'   => ['soy']
-                ],
-                'sparql' => [
-                        'label' => 'Sparql',
-                        'ext'   => ['sparql']
-                ],
-                'splunk-spl' => [
-                        'label' => 'Splunk Spl',
-                        'ext'   => ['splunk-spl']
-                ],
-                'sqf' => [
-                        'label' => 'Sqf',
-                        'ext'   => ['sqf']
-                ],
-                'sql' => [
-                        'label' => 'SQL',
-                        'ext'   => ['sql']
-                ],
-                'squirrel' => [
-                        'label' => 'Squirrel',
-                        'ext'   => ['squirrel']
-                ],
-                'stan' => [
-                        'label' => 'Stan',
-                        'ext'   => ['stan']
-                ],
-                'stata' => [
-                        'label' => 'Stata',
-                        'ext'   => ['stata']
-                ],
-                'stylus' => [
-                        'label' => 'Stylus',
-                        'ext'   => ['stylus']
-                ],
-                'supercollider' => [
-                        'label' => 'Supercollider',
-                        'ext'   => ['supercollider']
-                ],
-                'swift' => [
-                        'label' => 'Swift',
-                        'ext'   => ['swift']
-                ],
-                'systemd' => [
-                        'label' => 'Systemd',
-                        'ext'   => ['systemd']
-                ],
-                't4-cs' => [
-                        'label' => 'T4 Cs',
-                        'ext'   => ['t4-cs']
-                ],
-                't4-templating' => [
-                        'label' => 'T4 Templating',
-                        'ext'   => ['t4-templating']
-                ],
-                't4-vb' => [
-                        'label' => 'T4 Vb',
-                        'ext'   => ['t4-vb']
-                ],
-                'tap' => [
-                        'label' => 'Tap',
-                        'ext'   => ['tap']
-                ],
-                'tcl' => [
-                        'label' => 'Tcl',
-                        'ext'   => ['tcl']
-                ],
-                'textile' => [
-                        'label' => 'Textile',
-                        'ext'   => ['textile']
-                ],
-                'toml' => [
-                        'label' => 'Toml',
-                        'ext'   => ['toml']
-                ],
-                'tremor' => [
-                        'label' => 'Tremor',
-                        'ext'   => ['tremor']
-                ],
-                'tsx' => [
-                        'label' => 'Tsx',
-                        'ext'   => ['tsx']
-                ],
-                'tt2' => [
-                        'label' => 'Tt2',
-                        'ext'   => ['tt2']
-                ],
-                'turtle' => [
-                        'label' => 'Turtle',
-                        'ext'   => ['turtle']
-                ],
-                'twig' => [
-                        'label' => 'Twig',
-                        'ext'   => ['twig']
-                ],
-                'typescript' => [
-                        'label' => 'TypeScript',
-                        'ext'   => ['ts', 'tsx']
-                ],
-                'typoscript' => [
-                        'label' => 'Typoscript',
-                        'ext'   => ['typoscript']
-                ],
-                'unrealscript' => [
-                        'label' => 'Unrealscript',
-                        'ext'   => ['unrealscript']
-                ],
-                'uorazor' => [
-                        'label' => 'Uorazor',
-                        'ext'   => ['uorazor']
-                ],
-                'uri' => [
-                        'label' => 'Uri',
-                        'ext'   => ['uri']
-                ],
-                'v' => [
-                        'label' => 'V',
-                        'ext'   => ['v']
-                ],
-                'vala' => [
-                        'label' => 'Vala',
-                        'ext'   => ['vala']
-                ],
-                'vbnet' => [
-                        'label' => 'Vbnet',
-                        'ext'   => ['vbnet']
-                ],
-                'velocity' => [
-                        'label' => 'Velocity',
-                        'ext'   => ['velocity']
-                ],
-                'verilog' => [
-                        'label' => 'Verilog',
-                        'ext'   => ['verilog']
-                ],
-                'vhdl' => [
-                        'label' => 'Vhdl',
-                        'ext'   => ['vhdl']
-                ],
-                'vim' => [
-                        'label' => 'Vim',
-                        'ext'   => ['vim']
-                ],
-                'visual-basic' => [
-                        'label' => 'Visual Basic',
-                        'ext'   => ['vb', 'vba']
-                ],
-                'warpscript' => [
-                        'label' => 'Warpscript',
-                        'ext'   => ['warpscript']
-                ],
-                'wasm' => [
-                        'label' => 'Wasm',
-                        'ext'   => ['wasm']
-                ],
-                'web-idl' => [
-                        'label' => 'Web Idl',
-                        'ext'   => ['web-idl']
-                ],
-                'wgsl' => [
-                        'label' => 'Wgsl',
-                        'ext'   => ['wgsl']
-                ],
-                'wiki' => [
-                        'label' => 'Wiki',
-                        'ext'   => ['wiki']
-                ],
-                'wolfram' => [
-                        'label' => 'Wolfram',
-                        'ext'   => ['wolfram']
-                ],
-                'wren' => [
-                        'label' => 'Wren',
-                        'ext'   => ['wren']
-                ],
-                'xeora' => [
-                        'label' => 'Xeora',
-                        'ext'   => ['xeora']
-                ],
-                'xml-doc' => [
-                        'label' => 'Xml Doc',
-                        'ext'   => ['xml-doc']
-                ],
-                'xojo' => [
-                        'label' => 'Xojo',
-                        'ext'   => ['xojo']
-                ],
-                'xquery' => [
-                        'label' => 'Xquery',
-                        'ext'   => ['xquery']
-                ],
-                'yaml' => [
-                        'label' => 'YAML',
-                        'ext'   => ['yml', 'yaml']
-                ],
-                'yang' => [
-                        'label' => 'Yang',
-                        'ext'   => ['yang']
-                ],
-                'zig' => [
-                        'label' => 'Zig',
-                        'ext'   => ['zig']
-                ],
+                'active_theme'     => sanitize_key( $input['active_theme'] ?? 'triskelion-dark' ),
+                'active_languages' => is_array( $input['active_languages'] ) ? array_map( 'sanitize_key', $input['active_languages'] ) : []
         ];
     }
-    */
 
+    public static function get_config(): ModuleConfig {
+        return ( new ModuleConfigBuilder() )->set_id( 'code_showcase' )->set_class( self::class )->build();
+    }
 }

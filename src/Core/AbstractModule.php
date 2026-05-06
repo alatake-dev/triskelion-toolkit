@@ -8,7 +8,7 @@ abstract class AbstractModule {
 		$this->register();
 	}
 
-	abstract protected function register();
+	abstract protected function register(): void;
 
 
 }

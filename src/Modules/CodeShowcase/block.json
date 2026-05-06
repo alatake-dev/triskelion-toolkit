@@ -29,14 +29,6 @@
     "activeTabIndex": {
       "type": "number",
       "default": 0
-    },
-    "showLineNumbers": {
-      "type": "boolean",
-      "default": true
-    },
-    "terminalTheme": {
-      "type": "string",
-      "default": "dark"
     }
   },
   "textdomain": "triskelion-toolkit",

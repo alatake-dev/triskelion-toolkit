@@ -2,59 +2,68 @@
 namespace Triskelion\TriskelionToolkit\Core;
 
 use Triskelion\TriskelionToolkit\Core\Data\ModuleCollection;
+use Triskelion\TriskelionToolkit\Core\Interfaces\NeedsModuleCollectionInterface;
 
 /**
  * Kernel: El cerebro del plugin.
  * Registra el Autoloader y levanta los módulos activos.
  */
 class Kernel {
-	private static ModuleCollection $module_configs;
-	private static array $loaded_modules = [];
+	private ModuleCollection $modules;
+	private array $loaded_modules = [];
 
-	public static function get_manifest(): ModuleCollection {
-		if ( ! isset( self::$module_configs ) ) {
-			self::$module_configs = new ModuleCollection();
+	public function __construct() {
+		$this->modules = new ModuleCollection();
+	}
+
+	public function boot(): void {
+		add_action( 'plugins_loaded', [ $this, 'init_i18n' ], 1 );
+		$this->setup();
+	}
+
+	public function setup(): void {
+		$this->load_active_modules();
+
+		if ( is_admin() ) {
+			$admin = new AdminManager( $this->modules, $this->loaded_modules );
+			$admin->init();
 		}
-		return self::$module_configs;
-	}
-
-	public static function boot() {
-
-		add_action('plugins_loaded', [self::class, 'setup'], 1);
-		add_action('init', [self::class, 'init_i18n']);
 
 	}
-	public static function setup() {
-		self::$module_configs = new ModuleCollection();
 
-		// Ahora sí, ya cargado WP, buscamos los módulos
+	private function load_active_modules(): void {
+
 		$db_settings  = get_option( 'tsk_active_modules', [] );
 		$loader_files = glob( TSK_PATH . 'src/Modules/*/*Loader.php' );
 
+		// Discovery
 		foreach ( $loader_files as $file ) {
-			$class = self::resolve_namespace( $file );
-
-			if ( ! class_exists( $class, true ) ) {
-				continue;
+			$class = $this->resolve_namespace( $file );
+			if ( class_exists( $class ) ) {
+				$this->modules->add( $class::get_config() );
+				Logger::debug("Triskelion Debug: Cargando módulo {$class}", "Kernel");
 			}
-
-			$config = $class::get_config(); // Aquí ya no habrá notice de traducción
-			self::$module_configs->add( $config );
-
-			// La lógica de in_array que ya corregimos
+		}
+		// Creation
+		foreach ( $this->modules->get_all() as $config ) {
 			if ( $config->is_core || in_array( $config->id, $db_settings, true ) ) {
-				self::$loaded_modules[ $config->id ] = new $class();
+
+				$class    = $config->class;
+				$instance = new $class();
+				Logger::debug("Triskelion Debug: Inyectando colección de módulos en {$class}", "Kernel");
+
+				// Inyección de la bolsa completa
+				if ( $instance instanceof NeedsModuleCollectionInterface ) {
+					$instance->set_module_collection( $this->modules );
+				}
+
+				$this->loaded_modules[ $config->id ] = $instance;
 			}
 		}
 	}
+	private function resolve_namespace(string $file_path): string {
 
-	private static function resolve_namespace(string $file_path): string {
-		// TSK_PATH suele ser /var/www/html/wp-content/plugins/triskelion-toolkit/
-		// Queremos llegar a: Triskelion\TriskelionToolkit\Modules\Smtp\SmtpLoader
-
-		$relative_path = str_replace(TSK_PATH . 'src/', '', $file_path); // Modules/Smtp/SmtpLoader.php
-		$relative_path = str_replace('.php', '', $relative_path);       // Modules/Smtp/SmtpLoader
-		$relative_path = str_replace('/', '\\', $relative_path);        // Modules\Smtp\SmtpLoader
+		$relative_path = str_replace([ TSK_PATH . 'src/', '.php', '/' ], [ '', '', '\\' ], $file_path);
 
 		return 'Triskelion\\TriskelionToolkit\\' . $relative_path;
 	}
@@ -63,14 +72,14 @@ class Kernel {
 	 * Devuelve los módulos que están corriendo actualmente.
 	 * Útil para que la Capa de Visualización del Admin sepa qué pestañas pintar.
 	 */
-	public static function get_active_modules() {
-		return self::$loaded_modules;
+	public function get_active_modules(): array {
+		return $this->loaded_modules;
 	}
 
 	/**
 	 * Carga el dominio de traducción principal.
 	 */
-	public static function init_i18n() {
+	public function init_i18n(): void {
 		load_plugin_textdomain(
 			'triskelion-toolkit',
 			false,
