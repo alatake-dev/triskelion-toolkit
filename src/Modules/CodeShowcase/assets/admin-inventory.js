@@ -91,7 +91,7 @@
         pill.innerHTML = `
             <span class="tsk-pill__label">${lang.toUpperCase()}</span>
             <input type="hidden" name="tsk_showcase_settings[active_languages][]" value="${lang}">
-            <button type="button" class="tsk-pill__remove" aria-label="Eliminar">&times;</button>
+            <button type="button" class="tsk-pill__remove" aria-label="__( 'Remove', 'triskelion-toolkit' )">&times;</button>
         `;
         container.appendChild(pill);
     };

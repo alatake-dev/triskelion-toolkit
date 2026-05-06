@@ -62,11 +62,11 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
                 ?>
 
                 <header class="tsk-section-header">
-                    <h2><?php _e( 'Logs & Telemetry', 'triskelion-toolkit' ); ?></h2>
+                    <h2><?php _e( 'Logs & Diagnostics', 'triskelion-toolkit' ); ?></h2>
                     <?php if ( $is_debug_forced || $is_level_forced ) : ?>
                         <p class="tsk-notice tsk-notice--info">
                             <span class="dashicons dashicons-lock"></span>
-                            <?php _e( 'Configuración gestionada vía código (wp-config.php).', 'triskelion-toolkit' ); ?>
+                            <?php _e( 'Configuration managed via code (wp-config.php).', 'triskelion-toolkit' ); ?>
                         </p>
                     <?php endif; ?>
                 </header>
@@ -124,10 +124,10 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
                     <span class="tsk-terminal__title">System Telemetry</span>
                 </div>
                 <div class="tsk-terminal__actions">
-                    <button type="button" class="tsk-terminal__btn tsk-copy-trigger" title="Copy to Clipboard">
+                    <button type="button" class="tsk-terminal__btn tsk-copy-trigger" title="<?php esc_attr_e( 'Copy to Clipboard', 'triskelion-toolkit' ); ?>">
                         <span class="dashicons dashicons-admin-page"></span>
                     </button>
-                    <button type="button" class="tsk-terminal__btn tsk-refresh-trigger" title="Refresh Log">
+                    <button type="button" class="tsk-terminal__btn tsk-refresh-trigger" title="<?php esc_attr_e( 'Refresh Log', 'triskelion-toolkit' ); ?>">
                         <span class="dashicons dashicons-update"></span>
                     </button>
                 </div>
