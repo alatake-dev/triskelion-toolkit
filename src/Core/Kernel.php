@@ -1,4 +1,5 @@
 <?php
+
 namespace Triskelion\TriskelionToolkit\Core;
 
 use Triskelion\TriskelionToolkit\Core\Data\ModuleCollection;
@@ -17,7 +18,7 @@ class Kernel {
 	}
 
 	public function boot(): void {
-		add_action( 'plugins_loaded', [ $this, 'init_i18n' ], 1 );
+		$this->init_i18n();
 		$this->setup();
 	}
 
@@ -41,7 +42,7 @@ class Kernel {
 			$class = $this->resolve_namespace( $file );
 			if ( class_exists( $class ) ) {
 				$this->modules->add( $class::get_config() );
-				Logger::debug("Triskelion Debug: Loading module {$class}", "Kernel");
+				Logger::debug( "Triskelion Debug: Loading module {$class}", "Kernel" );
 			}
 		}
 		// Creation
@@ -50,7 +51,7 @@ class Kernel {
 
 				$class    = $config->class;
 				$instance = new $class();
-				Logger::debug("Triskelion Debug: Inyectando colección de módulos en {$class}", "Kernel");
+				Logger::debug( "Triskelion Debug: Inyectando colección de módulos en {$class}", "Kernel" );
 
 				// Inyección de la bolsa completa
 				if ( $instance instanceof NeedsModuleCollectionInterface ) {
@@ -61,9 +62,10 @@ class Kernel {
 			}
 		}
 	}
-	private function resolve_namespace(string $file_path): string {
 
-		$relative_path = str_replace([ TSK_PATH . 'src/', '.php', '/' ], [ '', '', '\\' ], $file_path);
+	private function resolve_namespace( string $file_path ): string {
+
+		$relative_path = str_replace( [ TSK_PATH . 'src/', '.php', '/' ], [ '', '', '\\' ], $file_path );
 
 		return 'Triskelion\\TriskelionToolkit\\' . $relative_path;
 	}
@@ -80,10 +82,30 @@ class Kernel {
 	 * Carga el dominio de traducción principal.
 	 */
 	public function init_i18n(): void {
-		load_plugin_textdomain(
-			'triskelion-toolkit',
-			false,
-			dirname(plugin_basename(TSK_FILE)) . '/languages'
-		);
+		$domain = 'triskelion-toolkit';
+		$locale = determine_locale(); // Detecta el idioma actual del WP (es_MX, en_US, es, etc.)
+
+		// EXCEPCIÓN: Normalización del Español
+		// Si es cualquier variante de español (es_MX, es_ES, es_AR, o solo es)
+		if ( str_starts_with( $locale, 'es' ) ) {
+			$mo_file = TSK_PATH . 'languages/' . $domain . '-es.mo';
+
+			if ( file_exists( $mo_file ) ) {
+				load_textdomain( $domain, $mo_file );
+
+				return;
+			}
+		}
+
+		// LÓGICA GENERAL: Para otros idiomas (inglés, francés, etc.)
+		// Intentamos cargar el archivo específico del locale actual
+		$specific_mo = TSK_PATH . "languages/{$domain}-{$locale}.mo";
+
+		if ( file_exists( $specific_mo ) ) {
+			load_textdomain( $domain, $specific_mo );
+		} else {
+			// FALLBACK: Si no hay traducción, cargamos el .pot (inglés) por defecto
+			load_plugin_textdomain( $domain, false, dirname( plugin_basename( TSK_FILE ) ) . '/languages' );
+		}
 	}
 }

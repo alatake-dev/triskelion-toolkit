@@ -72,23 +72,28 @@ add_filter( 'load_script_translation_file', function( $file, $handle, $domain ) 
 }, 10, 3 );
 
 add_filter( 'plugin_locale', function( $locale, $domain ) {
+	error_log( 'Plugin Locale: ' . $domain . ' | ' . $locale );
 	if ( 'triskelion-toolkit' === $domain ) {
-		// Si el locale empieza con "es_" (es_MX, es_PE, es_ES, etc.)
-		// forzamos a que busque simplemente "es"
-		if ( str_starts_with( $locale, 'es_' ) ) {
+		error_log( "TRISKELION DEBUG: Locale detectado -> $locale" );
+		// Si es 'es' o 'es_MX' o 'es_ES', forzamos 'es'
+		if ( $locale === 'es' || str_starts_with( $locale, 'es_' ) ) {
 			return 'es';
 		}
 	}
 	return $locale;
 }, 10, 2 );
-
 */
+
+
 
 if ( !file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	return;
 }
 require_once __DIR__ . '/vendor/autoload.php';
-error_log('Triskelion Toolkit: Autoloader cargado');
 
-$tsk_kernel = new \Triskelion\TriskelionToolkit\Core\Kernel();
-$tsk_kernel->boot();
+add_action( 'plugins_loaded', function() {
+	$tsk_kernel = new \Triskelion\TriskelionToolkit\Core\Kernel();
+	$tsk_kernel->boot();
+}, 5 );
+
+error_log( 'Terminó la carga del plugin' );

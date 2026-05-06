@@ -123,14 +123,16 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
         $theme       = $settings['active_theme'];
         $themes_data = $this->get_themes_config();
         ob_start(); ?>
+        <h1><?php echo self::i18n_config()['name']; ?></h1>
+        <p class="description"><?php echo self::i18n_config()['description'] ?></p>
         <div class="tsk-settings-container">
             <?php echo $this->get_theme_inline_css( $theme, true ); ?>
-            <h2>Configuración del Showcase</h2>
+            <h2><?php esc_html_e('Code Showcase Configuration', 'triskelion-toolkit');?></h2>
             <form action="options.php" method="post">
                 <?php settings_fields( 'triskelion_showcase_group' ); ?>
                 <table class="form-table">
                     <tr>
-                        <th scope="row">Visual theme</th>
+                        <th scope="row"><?php esc_html_e('Theme', 'triskelion-toolkit' ); ?> </th>
                         <td>
                             <select name="tsk_showcase_settings[active_theme]">
                                 <?php foreach ( $themes_data as $id => $data ) : ?>
@@ -142,7 +144,7 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row">Vista Previa</th>
+                        <th scope="row"><?php esc_html_e( 'Preview View', 'triskelion-toolkit' ); ?></th>
                         <td>
                             <div class="tsk-code-showcase-preview is-theme-<?php echo esc_attr( $theme ); ?>">
                                 <div class="tsk-window-header">
@@ -163,10 +165,10 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row">Languages inventory</th>
+                        <th scope="row"><?php esc_html_e( 'Languages inventory', 'triskelion-toolkit' ); ?></th>
                         <td>
                             <div class="tsk-search-group">
-                                <input type="text" id="tsk-lang-finder" placeholder="Añadir lenguaje..."
+                                <input type="text" id="tsk-lang-finder" placeholder="<?php echo esc_attr__( 'Add language...', 'triskelion-toolkit' ); ?>"
                                        class="regular-text">
                                 <ul id="tsk-search-results" class="tsk-results-list" hidden></ul>
 
@@ -274,6 +276,22 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
     }
 
     public static function get_config(): ModuleConfig {
-        return ( new ModuleConfigBuilder() )->set_id( 'code_showcase' )->set_class( self::class )->build();
+        return ( new ModuleConfigBuilder() )
+                ->set_id( 'code_showcase' )
+                ->set_name( 'Code Showcase')
+                ->set_description( 'Display code snippets with a premium macOS terminal aesthetic.' )
+                ->set_class( self::class )
+                ->set_priority( 100 )
+                ->set_is_core( false )
+                ->set_icon( 'dashicons-rest-api' )
+                ->build();
+
+    }
+
+    public static function i18n_config(): array {
+        return [
+            'name' => __( 'Code Showcase', 'triskelion-toolkit'),
+            'description' =>   __( 'Display code snippets with a premium macOS terminal aesthetic.', 'triskelion-toolkit' )
+        ];
     }
 }

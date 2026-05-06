@@ -10,6 +10,7 @@ use Triskelion\TriskelionToolkit\Core\Interfaces\NeedsModuleCollectionInterface;
 use Triskelion\TriskelionToolkit\Core\Interfaces\RegistrableModuleInterface;
 use Triskelion\TriskelionToolkit\Core\Interfaces\HasSettingsInterface;
 use Triskelion\TriskelionToolkit\Core\Kernel;
+use Triskelion\TriskelionToolkit\Core\Logger;
 
 class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterface, RegistrableModuleInterface, NeedsModuleCollectionInterface {
 
@@ -32,14 +33,14 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 
         ob_start(); ?>
         <div class="tsk-settings-container">
-            <h1>System Modules</h1>
-            <p class="description">Core modules are mandatory. Optional modules can be toggled.</p>
+            <h1><?php esc_html_e( self::get_config()->name, 'triskelion-toolkit' ); ?></h1>
+            <p class="description"><?php esc_html_e( self::get_config()->description, 'triskelion-toolkit'); ?></p>
 
             <form method="post" action="options.php">
                 <?php
                 settings_fields( 'tsk_settings_group' );
                 echo $this->render_module_grid(  $active_modules );
-                submit_button( __( 'Save Configuration', 'triskelion-toolkit' ) );
+                submit_button( __( 'Save Changes', 'triskelion-toolkit' ) );
                 ?>
             </form>
         </div>
@@ -78,13 +79,14 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 
                     <div class="tsk-module-info">
                     <span class="tsk-module-title">
-                        <?php echo esc_html($config->name); ?>
+                        <?php error_log( "render_module_grid: " . $config->class ) ?>
+                        <?php echo esc_html($this->resolve_i18n_field( 'name', $config )); ?>
                         <?php if ($is_core) : ?>
-                            <span class="tsk-badge tsk-badge--mandatory">Core</span>
+                            <span class="tsk-badge tsk-badge--mandatory">(<?php _e('Core Module', 'triskelion-toolkit' ); ?>)</span>
                         <?php endif; ?>
                     </span>
                         <p class="tsk-module-desc">
-                            <?php echo esc_html($config->description); ?>
+                            <?php echo esc_html($this->resolve_i18n_field( 'description', $config )); ?>
                         </p>
                     </div>
                 </div>
@@ -107,8 +109,8 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
     public static function get_config(): ModuleConfig {
         return ( new ModuleConfigBuilder() )
                 ->set_id( 'general_settings' )
-                ->set_name( __( 'General Settings', 'triskelion-toolkit' ) )
-                ->set_description( __( 'General settings for the plugin.', 'triskelion-toolkit' ) )
+                ->set_name(  'General Settings' )
+                ->set_description(  'General settings for the plugin.')
                 ->set_class( self::class )
                 ->set_is_core( true )
                 ->set_priority( 0 )
@@ -122,6 +124,32 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 
     public function set_module_collection( ModuleCollection $collection ): void {
         $this->module_collection = $collection;
+    }
+    public static function i18n_config(): array {
+        return [
+                'name' => __( 'General Settings', 'triskelion-toolkit' ),
+                'description' =>   __( 'General settings for the plugin.', 'triskelion-toolkit' )
+        ];
+
+    }
+
+    /**
+     * Resuelve el nombre o descripción del módulo de forma segura.
+     * Prioriza i18n_config sobre el valor estático del objeto Config.
+     */
+    private function resolve_i18n_field( string $field, ModuleConfig $config ): string {
+        $class = $config->class;
+        if ( class_exists( $class ) && method_exists( $class, 'i18n_config' ) ) {
+            $i18n = $class::i18n_config();
+
+            if ( ! empty( $i18n[ $field ] ) ) {
+                error_log( "i18n field" . $field . " value:" . $i18n[ $field ] );
+                Logger::debug( "i18n field" . $field . " value:" . $i18n[ $field ], "GeneralSettings" );
+                return $i18n[ $field ];
+            }
+            error_log( "i18n field" . $field . " not available" );
+        }
+        return $config->$field ?? '';
     }
 
 }

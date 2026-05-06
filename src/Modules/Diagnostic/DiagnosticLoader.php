@@ -43,6 +43,7 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
     }
 
     public function render_settings(): string {
+
         $options = get_option( 'tsk_diagnostic_settings', [
                 'debug_enabled' => false,
                 'level'         => Logger::LEVEL_ERROR
@@ -55,6 +56,8 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
         $val_level   = $is_level_forced ? constant('TSK_LOG_LEVEL')   : $options['level'];
 
         ob_start(); ?>
+        <h1><?php esc_html_e( self::get_config()->name, 'triskelion-toolkit' ); ?></h1>
+        <p class="description"><?php esc_html_e( self::get_config()->description, 'triskelion-toolkit'); ?></p>
         <div class="tsk-diagnostic-view">
             <form method="post" action="options.php">
                 <?php
@@ -62,7 +65,7 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
                 ?>
 
                 <header class="tsk-section-header">
-                    <h2><?php _e( 'Logs & Diagnostics', 'triskelion-toolkit' ); ?></h2>
+                    <h2><?php _e( 'Logs & Diagnostic', 'triskelion-toolkit' ); ?></h2>
                     <?php if ( $is_debug_forced || $is_level_forced ) : ?>
                         <p class="tsk-notice tsk-notice--info">
                             <span class="dashicons dashicons-lock"></span>
@@ -100,7 +103,7 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
                 </table>
 
                 <?php
-                submit_button( __( 'Save Diagnostic Settings', 'triskelion-toolkit' ) );
+                submit_button( __( 'Save Changes', 'triskelion-toolkit' ) );
                 ?>
             </form>
             <?php $this->render_log_viewer(); ?>
@@ -111,17 +114,17 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
 
     private function render_log_viewer(): void {
         $log_file = Logger::get_log_path();
+        error_log("Render Log file: $log_file");
         // Lógica limpia: si no hay archivo, mostramos un placeholder técnico
         $content  = file_exists($log_file)
                 ? implode("", array_slice(file($log_file), -100))
                 : "--- SYSTEM READY: NO LOG ENTRIES FOUND ---";
-
         ?>
         <section class="tsk-terminal">
             <header class="tsk-terminal__header">
                 <div class="tsk-terminal__info">
                     <span class="dashicons dashicons-terminal"></span>
-                    <span class="tsk-terminal__title">System Telemetry</span>
+                    <span class="tsk-terminal__title"><?php esc_attr_e("Triskelion Logs", 'triskelion-toolkit' ); ?></span>
                 </div>
                 <div class="tsk-terminal__actions">
                     <button type="button" class="tsk-terminal__btn tsk-copy-trigger" title="<?php esc_attr_e( 'Copy to Clipboard', 'triskelion-toolkit' ); ?>">
@@ -156,7 +159,7 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
                     }
 
                     if (btn.classList.contains('tsk-refresh-trigger')) {
-                        window.location.reload(); // Sincrónico por ahora
+                        window.location.reload();
                     }
                 });
             })();
@@ -166,8 +169,8 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
     public static function get_config(): ModuleConfig {
         return ( new ModuleConfigBuilder() )
                 ->set_id( 'diagnostic' )
-                ->set_name( __( 'Logs & Diagnostic', 'triskelion-toolkit' ) )
-                ->set_description( __( 'Monitor system health and view activity logs.', 'triskelion-toolkit' ) )
+                ->set_name( 'Logs & Diagnostic')
+                ->set_description( 'Monitor system health and view activity logs.')
                 ->set_class( self::class )
                 ->set_priority( 1000 )
                 ->set_is_core( true )
@@ -175,6 +178,10 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
                 ->build();
     }
 
-
-
+    public static function i18n_config(): array {
+        return [
+                'name' => __( 'Logs & Diagnostic', 'triskelion-toolkit'),
+                'description' =>   __( 'Monitor system health and view activity logs.', 'triskelion-toolkit' )
+        ];
+    }
 }

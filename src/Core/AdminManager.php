@@ -63,8 +63,8 @@ class AdminManager {
 	public function add_toolkit_menu(): void {
         add_submenu_page(
                 'tools.php',
-			esc_html__( 'Triskelion Suite', 'triskelion-toolkit' ),
-			esc_html__( 'Triskelion Suite', 'triskelion-toolkit' ),
+			esc_html__( 'Triskelion Toolkit', 'triskelion-toolkit' ),
+			esc_html__( 'Triskelion Toolkit', 'triskelion-toolkit' ),
 			'manage_options',
 			'triskelion-toolkit',
 			[$this, 'render_layout']
@@ -98,7 +98,7 @@ class AdminManager {
                         ?>
                         <a href="?page=triskelion-toolkit&tab=<?php echo esc_attr( $id ); ?>"
                            class="tsk-tab-link<?php echo $active_class; ?>">
-                            <?php echo esc_html( $config->name ); ?>
+                            <?php echo esc_html( __( $config->name, 'triskelion-toolkit' ) ); ?>
                         </a>
                     <?php endforeach; ?>
                 </nav>

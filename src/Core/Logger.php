@@ -23,15 +23,19 @@ class Logger {
 	private static string $log_path = '';
 	private static int $max_size = 2097152; // 2MB
 
+	private static bool $initialized = false;
+
 	public static function init(): void {
-		// Si ya corrió o no estamos en WP, abortamos
+		if (self::$initialized) {
+			return;
+		}
+		self::$initialized = true;
 		if ( ! empty( self::$log_path ) || ! function_exists( 'wp_upload_dir' ) ) {
 			return;
 		}
 
 		$upload_dir = wp_upload_dir();
 
-		// Si WP reporta error en uploads (común en Docker/Permisos)
 		if ( ! empty( $upload_dir['error'] ) ) {
 			return;
 		}
@@ -45,6 +49,7 @@ class Logger {
 		if ( file_exists( self::$log_path ) ) {
 			self::secure_directory();
 		}
+		error_log( 'Logger init, log path: ' . self::$log_path );
 	}
 
 	private static function get_config(): array {
@@ -57,7 +62,7 @@ class Logger {
 		}
 
 		if (! isset($enabled) || ! isset($level)) {
-			$settings = $settings ?? get_option( 'tsk_settings_diagnostic', [] );
+			$settings = $settings ?? get_option( 'tsk_diagnostic_settings', [] );
 			if (! isset($enabled)) {
 				$enabled    = $settings['debug_enabled'] ?? false;
 			}
@@ -94,6 +99,7 @@ class Logger {
 
 
 	private static function write( string $message, string $level, string $module ): void {
+		self::init();
 		$config = self::get_config();
 		if ( ! $config['enabled'] ) {
 			return;
@@ -122,8 +128,7 @@ class Logger {
 			$message
 		);
 
-		file_put_contents( $file, $entry, FILE_APPEND );
-		error_log( $module . ': ' . $message );
+		$result = file_put_contents( $file, $entry, FILE_APPEND );
 	}
 
 	private static function secure_directory(): void {
