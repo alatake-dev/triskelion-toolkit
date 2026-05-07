@@ -29,10 +29,14 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
     }
 
     public function render_settings(): string {
+        if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] ) {
+            add_settings_error( 'tsk_settings_group', 'settings_updated', __( 'Settings saved.', 'triskelion-toolkit' ), 'updated' );
+        }
         $active_modules = get_option( 'tsk_active_modules', [] );
 
         ob_start(); ?>
-        <div class="tsk-settings-container">
+        <div class="wrap tsk-settings-container">
+            <?php settings_errors( 'tsk_settings_group' ); ?>
             <h1><?php esc_html_e( self::get_config()->name, 'triskelion-toolkit' ); ?></h1>
             <p class="description"><?php esc_html_e( self::get_config()->description, 'triskelion-toolkit' ); ?></p>
 

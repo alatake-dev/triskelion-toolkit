@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Triskelion Toolkit
  * Description: Modular utility suite for Triskelion.
- * Version:     1.2.0
+ * Version:     1.2.1
  * Author:      Triskelion
  * License:     GPLv2 or later
  * Text Domain: triskelion-toolkit
@@ -23,7 +23,7 @@ define( 'TSK_PATH', plugin_dir_path( __FILE__ ) );
 define( 'TSK_URL', plugin_dir_url( __FILE__ ) );
 
 // --- Identificadores y Versión (Estáticos) ---
-define( 'TSK_VERSION', '1.1.0' ); // Súbele a 1.1.0 por el refactor
+define( 'TSK_VERSION', '1.2.1' );
 define( 'TRISKELION_TOOLKIT_CORE', 'triskelion-toolkit-core' );
 
 // --- Base de Datos y Settings ---
