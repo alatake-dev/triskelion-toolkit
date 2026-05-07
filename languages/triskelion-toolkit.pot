@@ -2,22 +2,22 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Triskelion Toolkit 1.1.0\n"
+"Project-Id-Version: Triskelion Toolkit 1.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/triskelion-toolkit\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-06T15:30:58+00:00\n"
+"POT-Creation-Date: 2026-05-07T01:25:48+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: triskelion-toolkit\n"
 
 #. Plugin Name of the plugin
 #: triskelion-toolkit.php
-#: src/Core/AdminManager.php:66
-#: src/Core/AdminManager.php:67
+#: src/Core/AdminManager.php:69
+#: src/Core/AdminManager.php:70
 msgid "Triskelion Toolkit"
 msgstr ""
 
@@ -28,137 +28,142 @@ msgstr ""
 
 #. Author of the plugin
 #: triskelion-toolkit.php
-#: src/Core/AdminManager.php:29
+#: src/Core/AdminManager.php:30
 msgid "Triskelion"
 msgstr ""
 
-#: src/Core/AdminManager.php:59
+#: src/Core/AdminManager.php:60
 msgid "Settings"
 msgstr ""
 
-#: src/Core/AdminManager.php:113
+#: src/Core/AdminManager.php:118
 msgid "Module not available or without settings."
 msgstr ""
 
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:30
-msgid "Triskelion Dark"
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:47
+#: src/Modules/Diagnostic/DiagnosticLoader.php:48
+#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:33
+msgid "Settings saved."
 msgstr ""
 
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:41
-msgid "Monokai Original"
-msgstr ""
-
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:52
-msgid "Cyber (High Contrast)"
-msgstr ""
-
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:130
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:60
 msgid "Code Showcase Configuration"
 msgstr ""
 
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:135
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:65
 msgid "Theme"
 msgstr ""
 
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:147
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:77
 msgid "Preview View"
 msgstr ""
 
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:168
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:98
 msgid "Languages inventory"
 msgstr ""
 
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:171
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:102
 msgid "Add language..."
 msgstr ""
 
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:223
-msgid "Copy code"
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:146
+msgid "Triskelion Dark"
 msgstr ""
 
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:293
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:157
+msgid "Monokai Original"
+msgstr ""
+
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:168
+msgid "Cyber (High Contrast)"
+msgstr ""
+
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:175
 msgid "Code Showcase"
 msgstr ""
 
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:294
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:176
 msgid "Display code snippets with a premium macOS terminal aesthetic."
 msgstr ""
 
-#: src/Modules/Diagnostic/DiagnosticLoader.php:68
-#: src/Modules/Diagnostic/DiagnosticLoader.php:183
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:247
+msgid "Copy code"
+msgstr ""
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:16
+#: src/Modules/Diagnostic/DiagnosticLoader.php:72
 msgid "Logs & Diagnostic"
 msgstr ""
 
-#: src/Modules/Diagnostic/DiagnosticLoader.php:72
-msgid "Configuration managed via code (wp-config.php)."
-msgstr ""
-
-#: src/Modules/Diagnostic/DiagnosticLoader.php:79
-msgid "Enable Logging"
-msgstr ""
-
-#: src/Modules/Diagnostic/DiagnosticLoader.php:92
-msgid "Log Level"
-msgstr ""
-
-#: src/Modules/Diagnostic/DiagnosticLoader.php:106
-#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:42
-msgid "Save Changes"
-msgstr ""
-
-#: src/Modules/Diagnostic/DiagnosticLoader.php:127
-msgid "Triskelion Logs"
-msgstr ""
-
-#: src/Modules/Diagnostic/DiagnosticLoader.php:130
-msgid "Copy to Clipboard"
-msgstr ""
-
-#: src/Modules/Diagnostic/DiagnosticLoader.php:133
-msgid "Refresh Log"
-msgstr ""
-
-#: src/Modules/Diagnostic/DiagnosticLoader.php:184
+#: src/Modules/Diagnostic/DiagnosticLoader.php:17
 msgid "Monitor system health and view activity logs."
 msgstr ""
 
-#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:84
+#: src/Modules/Diagnostic/DiagnosticLoader.php:76
+msgid "Configuration managed via code (wp-config.php)."
+msgstr ""
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:83
+msgid "Enable Logging"
+msgstr ""
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:96
+msgid "Log Level"
+msgstr ""
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:110
+msgid "Save Changes"
+msgstr ""
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:143
+msgid "Triskelion Logs"
+msgstr ""
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:147
+msgid "Copy to Clipboard"
+msgstr ""
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:151
+msgid "Refresh Log"
+msgstr ""
+
+#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:102
 msgid "Core Module"
 msgstr ""
 
-#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:129
+#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:140
 msgid "General Settings"
 msgstr ""
 
-#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:130
+#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:141
 msgid "General settings for the plugin."
 msgstr ""
 
-#: src/Modules/CodeShowcase/edit.js:40
+#: src/Modules/CodeShowcase/edit.js:29
 msgid "new-file.js"
 msgstr ""
 
-#: src/Modules/CodeShowcase/edit.js:70
+#: src/Modules/CodeShowcase/edit.js:59
 msgid "Current File Settings"
 msgstr ""
 
-#: src/Modules/CodeShowcase/edit.js:72
+#: src/Modules/CodeShowcase/edit.js:61
 msgid "File Name"
 msgstr ""
 
-#: src/Modules/CodeShowcase/edit.js:79
+#: src/Modules/CodeShowcase/edit.js:68
 msgid "Language"
 msgstr ""
 
-#: src/Modules/CodeShowcase/edit.js:87
+#: src/Modules/CodeShowcase/edit.js:77
 msgid "Delete File"
 msgstr ""
 
-#: src/Modules/CodeShowcase/edit.js:125
+#: src/Modules/CodeShowcase/edit.js:115
 msgid "unnamed"
 msgstr ""
 
-#: src/Modules/CodeShowcase/edit.js:135
+#: src/Modules/CodeShowcase/edit.js:125
 msgid "Paste code here..."
 msgstr ""
 

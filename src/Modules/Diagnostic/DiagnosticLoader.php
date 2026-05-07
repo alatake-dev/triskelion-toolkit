@@ -44,7 +44,9 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
     }
 
     public function render_settings(): string {
-
+        if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] ) {
+            add_settings_error( 'tsk_diagnostic_group', 'settings_updated', __( 'Settings saved.', 'triskelion-toolkit' ), 'updated' );
+        }
         $options = get_option( 'tsk_diagnostic_settings', [
                 'debug_enabled' => false,
                 'level'         => Logger::LEVEL_ERROR
@@ -60,6 +62,7 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
         <h1><?php esc_html_e( self::get_config()->name, 'triskelion-toolkit' ); ?></h1>
         <p class="description"><?php esc_html_e( self::get_config()->description, 'triskelion-toolkit' ); ?></p>
         <div class="tsk-diagnostic-view">
+            <?php settings_errors( 'tsk_diagnostic_group' ); ?>
             <form method="post" action="options.php">
                 <?php
                 settings_fields( 'tsk_diagnostic_group' );

@@ -5,8 +5,8 @@ msgstr ""
 "Project-Id-Version: Triskelion Toolkit 1.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/triskelion-"
 "toolkit\n"
-"POT-Creation-Date: 2026-05-06T15:30:58+00:00\n"
-"PO-Revision-Date: 2026-05-06 09:31-0600\n"
+"POT-Creation-Date: 2026-05-07T01:25:48+00:00\n"
+"PO-Revision-Date: 2026-05-06 19:26-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -17,8 +17,8 @@ msgstr ""
 "X-Domain: triskelion-toolkit\n"
 
 #. Plugin Name of the plugin
-#: triskelion-toolkit.php src/Core/AdminManager.php:66
-#: src/Core/AdminManager.php:67
+#: triskelion-toolkit.php src/Core/AdminManager.php:69
+#: src/Core/AdminManager.php:70
 msgid "Triskelion Toolkit"
 msgstr "Herramientas Triskelion"
 
@@ -28,137 +28,142 @@ msgid "Modular utility suite for Triskelion."
 msgstr "Utilerías modulares de Triskelion."
 
 #. Author of the plugin
-#: triskelion-toolkit.php src/Core/AdminManager.php:29
+#: triskelion-toolkit.php src/Core/AdminManager.php:30
 msgid "Triskelion"
 msgstr "Triskelion"
 
-#: src/Core/AdminManager.php:59
+#: src/Core/AdminManager.php:60
 msgid "Settings"
 msgstr "Configuración"
 
-#: src/Core/AdminManager.php:113
+#: src/Core/AdminManager.php:118
 msgid "Module not available or without settings."
 msgstr "El módulo no esta disponible  o no tiene settings."
 
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:30
-msgid "Triskelion Dark"
-msgstr "Triskelion Dark"
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:47
+#: src/Modules/Diagnostic/DiagnosticLoader.php:48
+#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:33
+msgid "Settings saved."
+msgstr "Configuración Guardada"
 
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:41
-msgid "Monokai Original"
-msgstr "Monokai Original"
-
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:52
-msgid "Cyber (High Contrast)"
-msgstr "Cyber (Alto contraste)"
-
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:130
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:60
 msgid "Code Showcase Configuration"
 msgstr "Configuración Code Showcase"
 
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:135
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:65
 msgid "Theme"
 msgstr "Tema"
 
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:147
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:77
 msgid "Preview View"
 msgstr "Vista previa"
 
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:168
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:98
 msgid "Languages inventory"
 msgstr "Inventario de Lenguajes"
 
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:171
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:102
 msgid "Add language..."
 msgstr "Agrega lenguaje…"
 
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:223
-msgid "Copy code"
-msgstr "Copiar código"
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:146
+msgid "Triskelion Dark"
+msgstr "Triskelion Dark"
 
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:293
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:157
+msgid "Monokai Original"
+msgstr "Monokai Original"
+
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:168
+msgid "Cyber (High Contrast)"
+msgstr "Cyber (Alto contraste)"
+
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:175
 msgid "Code Showcase"
 msgstr "Code Showcase"
 
-#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:294
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:176
 msgid "Display code snippets with a premium macOS terminal aesthetic."
 msgstr "Muestra bloques de código en una terminal con estética macOS."
 
-#: src/Modules/Diagnostic/DiagnosticLoader.php:68
-#: src/Modules/Diagnostic/DiagnosticLoader.php:183
+#: src/Modules/CodeShowcase/CodeShowcaseLoader.php:247
+msgid "Copy code"
+msgstr "Copiar código"
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:16
+#: src/Modules/Diagnostic/DiagnosticLoader.php:72
 msgid "Logs & Diagnostic"
 msgstr "Logs y diagnóstico"
 
-#: src/Modules/Diagnostic/DiagnosticLoader.php:72
-msgid "Configuration managed via code (wp-config.php)."
-msgstr "Configuración registrada vía código (wp-config.php)."
-
-#: src/Modules/Diagnostic/DiagnosticLoader.php:79
-msgid "Enable Logging"
-msgstr "Habilitar Log"
-
-#: src/Modules/Diagnostic/DiagnosticLoader.php:92
-msgid "Log Level"
-msgstr "Nivel de Log"
-
-#: src/Modules/Diagnostic/DiagnosticLoader.php:106
-#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:42
-msgid "Save Changes"
-msgstr "Guardar Cambios"
-
-#: src/Modules/Diagnostic/DiagnosticLoader.php:127
-msgid "Triskelion Logs"
-msgstr "Logs Triskelion"
-
-#: src/Modules/Diagnostic/DiagnosticLoader.php:130
-msgid "Copy to Clipboard"
-msgstr "Copiar"
-
-#: src/Modules/Diagnostic/DiagnosticLoader.php:133
-msgid "Refresh Log"
-msgstr "Recargar Los"
-
-#: src/Modules/Diagnostic/DiagnosticLoader.php:184
+#: src/Modules/Diagnostic/DiagnosticLoader.php:17
 msgid "Monitor system health and view activity logs."
 msgstr "Monitor de sistema y log de actividades."
 
-#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:84
+#: src/Modules/Diagnostic/DiagnosticLoader.php:76
+msgid "Configuration managed via code (wp-config.php)."
+msgstr "Configuración registrada vía código (wp-config.php)."
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:83
+msgid "Enable Logging"
+msgstr "Habilitar Log"
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:96
+msgid "Log Level"
+msgstr "Nivel de Log"
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:110
+msgid "Save Changes"
+msgstr "Guardar Cambios"
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:143
+msgid "Triskelion Logs"
+msgstr "Logs Triskelion"
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:147
+msgid "Copy to Clipboard"
+msgstr "Copiar"
+
+#: src/Modules/Diagnostic/DiagnosticLoader.php:151
+msgid "Refresh Log"
+msgstr "Recargar Los"
+
+#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:102
 msgid "Core Module"
 msgstr "Módulo requerido"
 
-#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:129
+#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:140
 msgid "General Settings"
 msgstr "Configuración General"
 
-#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:130
+#: src/Modules/GeneralSettings/GeneralSettingsLoader.php:141
 msgid "General settings for the plugin."
 msgstr "Configuración general del plugin."
 
-#: src/Modules/CodeShowcase/edit.js:40
+#: src/Modules/CodeShowcase/edit.js:29
 msgid "new-file.js"
 msgstr "nuevo.js"
 
-#: src/Modules/CodeShowcase/edit.js:70
+#: src/Modules/CodeShowcase/edit.js:59
 msgid "Current File Settings"
 msgstr "Archivo Actual"
 
-#: src/Modules/CodeShowcase/edit.js:72
+#: src/Modules/CodeShowcase/edit.js:61
 msgid "File Name"
 msgstr "Nombre del archivo"
 
-#: src/Modules/CodeShowcase/edit.js:79
+#: src/Modules/CodeShowcase/edit.js:68
 msgid "Language"
 msgstr "Lenguaje"
 
-#: src/Modules/CodeShowcase/edit.js:87
+#: src/Modules/CodeShowcase/edit.js:77
 msgid "Delete File"
 msgstr "Elimina archivo"
 
-#: src/Modules/CodeShowcase/edit.js:125
+#: src/Modules/CodeShowcase/edit.js:115
 msgid "unnamed"
 msgstr "sin-nombre"
 
-#: src/Modules/CodeShowcase/edit.js:135
+#: src/Modules/CodeShowcase/edit.js:125
 msgid "Paste code here..."
 msgstr "Pega tu código aquí…"
 
