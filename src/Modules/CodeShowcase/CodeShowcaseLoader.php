@@ -43,13 +43,19 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
     }
 
     public function render_settings(): string {
+        if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] ) {
+            add_settings_error( 'triskelion_showcase_group', 'settings_updated', __( 'Settings saved.', 'triskelion-toolkit' ), 'updated' );
+        }
         $settings    = $this->get_settings();
         $theme       = $settings['active_theme'];
         $themes_data = $this->get_themes_config();
         ob_start(); ?>
         <h1><?php echo self::i18n_config()['name']; ?></h1>
         <p class="description"><?php echo self::i18n_config()['description'] ?></p>
-        <div class="tsk-settings-container">
+
+        <div class="wrap tsk-settings-container">
+            <?php settings_errors( 'triskelion_showcase_group' ); ?>
+
             <?php echo $this->get_theme_inline_css( $theme, true ); ?>
             <h2><?php esc_html_e( 'Code Showcase Configuration', 'triskelion-toolkit' ); ?></h2>
             <form action="options.php" method="post">
