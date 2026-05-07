@@ -18,7 +18,27 @@ class SampleModuleLoader extends AbstractModule implements RegistrableModuleInte
         $path = TSK_PATH . 'build/Modules/SampleModule';
 
         if ( file_exists( $path . '/block.json' ) ) {
-            register_block_type( $path );
+            $options = get_option( 'tsk_sample_module_settings', [
+                    'default_tag'  => 'h4',
+                    'accent_color' => 'var(--primary)'
+            ] );
+
+            register_block_type( $path, [
+                    'attributes' => [
+                        /* * NOTA PARA DEVS: Inyectar defaults desde PHP sincroniza el bloque con el Admin,
+                        * pero cambiar estos valores globalmente causará un "Block Validation Error"
+                        * en bloques ya existentes. Esto es un COMPORTAMIENTO ESPERADO en bloques estáticos.
+                        */
+                            'titleTag'    => [
+                                    'type'    => 'string',
+                                    'default' => $options['default_tag'], // Hx dinámico
+                            ],
+                            'accentColor' => [
+                                    'type'    => 'string',
+                                    'default' => $options['accent_color'], // Color dinámico
+                            ],
+                    ],
+            ] );
 
             // Vinculamos traducciones usando el handle por defecto de WP para el plugin
             wp_set_script_translations(
@@ -152,7 +172,7 @@ class SampleModuleLoader extends AbstractModule implements RegistrableModuleInte
                             </tr>
                             <tr>
                                 <th scope="row">
-                                    <label for="accent_color"><?php __( 'Accent Color', 'triskelion-toolkit' ); ?></label>
+                                    <label for="accent_color"><?php _e( 'Accent Color', 'triskelion-toolkit' ); ?></label>
                                 </th>
                                 <td>
                                     <input name="tsk_sample_module_settings[accent_color]" type="text" id="accent_color"

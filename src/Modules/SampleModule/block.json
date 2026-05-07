@@ -17,12 +17,6 @@
       "type": "string",
       "default": "h4"
     },
-    "content": {
-      "type": "string",
-      "source": "html",
-      "selector": ".sample-card-content",
-      "default": ""
-    },
     "accentColor": {
       "type": "string",
       "default": "var(--primary)"
@@ -32,6 +26,7 @@
     "html": false,
     "anchor": true
   },
+  "textdomain": "triskelion-toolkit",
   "editorScript": "file:./index.js",
   "editorStyle": "file:./editor.css",
   "style": "file:./style.css"

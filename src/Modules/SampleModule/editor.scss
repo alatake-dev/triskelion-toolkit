@@ -1,0 +1,9 @@
+.wp-block-triskelion-sample-module {
+  // Estilos solo para mejorar la UX en el editor
+  border: 1px dashed #ccc;
+  position: relative;
+
+  &:hover {
+    border-color: var(--wp-admin-theme-color);
+  }
+}
