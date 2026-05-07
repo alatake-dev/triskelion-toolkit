@@ -1,0 +1,38 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "triskelion/sample-module",
+  "version": "1.0.0",
+  "title": "Sample Module ",
+  "category": "triskelion",
+  "description": "A blueprint for custom callouts with dynamic heading levels.",
+  "attributes": {
+    "title": {
+      "type": "string",
+      "source": "html",
+      "selector": ".sample-card-title",
+      "default": ""
+    },
+    "titleTag": {
+      "type": "string",
+      "default": "h4"
+    },
+    "content": {
+      "type": "string",
+      "source": "html",
+      "selector": ".sample-card-content",
+      "default": ""
+    },
+    "accentColor": {
+      "type": "string",
+      "default": "var(--primary)"
+    }
+  },
+  "supports": {
+    "html": false,
+    "anchor": true
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}
