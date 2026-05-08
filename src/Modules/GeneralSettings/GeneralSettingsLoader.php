@@ -77,8 +77,6 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 	/**
 	 * Registers the module settings within the WordPress Settings API.
 	 *
-	 * Defines the settings group and the main option for active module management.
-	 *
 	 * @return void
 	 */
 	public function register_module_settings(): void {
@@ -96,9 +94,6 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 	/**
 	 * Injects the complete module collection into the loader instance.
 	 *
-	 * Implementation of NeedsModuleCollectionInterface. This allows the loader
-	 * to access all available modules to manage their activation status.
-	 *
 	 * @param ModuleCollection $collection Shared module collection instance.
 	 * @return void
 	 */
@@ -109,8 +104,6 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 	/**
 	 * Renders the internal HTML content for the module activation form.
 	 *
-	 * Captures the checkbox grid layout using output buffering for the AdminManager.
-	 *
 	 * @return string The generated internal form HTML.
 	 */
 	public function render_inside_form(): string {
@@ -119,28 +112,36 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 
 		ob_start();
 		?>
-		<div class="triskelion-toolkit-settings-grid">
+		<div class="triskelion-toolkit-modules-list">
 			<?php foreach ( $all_modules as $id => $config ) : ?>
 				<?php
-				if ( $config->is_core ) {
-					continue;
-				}
+				$is_core  = (bool) $config->is_core;
+				$disabled = $is_core ? 'disabled' : '';
+				$checked  = ( $is_core || in_array( $id, $active_modules, true ) ) ? 'checked' : '';
 				?>
+				<div class="triskelion-toolkit-module-card <?php echo $is_core ? 'is-core' : ''; ?>">
+					<label class="triskelion-toolkit-switch">
+						<input name="triskelion_toolkit_active_modules[]"
+								type="checkbox"
+								id="module_<?php echo esc_attr( $id ); ?>"
+								value="<?php echo esc_attr( $id ); ?>"
+								<?php echo esc_attr( $checked ); ?>
+								<?php echo esc_attr( $disabled ); ?>>
+						<span class="triskelion-toolkit-slider"></span>
+					</label>
 
-				<label for="module_<?php echo esc_attr( $id ); ?>" class="triskelion-module-card-label">
-					<input name="triskelion_toolkit_active_modules[]"
-							type="checkbox"
-							id="module_<?php echo esc_attr( $id ); ?>"
-							value="<?php echo esc_attr( $id ); ?>"
-							<?php checked( in_array( $id, $active_modules, true ) ); ?>>
-
-					<div class="triskelion-module-info">
-						<strong><?php echo esc_html( $this->resolve_i18n_field( 'name', $config ) ); ?></strong>
+					<div class="triskelion-toolkit-module-info">
+						<strong>
+							<?php echo esc_html( $this->resolve_i18n_field( 'name', $config ) ); ?>
+							<?php if ( $is_core ) : ?>
+								<span class="triskelion-toolkit-pill">Core</span>
+							<?php endif; ?>
+						</strong>
 						<p class="description">
 							<?php echo esc_html( $this->resolve_i18n_field( 'description', $config ) ); ?>
 						</p>
 					</div>
-				</label>
+				</div>
 			<?php endforeach; ?>
 		</div>
 		<?php
@@ -150,7 +151,7 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 	/**
 	 * Renders additional UI elements outside of the main settings form.
 	 *
-	 * @return string Empty string as no external content is required for this module.
+	 * @return string Empty string as no external content is required.
 	 */
 	public function render_outside_form(): string {
 		return '';
@@ -159,7 +160,7 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 	/**
 	 * Sanitizes the submitted module activation data from the form.
 	 *
-	 * @param mixed $input Raw input data from the settings POST request.
+	 * @param mixed $input Raw input data.
 	 * @return array Validated list of registered module IDs.
 	 */
 	public function sanitize_module_settings( $input ): array {
@@ -178,8 +179,8 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 	 * Resolves i18n fields prioritizing dynamic configuration over static properties.
 	 *
 	 * @param string       $field  Field to resolve (name|description).
-	 * @param ModuleConfig $config The module configuration metadata object.
-	 * @return string The resolved, localized, and sanitized text.
+	 * @param ModuleConfig $config The module configuration object.
+	 * @return string The resolved localized text.
 	 */
 	private function resolve_i18n_field( string $field, ModuleConfig $config ): string {
 		$clazz = $config->clazz;
