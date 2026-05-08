@@ -2,6 +2,7 @@
 
 namespace Triskelion\TriskelionToolkit\Core;
 
+use Triskelion\TriskelionToolkit\Core\Bridge\WpBridge;
 use Triskelion\TriskelionToolkit\Core\Data\ModuleCollection;
 use Triskelion\TriskelionToolkit\Core\Interfaces\HasSettingsInterface;
 
@@ -9,32 +10,45 @@ class AdminManager {
 	private ModuleCollection $modules;
 	private array $active_loaders;
 
+	private WpBridge $wp;
+
 	public function __construct( ModuleCollection $modules, array $active_loaders ) {
 		$this->modules        = $modules;
 		$this->active_loaders = $active_loaders;
+		$this->wp             = new WpBridge();
 	}
 
 	public function init(): void {
-		add_action( 'admin_menu', array( $this, 'add_toolkit_menu' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
+		if ( ! $this->wp->security->current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		$this->wp->hooks->add_action( 'admin_menu', array( $this, 'add_toolkit_menu' ) );
+
+		$this->wp->hooks->add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 
 		$basename = plugin_basename( TRISKELION_TOOLKIT_FILE );
-		add_filter( "plugin_action_links_$basename", array( $this, 'add_settings_link' ) );
-		add_action( 'admin_init', array( $this, 'trigger_module_settings' ) );
-		add_filter(
-			'block_categories_all',
-			function ( $categories ) {
-				return array_merge(
-					$categories,
-					array(
-						array(
-							'slug'  => 'triskelion',
-							'title' => __( 'Triskelion', 'triskelion-toolkit' ),
-							'icon'  => 'admin-generic',
-						),
-					)
-				);
-			}
+		$this->wp->hooks->add_filter( "plugin_action_links_$basename", array( $this, 'add_settings_link' ) );
+		$this->wp->hooks->add_action( 'admin_init', array( $this, 'trigger_module_settings' ) );
+		$this->wp->hooks->add_filter( 'block_categories_all', array( $this, 'add_block_categories' ) );
+	}
+
+
+	/**
+	 * Adds the Triskelion category to the Gutenberg block editor.
+	 *
+	 * @param array<int, array<string, string>> $categories Existing block categories.
+	 * @return array<int, array<string, string>> Filtered block categories.
+	 */
+	public function add_block_categories( array $categories ): array {
+		return array_merge(
+			$categories,
+			array(
+				array(
+					'slug'  => 'triskelion',
+					'title' => __( 'Triskelion', 'triskelion-toolkit' ),
+					'icon'  => 'admin-generic',
+				),
+			)
 		);
 	}
 
@@ -62,12 +76,11 @@ class AdminManager {
 	public function add_settings_link( $links ) {
 		$settings_link = '<a href="admin.php?page=triskelion-toolkit">' . __( 'Settings', 'triskelion-toolkit' ) . '</a>';
 		array_unshift( $links, $settings_link );
-
 		return $links;
 	}
 
 	public function add_toolkit_menu(): void {
-		add_submenu_page(
+		$this->wp->menu->add_submenu_page(
 			'tools.php',
 			esc_html__( 'Triskelion Toolkit', 'triskelion-toolkit' ),
 			esc_html__( 'Triskelion Toolkit', 'triskelion-toolkit' ),
@@ -75,6 +88,20 @@ class AdminManager {
 			'triskelion-toolkit',
 			array( $this, 'render_layout' )
 		);
+	}
+
+	/**
+	 * Sets the WordPress Bridge instance.
+	 *
+	 * This setter allows for injecting a mock or a specific instance of the WpBridge,
+	 * which is essential for decoupling the manager from global WordPress functions
+	 * during unit testing.
+	 *
+	 * @param WpBridge $wp The WordPress Bridge instance.
+	 * @since 1.0.0
+	 */
+	public function set_wp( WpBridge $wp ): void {
+		$this->wp = $wp;
 	}
 
 	public function render_layout(): void {

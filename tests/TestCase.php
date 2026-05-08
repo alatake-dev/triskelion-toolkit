@@ -13,6 +13,9 @@ class TestCase extends \WP_Mock\Tools\TestCase {
 	public function setUp(): void {
 		parent::setUp();
 		WP_Mock::setUp();
+		if ( ! defined( 'TRISKELION_TOOLKIT_WP_DISABLED' ) ) {
+			define( 'TRISKELION_TOOLKIT_WP_DISABLED', 'Tests running' );
+		}
 		$this->set_env_debug( false );
 		$this->mock_wp_filesystem();
 		$this->mock_wp_creation();

@@ -191,8 +191,8 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
 	}
 
 	protected function register(): void {
-		if ( is_admin() ) {
-			add_action( 'admin_init', array( $this, 'register_module_settings' ) );
+		if ( $this->wp->security->is_admin() ) {
+			$this->wp->hooks->add_action( 'admin_init', array( $this, 'register_module_settings' ) );
 		}
 	}
 }

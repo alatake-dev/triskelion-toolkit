@@ -1,25 +1,78 @@
 <?php
+/**
+ * Logger Class File.
+ *
+ * @package Triskelion\TriskelionToolkit
+ * @since 1.0.0
+ */
 
 namespace Triskelion\TriskelionToolkit\Core;
 
+/**
+ * Class Logger
+ *
+ * Handles application logging, including file rotation and directory security.
+ *
+ * @package Triskelion\TriskelionToolkit
+ * @since 1.0.0
+ */
 class Logger {
-	public const LEVEL_DEBUG             = 'debug';
-	public const LEVEL_INFO              = 'info';
-	public const LEVEL_WARN              = 'warn';
-	public const LEVEL_ERROR             = 'error';
-	public const LEVEL_OFF               = 'off';
-	private static string $log_path      = '';
-	private static int $max_size         = 2097152;
-	private static bool $initialized     = false;
+	/**
+	 * Log levels constants.
+	 */
+	public const LEVEL_DEBUG = 'debug';
+	public const LEVEL_INFO  = 'info';
+	public const LEVEL_WARN  = 'warn';
+	public const LEVEL_ERROR = 'error';
+	public const LEVEL_OFF   = 'off';
+	/**
+	 * Path to the log directory.
+	 *
+	 * @var string
+	 */
+	private static string $log_path = '';
+	/**
+	 * Maximum log file size in bytes (2MB default).
+	 *
+	 * @var int
+	 */
+	private static int $max_size = 2097152;
+	/**
+	 * Initialization flag.
+	 *
+	 * @var bool
+	 */
+	private static bool $initialized = false;
+	/**
+	 * Storage for mocked constants during testing.
+	 *
+	 * @var array
+	 */
 	private static array $test_constants = array();
 
+	/**
+	 * Sets a value for a mocked constant during unit tests.
+	 *
+	 * @param string $name  Constant name.
+	 * @param mixed  $value Constant value.
+	 * @return void
+	 */
 	public static function set_test_constant( string $name, $value ): void {
 		self::$test_constants[ $name ] = $value;
 	}
+	/**
+	 * Returns available log levels.
+	 *
+	 * @return array List of severity levels.
+	 */
 	public static function get_levels(): array {
 		return array_keys( self::get_severity_map() );
-	} // 2MB
-
+	}
+	/**
+	 * Returns severity weights for filtering.
+	 *
+	 * @return array Map of level => weight.
+	 */
 	public static function get_severity_map(): array {
 		return array(
 			self::LEVEL_DEBUG => 0,
@@ -30,12 +83,24 @@ class Logger {
 		);
 	}
 
-
-
+	/**
+	 * Log an info message.
+	 *
+	 * @param string $message The message to log.
+	 * @param string $module  Originating module.
+	 * @return void
+	 */
 	public static function info( string $message, string $module = 'CORE' ): void {
 		self::write( $message, 'info', $module );
 	}
-
+	/**
+	 * Core write method. Handles initialization, rotation and writing.
+	 *
+	 * @param string $message The message to log.
+	 * @param string $level   Severity level.
+	 * @param string $module  Originating module.
+	 * @return void
+	 */
 	private static function write( string $message, string $level, string $module ): void {
 		self::init();
 
@@ -68,7 +133,11 @@ class Logger {
 		);
 		self::direct_write( $file, $entry );
 	}
-
+	/**
+	 * Initializes the logger and sets up the WP_Filesystem.
+	 *
+	 * @return void
+	 */
 	public static function init(): void {
 		if ( self::$initialized ) {
 			return;
@@ -100,13 +169,21 @@ class Logger {
 			self::secure_directory();
 		}
 	}
-
+	/**
+	 * Adds security files to the log directory.
+	 *
+	 * @return void
+	 */
 	private static function secure_directory(): void {
 		self::init();
 		self::$wp_filesystem->put_contents( self::$log_path . '/.htaccess', 'Deny from all' );
 		self::$wp_filesystem->put_contents( self::$log_path . '/index.php', '<?php // Silence' );
 	}
-
+	/**
+	 * Retrieves logger configuration from constants or database.
+	 *
+	 * @return array Configuration data.
+	 */
 	private static function get_config(): array {
 		$ret_val   = array();
 		$env_debug = self::get_env_constant( 'TRISKELION_TOOLKIT_DEBUG' );
@@ -134,10 +211,10 @@ class Logger {
 	}
 
 	/**
-	 * Wrapper para constantes que permite ser mockeado en tests.
+	 * Environment-aware constant retriever. Supports testing mocks.
 	 *
-	 * @param string $name
-	 * @return mixed|null
+	 * @param string $name Constant name.
+	 * @return mixed|null Value or null if not defined.
 	 */
 	protected static function get_env_constant( string $name ): mixed {
 		if ( isset( self::$test_constants[ $name ] ) ) {
@@ -145,7 +222,11 @@ class Logger {
 		}
 		return defined( $name ) ? constant( $name ) : null;
 	}
-
+	/**
+	 * Cleans up old backup files, keeping only a limited number.
+	 *
+	 * @return void
+	 */
 	private static function cleanup_backups(): void {
 		$files = glob( self::$log_path . '/*.bak' );
 		if ( count( $files ) > 3 ) {
@@ -153,22 +234,45 @@ class Logger {
 			wp_delete_file( $files[0] );
 		}
 	}
-
+	/**
+	 * Log a warning message.
+	 *
+	 * @param string $message The message to log.
+	 * @param string $module  Originating module.
+	 * @return void
+	 */
 	public static function warn( string $message, string $module = 'CORE' ): void {
 		self::write( $message, 'warn', $module );
 	}
-
+	/**
+	 * Log an error message with optional context.
+	 *
+	 * @param string $message The message to log.
+	 * @param string $module  Originating module.
+	 * @param array  $context Additional data to log.
+	 * @return void
+	 */
 	public static function error( string $message, string $module = 'CORE', array $context = array() ): void {
 		if ( ! empty( $context ) ) {
 			$message .= ' | Context: ' . wp_json_encode( $context );
 		}
 		self::write( $message, 'error', $module );
 	}
-
+	/**
+	 * Log a debug message.
+	 *
+	 * @param string $message The message to log.
+	 * @param string $module  Originating module.
+	 * @return void
+	 */
 	public static function debug( string $message, string $module = 'CORE' ): void {
 		self::write( $message, 'debug', $module );
 	}
-
+	/**
+	 * Returns the full path to the log file.
+	 *
+	 * @return string Full file path.
+	 */
 	public static function get_log_path(): string {
 		if ( empty( self::$log_path ) ) {
 			self::init();
@@ -176,7 +280,13 @@ class Logger {
 
 		return self::$log_path . '/triskelion.log';
 	}
-
+	/**
+	 * Performs direct file write using PHP filesystem functions for performance.
+	 *
+	 * @param string $file  File path.
+	 * @param string $entry Log entry.
+	 * @return mixed
+	 */
 	protected static function direct_write( string $file, string $entry ) {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 		$handle = fopen( $file, 'a' );

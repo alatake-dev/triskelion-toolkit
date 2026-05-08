@@ -11,7 +11,11 @@
   },
   "scripts": {
     "lint": "phpcs .",
-    "lint:fix": "phpcbf ."
+    "lint:fix": "phpcbf .",
+    "lint:x": [
+      "vendor/bin/phpcbf .",
+      "vendor/bin/phpcs . --report=summary"
+    ]
   },
   "authors": [
     {
