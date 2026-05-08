@@ -8,7 +8,7 @@
   margin: 20px 0;
 
   // Contenedor principal (Tu BEM original)
-  .tsk-code-showcase-preview {
+  .triskelion-toolkit-code-showcase-preview {
     background: #1e1e1e;
     border-radius: 8px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -17,7 +17,7 @@
     border: 1px solid #333;
 
     // Cabecera de la terminal
-    .tsk-window-header {
+    .triskelion-toolkit-window-header {
       background: #323232;
       display: flex;
       align-items: center;
@@ -26,7 +26,7 @@
       gap: 15px;
 
       // Los tres puntos de macOS
-      .tsk-dots {
+      .triskelion-toolkit-dots {
         display: flex;
         gap: 8px;
         flex-shrink: 0;
@@ -55,12 +55,12 @@
       }
 
       // Tabs de archivos
-      .tsk-tabs {
+      .triskelion-toolkit-tabs {
         display: flex;
         gap: 5px;
         overflow-x: auto;
 
-        .tsk-tab {
+        .triskelion-toolkit-tab {
           background: #252525;
           color: #969696;
           border: none;
@@ -83,7 +83,7 @@
           }
         }
 
-        .tsk-add-tab {
+        .triskelion-toolkit-add-tab {
           background: transparent;
           color: #666;
           border: 1px dashed #444;
@@ -101,7 +101,7 @@
     }
 
     // Contenido / Área de edición
-    .tsk-window-content {
+    .triskelion-toolkit-window-content {
       padding: 0; // Dejamos que el textarea llene el espacio
       background: #1e1e1e;
 
@@ -139,7 +139,7 @@
 
   // Estilos adicionales cuando el bloque está seleccionado
   &.is-selected {
-    .tsk-code-showcase-preview {
+    .triskelion-toolkit-code-showcase-preview {
       box-shadow: 0 0 0 1px #3498db, 0 10px 30px rgba(0, 0, 0, 0.5);
     }
   }

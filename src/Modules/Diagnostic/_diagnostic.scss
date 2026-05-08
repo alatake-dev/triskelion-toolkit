@@ -1,16 +1,16 @@
 /* ==========================================================================
    COMPONENT: TRISKELION TERMINAL (Professional Grade)
    ========================================================================== */
-.tsk-terminal {
+.triskelion-toolkit-terminal {
   margin: 2.5rem 0;
-  border-radius: var(--tsk-radius);
+  border-radius: var(--triskelion-toolkit-radius);
   background: #000; // Fondo negro absoluto para máximo contraste
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);
 
   &__header {
-    background: var(--tsk-terminal-header); // Debe ser #2c3338
+    background: var(--triskelion-toolkit-terminal-header); // Debe ser #2c3338
     padding: 0.8rem 1.25rem;
     display: flex;
     justify-content: space-between;
@@ -32,7 +32,7 @@
   }
 
   &__title {
-    font-family: var(--tsk-font-mono);
+    font-family: var(--triskelion-toolkit-font-mono);
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 1.5px;
@@ -67,7 +67,7 @@
     background: #000 !important; // Forzamos el negro para evitar overrides de WP
     color: #00ff41 !important; // Verde Matrix / Telemetry para legibilidad extrema
     padding: 1.5rem;
-    font-family: var(--tsk-font-mono);
+    font-family: var(--triskelion-toolkit-font-mono);
     font-size: 13px;
     line-height: 1.6;
     border: none;

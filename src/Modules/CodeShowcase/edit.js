@@ -7,7 +7,7 @@ export default function Edit({attributes, setAttributes}) {
     const blockProps = useBlockProps();
 
 
-    const languageOptions = (window.tskSettings?.activeLanguages || ['javascript', 'php']).map(lang => ({
+    const languageOptions = (window.triskelionToolkitSettings?.activeLanguages || ['javascript', 'php']).map(lang => ({
         // Transformamos el slug (ej. 'javascript') en una etiqueta legible (ej. 'JAVASCRIPT')
         label: lang.toUpperCase(),
         value: lang
@@ -98,27 +98,27 @@ export default function Edit({attributes, setAttributes}) {
             </InspectorControls>
 
             {/* --- PREVIEW DEL EDITOR (UX MACOS) --- */}
-            <div className="tsk-code-showcase-preview">
-                <div className="tsk-window-header">
-                    <div className="tsk-dots">
+            <div className="triskelion-toolkit-code-showcase-preview">
+                <div className="triskelion-toolkit-window-header">
+                    <div className="triskelion-toolkit-dots">
                         <span className="dot red"></span>
                         <span className="dot yellow"></span>
                         <span className="dot green"></span>
                     </div>
-                    <div className="tsk-tabs">
+                    <div className="triskelion-toolkit-tabs">
                         {files.map((file, index) => (
                             <button
                                 key={index}
-                                className={`tsk-tab ${activeTabIndex === index ? 'is-active' : ''}`}
+                                className={`triskelion-toolkit-tab ${activeTabIndex === index ? 'is-active' : ''}`}
                                 onClick={() => setAttributes({activeTabIndex: index})}
                             >
                                 {file.fileName || __('unnamed', 'triskelion-toolkit')}
                             </button>
                         ))}
-                        <button className="tsk-add-tab" onClick={addFile}>+</button>
+                        <button className="triskelion-toolkit-add-tab" onClick={addFile}>+</button>
                     </div>
                 </div>
-                <div className="tsk-window-content">
+                <div className="triskelion-toolkit-window-content">
                     <TextareaControl
                         value={files[activeTabIndex]?.content}
                         onChange={(val) => updateFile(activeTabIndex, 'content', val)}

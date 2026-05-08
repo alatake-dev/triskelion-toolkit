@@ -3,32 +3,32 @@
     display: block;
     overflow-x: auto;
     padding: 1em;
-    background: var(--tsk-bg);
-    color: var(--tsk-text);
+    background: var(--triskelion-toolkit-bg);
+    color: var(--triskelion-toolkit-text);
 }
 
 /*
  * MAPEO DE LENGUAJE:
- * Aquí usamos el prefijo --tsk- para que coincida con lo que escupe el PHP.
+ * Aquí usamos el prefijo --triskelion-toolkit- para que coincida con lo que escupe el PHP.
  */
 .hljs-keyword, .hljs-selector-tag {
-    color: var(--tsk-syntax-keyword);
+    color: var(--triskelion-toolkit-syntax-keyword);
     font-weight: bold;
 }
 
 .hljs-string, .hljs-doctag {
-    color: var(--tsk-syntax-string);
+    color: var(--triskelion-toolkit-syntax-string);
 }
 
 .hljs-comment, .hljs-quote {
-    color: var(--tsk-syntax-comment);
+    color: var(--triskelion-toolkit-syntax-comment);
     font-style: italic;
 }
 
 .hljs-number, .hljs-literal {
-    color: var(--tsk-syntax-number);
+    color: var(--triskelion-toolkit-syntax-number);
 }
 
 .hljs-function, .hljs-title {
-    color: var(--tsk-syntax-function);
+    color: var(--triskelion-toolkit-syntax-function);
 }

@@ -3,15 +3,15 @@
  * Estándar 2026: Vanilla JS + Delegación de Eventos.
  */
 (() => {
-    const inventory = window.tskInventoryData?.allLanguages || [];
+    const inventory = window.triskelionToolkitInventoryData?.allLanguages || [];
 
     const init = () => {
-        const input = document.getElementById('tsk-lang-finder');
-        const resultsList = document.getElementById('tsk-search-results');
-        const pillsContainer = document.getElementById('tsk-active-langs');
+        const input = document.getElementById('triskelion-toolkit-lang-finder');
+        const resultsList = document.getElementById('triskelion-toolkit-search-results');
+        const pillsContainer = document.getElementById('triskelion-toolkit-active-langs');
 
-        const themeSelect = document.querySelector('select[name="tsk_showcase_settings[active_theme]"]');
-        const previewBox = document.querySelector('.tsk-code-showcase-preview');
+        const themeSelect = document.querySelector('select[name="triskelion_toolkit_showcase_settings[active_theme]"]');
+        const previewBox = document.querySelector('.triskelion-toolkit-code-showcase-preview');
 
         if (!input || !resultsList || !pillsContainer) return;
 
@@ -34,7 +34,7 @@
 
             matches.forEach(lang => {
                 const li = document.createElement('li');
-                li.className = 'tsk-results-list__item';
+                li.className = 'triskelion-toolkit-results-list__item';
                 li.textContent = lang.toUpperCase();
 
                 li.addEventListener('click', (event) => {
@@ -55,10 +55,10 @@
          * Delegación de Eventos para eliminar Pills
          */
         pillsContainer.addEventListener('click', (e) => {
-            const btn = e.target.closest('.tsk-pill__remove');
+            const btn = e.target.closest('.triskelion-toolkit-pill__remove');
             if (btn) {
                 e.preventDefault();
-                btn.closest('.tsk-pill').remove();
+                btn.closest('.triskelion-toolkit-pill').remove();
             }
         });
 
@@ -87,11 +87,11 @@
      */
     const createLanguagePill = (lang, container) => {
         const pill = document.createElement('div');
-        pill.className = 'tsk-pill';
+        pill.className = 'triskelion-toolkit-pill';
         pill.innerHTML = `
-            <span class="tsk-pill__label">${lang.toUpperCase()}</span>
-            <input type="hidden" name="tsk_showcase_settings[active_languages][]" value="${lang}">
-            <button type="button" class="tsk-pill__remove" aria-label="__( 'Remove', 'triskelion-toolkit' )">&times;</button>
+            <span class="triskelion-toolkit-pill__label">${lang.toUpperCase()}</span>
+            <input type="hidden" name="triskelion_toolkit_showcase_settings[active_languages][]" value="${lang}">
+            <button type="button" class="triskelion-toolkit-pill__remove" aria-label="__( 'Remove', 'triskelion-toolkit' )">&times;</button>
         `;
         container.appendChild(pill);
     };

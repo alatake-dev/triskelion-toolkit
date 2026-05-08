@@ -1,7 +1,7 @@
-.tsk-code-showcase {
+.triskelion-toolkit-code-showcase {
   --terminal-height: 400px;
-  --hljs-bg: var(--tsk-bg, #1e1e1e);
-  --header-bg: var(--tsk-header, #2d2d2d);
+  --hljs-bg: var(--triskelion-toolkit-bg, #1e1e1e);
+  --header-bg: var(--triskelion-toolkit-header, #2d2d2d);
   --font-mono: 'Fira Code', monospace;
 
   background: #1e1e1e;
@@ -143,7 +143,7 @@
         display: block;
         line-height: 1.5;
         font-size: 13px !important;
-        color: var(--tsk-text, #d4d4d4);
+        color: var(--triskelion-toolkit-text, #d4d4d4);
         /* Los mapeos de color de HLJS se manejan 100% en el Loader PHP para evitar discrepancias */
       }
     }

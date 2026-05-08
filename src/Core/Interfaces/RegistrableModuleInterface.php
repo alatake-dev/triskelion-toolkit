@@ -21,5 +21,4 @@ interface RegistrableModuleInterface {
 	 * @return array Mapa de strings traducibles asociados al módulo.
 	 */
 	public static function i18n_config(): array;
-
 }

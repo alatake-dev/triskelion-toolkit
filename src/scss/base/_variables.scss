@@ -3,26 +3,26 @@
    ========================================================================== */
 :root {
   // core
-  --tsk-primary: #2271b1;
-  --tsk-primary-dark: #135e96;
-  --tsk-bg-main: #fff;
-  --tsk-bg-side: #f0f0f1;
-  --tsk-border-color: #ccd0d4;
-  --tsk-text-main: #2c3338;
-  --tsk-text-dark: #1d2327;
-  --tsk-text-muted: #646970;
-  --tsk-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --triskelion-toolkit-primary: #2271b1;
+  --triskelion-toolkit-primary-dark: #135e96;
+  --triskelion-toolkit-bg-main: #fff;
+  --triskelion-toolkit-bg-side: #f0f0f1;
+  --triskelion-toolkit-border-color: #ccd0d4;
+  --triskelion-toolkit-text-main: #2c3338;
+  --triskelion-toolkit-text-dark: #1d2327;
+  --triskelion-toolkit-text-muted: #646970;
+  --triskelion-toolkit-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   // diagnostics
-  --tsk-terminal-header: #2c3338;
-  --tsk-terminal-bg: #000000;
-  --tsk-terminal-text: #ffffff;
-  --tsk-accent: #2c3338;
-  --tsk-success: #2e7d32;
-  --tsk-radius: 6px;
-  --tsk-font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --triskelion-toolkit-terminal-header: #2c3338;
+  --triskelion-toolkit-terminal-bg: #000000;
+  --triskelion-toolkit-terminal-text: #ffffff;
+  --triskelion-toolkit-accent: #2c3338;
+  --triskelion-toolkit-success: #2e7d32;
+  --triskelion-toolkit-radius: 6px;
+  --triskelion-toolkit-font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   // pills
-  --tsk-admin-pill-bg: #e2e8f0;
-  --tsk-admin-pill-text: #475569;
-  --tsk-admin-accent: #2271b1;
-  --tsk-admin-danger: #d63638;
+  --triskelion-toolkit-admin-pill-bg: #e2e8f0;
+  --triskelion-toolkit-admin-pill-text: #475569;
+  --triskelion-toolkit-admin-accent: #2271b1;
+  --triskelion-toolkit-admin-danger: #d63638;
 }

@@ -9,6 +9,4 @@ abstract class AbstractModule {
 	}
 
 	abstract protected function register(): void;
-
-
 }

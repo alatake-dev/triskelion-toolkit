@@ -7,7 +7,7 @@
 node_modules
 build
 vendor
-
+.phpunit.result.cache
 # Core
 #
 # Note: if you want to stage/commit WP core files

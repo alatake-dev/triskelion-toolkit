@@ -4,7 +4,7 @@ namespace Triskelion\TriskelionToolkit\Core\Data;
 
 class ModuleCollection {
 	/** @var ModuleConfig[] */
-	private array $items = [];
+	private array $items = array();
 
 	public function add( ModuleConfig $config ): void {
 		$this->items[ $config->id ] = $config;
@@ -12,9 +12,12 @@ class ModuleCollection {
 
 	public function get_all_sorted(): array {
 		$items = $this->items;
-		uasort( $items, function ( ModuleConfig $a, ModuleConfig $b ) {
-			return ( $a->priority <=> $b->priority ) ?: ( $a->name <=> $b->name );
-		} );
+		uasort(
+			$items,
+			function ( ModuleConfig $a, ModuleConfig $b ) {
+				return ( $a->priority <=> $b->priority ) ?: ( $a->name <=> $b->name );
+			}
+		);
 
 		return $items;
 	}

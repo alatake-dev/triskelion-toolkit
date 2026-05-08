@@ -1,7 +1,7 @@
 /* ==========================================================================
    ADMIN LAYOUT
    ========================================================================== */
-.tsk-admin {
+.triskelion-toolkit-admin {
   &-page {
     margin-top: 20px;
     max-width: 1200px;
@@ -9,17 +9,17 @@
 
   &-layout {
     display: flex;
-    background: var(--tsk-bg-main);
-    border: 1px solid var(--tsk-border-color);
-    box-shadow: var(--tsk-shadow);
+    background: var(--triskelion-toolkit-bg-main);
+    border: 1px solid var(--triskelion-toolkit-border-color);
+    box-shadow: var(--triskelion-toolkit-shadow);
     min-height: 600px;
   }
 
   /* Navegación lateral */
   &-nav {
     width: 220px;
-    background: var(--tsk-bg-side);
-    border-right: 1px solid var(--tsk-border-color);
+    background: var(--triskelion-toolkit-bg-side);
+    border-right: 1px solid var(--triskelion-toolkit-border-color);
     flex-shrink: 0;
   }
 
@@ -27,12 +27,12 @@
   &-main {
     flex: 1;
     padding: 40px;
-    background: var(--tsk-bg-main);
+    background: var(--triskelion-toolkit-bg-main);
 
     h1 {
       margin: 0 0 30px;
       padding-bottom: 15px;
-      border-bottom: 1px solid var(--tsk-bg-side);
+      border-bottom: 1px solid var(--triskelion-toolkit-bg-side);
     }
   }
 }
@@ -40,27 +40,27 @@
 /* ==========================================================================
    COMPONENTS: TABS & CARDS
    ========================================================================== */
-.tsk-tab-link {
+.triskelion-toolkit-tab-link {
   display: flex;
   align-items: center;
   padding: 15px 20px;
   text-decoration: none;
-  color: var(--tsk-text-main);
+  color: var(--triskelion-toolkit-text-main);
   border-bottom: 1px solid #dcdcde;
   transition: all 0.2s ease;
 
   &:hover {
     background: #e5e5e5;
-    color: var(--tsk-primary);
+    color: var(--triskelion-toolkit-primary);
   }
 
   &.active {
-    background: var(--tsk-bg-main);
-    color: var(--tsk-primary);
+    background: var(--triskelion-toolkit-bg-main);
+    color: var(--triskelion-toolkit-primary);
     font-weight: 600;
     width: calc(100% + 1px);
-    border-right: 4px solid var(--tsk-primary);
-    border-bottom-color: var(--tsk-border-color);
+    border-right: 4px solid var(--triskelion-toolkit-primary);
+    border-bottom-color: var(--triskelion-toolkit-border-color);
   }
 
   .dashicons {
@@ -68,11 +68,11 @@
   }
 }
 
-.tsk-module-card {
+.triskelion-toolkit-module-card {
   display: flex;
   align-items: flex-start;
   padding: 25px 15px;
-  border-bottom: 1px solid var(--tsk-bg-side);
+  border-bottom: 1px solid var(--triskelion-toolkit-bg-side);
   gap: 20px;
   transition: background-color 0.2s ease;
   margin: 0 -15px;
@@ -92,7 +92,7 @@
     cursor: not-allowed;
     opacity: 0.8;
 
-    .tsk-switch {
+    .triskelion-toolkit-switch {
       pointer-events: none;
     }
 
@@ -103,7 +103,7 @@
 /* ==========================================================================
    COMPONENT: THE SMART SWITCH
    ========================================================================== */
-.tsk-switch {
+.triskelion-toolkit-switch {
   position: relative;
   display: inline-block;
   width: 44px;
@@ -115,8 +115,8 @@
     width: 0;
     height: 0;
 
-    &:checked + .tsk-slider {
-      background-color: var(--tsk-primary);
+    &:checked + .triskelion-toolkit-slider {
+      background-color: var(--triskelion-toolkit-primary);
 
       &::before {
         transform: translateX(22px);
@@ -124,25 +124,25 @@
     }
 
     /* Accesibilidad: Focus visible */
-    &:focus + .tsk-slider {
-      box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--tsk-primary);
+    &:focus + .triskelion-toolkit-slider {
+      box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--triskelion-toolkit-primary);
     }
 
     /* Estado deshabilitado */
-    &:disabled + .tsk-slider {
-      background-color: var(--tsk-border-color);
+    &:disabled + .triskelion-toolkit-slider {
+      background-color: var(--triskelion-toolkit-border-color);
       filter: grayscale(1);
     }
   }
 }
 
-.tsk-slider {
+.triskelion-toolkit-slider {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: var(--tsk-border-color);
+  background-color: var(--triskelion-toolkit-border-color);
   transition: background-color 0.3s ease;
   border-radius: 22px;
 
@@ -161,18 +161,18 @@
 }
 
 /* --- Pills / Tags --- */
-.tsk-pills {
+.triskelion-toolkit-pills {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin: 10px 0;
 }
 
-.tsk-pill {
+.triskelion-toolkit-pill {
   display: flex;
   align-items: center;
-  background: var(--tsk-admin-pill-bg);
-  color: var(--tsk-admin-pill-text);
+  background: var(--triskelion-toolkit-admin-pill-bg);
+  color: var(--triskelion-toolkit-admin-pill-text);
   padding: 4px 10px;
   border-radius: 4px;
   font-size: 11px;
@@ -183,7 +183,7 @@
     all: unset; // Limpiamos estilos de botón nativo
     margin-left: 8px;
     cursor: pointer;
-    color: var(--tsk-admin-danger);
+    color: var(--triskelion-toolkit-admin-danger);
     font-size: 16px;
     line-height: 1;
     transition: transform 0.2s;
@@ -196,13 +196,13 @@
 }
 
 /* --- Search Group & Results --- */
-.tsk-search-group {
+.triskelion-toolkit-search-group {
   position: relative; // Vital para que los resultados floten correctamente
   width: 100%;
   max-width: 450px;
 }
 
-.tsk-results-list {
+.triskelion-toolkit-results-list {
   position: absolute;
   top: 100%;
   left: 0;
@@ -229,7 +229,7 @@
     }
 
     &:hover {
-      background: var(--tsk-admin-accent);
+      background: var(--triskelion-toolkit-admin-accent);
       color: #fff;
     }
   }

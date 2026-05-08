@@ -2,38 +2,38 @@
  * Estilos específicos para el módulo Code Showcase en el Admin.
  * Aplicamos BEM y CSS Variables para facilitar la "tematización".
  */
-.tsk-code-showcase-preview {
+.triskelion-toolkit-code-showcase-preview {
     /* Variables base: Triskelion Dark por defecto */
-    --tsk-bg: #1e1e1e;
-    --tsk-header: #323232;
-    --tsk-text: #d4d4d4;
-    --tsk-border: rgba(255, 255, 255, 0.1);
+    --triskelion-toolkit-bg: #1e1e1e;
+    --triskelion-toolkit-header: #323232;
+    --triskelion-toolkit-text: #d4d4d4;
+    --triskelion-toolkit-border: rgba(255, 255, 255, 0.1);
 
-    background: var(--tsk-bg);
+    background: var(--triskelion-toolkit-bg);
     border-radius: 8px;
-    border: 1px solid var(--tsk-border);
+    border: 1px solid var(--triskelion-toolkit-border);
     overflow: hidden;
     max-width: 600px;
     margin: 10px 0;
 }
 
 /* Variante de Tema: Monokai */
-.tsk-code-showcase-preview.is-theme-monokai {
-    --tsk-bg: #272822;
-    --tsk-header: #1e1f1c;
-    --tsk-text: #f8f8f2;
-    --tsk-border: rgba(255, 255, 255, 0.05);
+.triskelion-toolkit-code-showcase-preview.is-theme-monokai {
+    --triskelion-toolkit-bg: #272822;
+    --triskelion-toolkit-header: #1e1f1c;
+    --triskelion-toolkit-text: #f8f8f2;
+    --triskelion-toolkit-border: rgba(255, 255, 255, 0.05);
 }
 
-.tsk-window-header {
-    background: var(--tsk-header);
+.triskelion-toolkit-window-header {
+    background: var(--triskelion-toolkit-header);
     padding: 8px 12px;
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-.tsk-dots {
+.triskelion-toolkit-dots {
     display: flex;
     gap: 5px;
 }
@@ -56,9 +56,9 @@
     background: #27c93f;
 }
 
-.tsk-window-content {
+.triskelion-toolkit-window-content {
     padding: 15px;
-    color: var(--tsk-text);
+    color: var(--triskelion-toolkit-text);
     font-family: 'Fira Code', monospace;
     font-size: 13px;
     line-height: 1.4;

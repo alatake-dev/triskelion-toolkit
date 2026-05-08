@@ -5,7 +5,7 @@ namespace Triskelion\TriskelionToolkit\Core\Data;
 use InvalidArgumentException;
 
 class ModuleConfigBuilder {
-	private array $data = [];
+	private array $data = array();
 
 	public function set_id( string $id ): self {
 		$this->data['id'] = $id;
@@ -52,7 +52,7 @@ class ModuleConfigBuilder {
 	public function build(): ModuleConfig {
 		// Validación mínima: si no hay ID o Clase, esto no va a arrancar.
 		if ( empty( $this->data['id'] ) || empty( $this->data['class'] ) ) {
-			throw new InvalidArgumentException( "ModuleConfigBuilder: ID and Class are mandatory." );
+			throw new InvalidArgumentException( 'ModuleConfigBuilder: ID and Class are mandatory.' );
 		}
 
 		return new ModuleConfig(

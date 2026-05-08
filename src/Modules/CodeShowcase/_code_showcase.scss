@@ -1,8 +1,8 @@
-.tsk-mobile-selector {
+.triskelion-toolkit-mobile-selector {
   display: none;
 }
 
-.tsk-code-pane {
+.triskelion-toolkit-code-pane {
   display: none;
 
   &.active {
@@ -11,10 +11,10 @@
 }
 
 @media (max-width: 600px) {
-  .tsk-tabs-wrapper {
+  .triskelion-toolkit-tabs-wrapper {
     display: none !important;
   }
-  .tsk-mobile-selector {
+  .triskelion-toolkit-mobile-selector {
     display: flex !important;
   }
 }

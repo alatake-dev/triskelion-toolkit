@@ -11,11 +11,14 @@
     "lint:php": "docker exec -it triskelion-wp ./vendor/bin/phpcs"
   },
   "devDependencies": {
-    "@wordpress/block-editor": "^15.16.0",
-    "@wordpress/blocks": "^15.16.0",
-    "@wordpress/components": "^32.5.0",
-    "@wordpress/element": "^6.43.0",
-    "@wordpress/i18n": "^6.16.0",
-    "@wordpress/scripts": "^31.8.0"
+    "@wordpress/block-editor": "15.18.0",
+    "@wordpress/blocks": "15.18.0",
+    "@wordpress/components": "32.6.0",
+    "@wordpress/element": "6.45.0",
+    "@wordpress/i18n": "6.18.0",
+    "@wordpress/scripts": "31.8.0"
+  },
+  "overrides": {
+
   }
 }
