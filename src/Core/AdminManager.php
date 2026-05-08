@@ -5,152 +5,184 @@ namespace Triskelion\TriskelionToolkit\Core;
 use Triskelion\TriskelionToolkit\Core\Bridge\WpBridge;
 use Triskelion\TriskelionToolkit\Core\Data\ModuleCollection;
 use Triskelion\TriskelionToolkit\Core\Interfaces\HasSettingsInterface;
+use Triskelion\TriskelionToolkit\Core\Interfaces\RegistrableModuleInterface;
 
+/**
+ * Class AdminManager
+ *
+ * Orchestrates the administration interface, including navigation tabs,
+ * security verification, and module-specific settings rendering.
+ *
+ * @package Triskelion\TriskelionToolkit\Core
+ */
 class AdminManager {
-	private ModuleCollection $modules;
-	private array $active_loaders;
+    /** @var ModuleCollection Registry of all available module configurations. */
+    private ModuleCollection $modules;
 
-	private WpBridge $wp;
+    /** @var array<string, object> Instances of currently active module loaders. */
+    private array $active_loaders;
 
-	public function __construct( ModuleCollection $modules, array $active_loaders ) {
-		$this->modules        = $modules;
-		$this->active_loaders = $active_loaders;
-		$this->wp             = new WpBridge();
-	}
+    /** @var WpBridge Bridge for decoupled WordPress core functionality. */
+    private WpBridge $wp;
 
-	public function init(): void {
-		if ( ! $this->wp->security->current_user_can( 'manage_options' ) ) {
-			return;
-		}
-		$this->wp->hooks->add_action( 'admin_menu', array( $this, 'add_toolkit_menu' ) );
+    /**
+     * AdminManager constructor.
+     *
+     * @param ModuleCollection $modules
+     * @param array            $active_loaders
+     */
+    public function __construct( ModuleCollection $modules, array $active_loaders ) {
+        $this->modules        = $modules;
+        $this->active_loaders = $active_loaders;
+        $this->wp             = new WpBridge();
+    }
 
-		$this->wp->hooks->add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
+    /**
+     * Renders the main administration layout.
+     *
+     * @return void
+     */
+    public function render_layout(): void {
+        $final_menu  = $this->get_navigation_menu();
+        $current_tab = $this->get_current_tab( $final_menu );
+        $module      = $final_menu[ $current_tab ] ?? null;
 
-		$basename = plugin_basename( TRISKELION_TOOLKIT_FILE );
-		$this->wp->hooks->add_filter( "plugin_action_links_$basename", array( $this, 'add_settings_link' ) );
-		$this->wp->hooks->add_action( 'admin_init', array( $this, 'trigger_module_settings' ) );
-		$this->wp->hooks->add_filter( 'block_categories_all', array( $this, 'add_block_categories' ) );
-	}
+        if ( ! ( $module instanceof HasSettingsInterface ) ) {
+            return;
+        }
 
+        $config = $module::get_config();
+        $i18n   = ( $module instanceof RegistrableModuleInterface ) ? $module::i18n_config() : (array) $config;
+        $group  = "triskelion_toolkit_{$config->id}_group";
 
-	/**
-	 * Adds the Triskelion category to the Gutenberg block editor.
-	 *
-	 * @param array<int, array<string, string>> $categories Existing block categories.
-	 * @return array<int, array<string, string>> Filtered block categories.
-	 */
-	public function add_block_categories( array $categories ): array {
-		return array_merge(
-			$categories,
-			array(
-				array(
-					'slug'  => 'triskelion',
-					'title' => __( 'Triskelion', 'triskelion-toolkit' ),
-					'icon'  => 'admin-generic',
-				),
-			)
-		);
-	}
+        $this->maybe_validate_nonce( $group );
+        ?>
+        <div class="wrap triskelion-toolkit-admin-page">
+            <div class="triskelion-toolkit-admin-layout">
+                <?php $this->render_navigation( $final_menu, $current_tab ); ?>
 
-	public function trigger_module_settings(): void {
-		foreach ( $this->active_loaders as $module ) {
-			if ( $module instanceof HasSettingsInterface ) {
-				$module->register_module_settings();
-			}
-		}
-	}
+                <main class="triskelion-toolkit-admin-main">
+                    <h1><?php echo esc_html( $i18n['name'] ); ?></h1>
+                    <p class="description"><?php echo esc_html( $i18n['description'] ); ?></p>
 
-	public function enqueue_admin_assets( $hook ): void {
-		if ( 'tools_page_triskelion-toolkit' !== $hook ) {
-			return;
-		}
+                    <?php $this->render_messages( $group ); ?>
 
-		wp_enqueue_style(
-			'triskelion-toolkit-admin-layout',
-			plugin_dir_url( TRISKELION_TOOLKIT_FILE ) . 'build/admin-layout.css',
-			array(),
-			'1.0.0'
-		);
-	}
+                    <div id="triskelion-module-<?php echo esc_attr( $config->id ); ?>" class="triskelion-module-wrapper">
+                        <?php
+                        $this->render_form_section( $module, $group );
+                        echo $module->render_outside_form();
+                        ?>
+                    </div>
+                </main>
+            </div>
+        </div>
+        <?php
+    }
 
-	public function add_settings_link( $links ) {
-		$settings_link = '<a href="admin.php?page=triskelion-toolkit">' . __( 'Settings', 'triskelion-toolkit' ) . '</a>';
-		array_unshift( $links, $settings_link );
-		return $links;
-	}
+    /**
+     * Renders the module form and security fields.
+     *
+     * @param HasSettingsInterface $module The active module.
+     * @param string               $group  The settings group.
+     * @return void
+     */
+    private function render_form_section( HasSettingsInterface $module, string $group ): void {
+        $form_content = $module->render_inside_form();
+        if ( empty( $form_content ) ) {
+            return;
+        }
 
-	public function add_toolkit_menu(): void {
-		$this->wp->menu->add_submenu_page(
-			'tools.php',
-			esc_html__( 'Triskelion Toolkit', 'triskelion-toolkit' ),
-			esc_html__( 'Triskelion Toolkit', 'triskelion-toolkit' ),
-			'manage_options',
-			'triskelion-toolkit',
-			array( $this, 'render_layout' )
-		);
-	}
+        echo '<form method="post" action="options.php" class="triskelion-toolkit-form">';
+        $this->wp->security->settings_fields( $group );
+        $this->wp->security->nonce_field( $group, '_triskelion_nonce' );
 
-	/**
-	 * Sets the WordPress Bridge instance.
-	 *
-	 * This setter allows for injecting a mock or a specific instance of the WpBridge,
-	 * which is essential for decoupling the manager from global WordPress functions
-	 * during unit testing.
-	 *
-	 * @param WpBridge $wp The WordPress Bridge instance.
-	 * @since 1.0.0
-	 */
-	public function set_wp( WpBridge $wp ): void {
-		$this->wp = $wp;
-	}
+        echo $form_content;
 
-	public function render_layout(): void {
-		$active_instances = $this->active_loaders;
+        submit_button();
+        echo '</form>';
+    }
 
-		$sorted_configs = $this->modules->get_all_sorted();
+    /**
+     * Validates the security nonce for POST requests.
+     *
+     * @param string $group_action
+     * @return void
+     */
+    private function maybe_validate_nonce( string $group_action ): void {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing
+        if ( 'POST' !== ( $_SERVER['REQUEST_METHOD'] ?? '' ) ) {
+            return;
+        }
 
-		$final_menu = array();
-		foreach ( $sorted_configs as $id => $config ) {
-			if ( isset( $active_instances[ $id ] ) ) {
-				$final_menu[ $id ] = $active_instances[ $id ];
-			}
-		}
+        if ( ! $this->wp->security->check_admin_referer( $group_action, '_triskelion_nonce' ) ) {
+            $this->wp->security->wp_die( esc_html__( 'Security check failed.', 'triskelion-toolkit' ) );
+        }
+    }
 
-		$current_tab = $_GET['tab'] ?? 'general_settings';
-		?>
-		<div class="wrap triskelion-toolkit-admin-page">
-			<div class="triskelion-toolkit-admin-layout">
-				<nav class="triskelion-toolkit-admin-nav">
-					<?php
-					foreach ( $final_menu as $id => $obj ) :
-						if ( ! ( $obj instanceof HasSettingsInterface ) ) {
-							continue;
-						}
+    /**
+     * Resolves the navigation menu based on active and sorted modules.
+     *
+     * @return array<string, object>
+     */
+    private function get_navigation_menu(): array {
+        $sorted_configs = $this->modules->get_all_sorted();
+        $final_menu     = array();
 
-						$config = $obj::get_config();
+        foreach ( $sorted_configs as $id => $config ) {
+            if ( isset( $this->active_loaders[ $id ] ) ) {
+                $final_menu[ $id ] = $this->active_loaders[ $id ];
+            }
+        }
 
-						$active_class = ( $current_tab === $id ) ? ' active' : '';
-						?>
-						<a href="?page=triskelion-toolkit&tab=<?php echo esc_attr( $id ); ?>"
-							class="triskelion-toolkit-tab-link<?php echo $active_class; ?>">
-							<?php echo esc_html( __( $config->name, 'triskelion-toolkit' ) ); ?>
-						</a>
-					<?php endforeach; ?>
-				</nav>
+        return $final_menu;
+    }
 
-				<main class="triskelion-toolkit-admin-main">
-					<?php
-					settings_errors( 'triskelion_toolkit_showcase_settings' );
-					$current_module = $final_menu[ $current_tab ] ?? null;
-					if ( $current_module instanceof HasSettingsInterface ) {
-						echo $current_module->render_settings();
-					} else {
-						echo '<div class="notice notice-error"><p>' . esc_html__( 'Module not available or without settings.', 'triskelion-toolkit' ) . '</p></div>';
-					}
-					?>
-				</main>
-			</div>
-		</div>
-		<?php
-	}
+    /**
+     * Gets the current sanitized tab or default.
+     *
+     * @param array $menu Valid menu items.
+     * @return string
+     */
+    private function get_current_tab( array $menu ): string {
+        $tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'general_settings';
+        return isset( $menu[ $tab ] ) ? $tab : (string) key( $menu );
+    }
+
+    /**
+     * Renders the sidebar navigation.
+     *
+     * @param array  $menu
+     * @param string $current_tab
+     * @return void
+     */
+    private function render_navigation( array $menu, string $current_tab ): void {
+        ?>
+        <nav class="triskelion-toolkit-admin-nav">
+            <?php
+            foreach ( $menu as $id => $obj ) :
+                $config = $obj::get_config();
+                $i18n   = ( $obj instanceof RegistrableModuleInterface ) ? $obj::i18n_config() : (array) $config;
+                $active = ( $current_tab === $id ) ? ' active' : '';
+                ?>
+                <a href="?page=triskelion-toolkit&tab=<?php echo esc_attr( $id ); ?>"
+                   class="triskelion-toolkit-tab-link<?php echo esc_attr( $active ); ?>">
+                    <?php echo esc_html( $i18n['name'] ); ?>
+                </a>
+            <?php endforeach; ?>
+        </nav>
+        <?php
+    }
+
+    /**
+     * Triggers the display of settings errors.
+     *
+     * @param string $group
+     * @return void
+     */
+    private function render_messages( string $group ): void {
+        if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] ) {
+            add_settings_error( $group, 'settings_updated', __( 'Settings saved.', 'triskelion-toolkit' ), 'updated' );
+        }
+        settings_errors( $group );
+    }
 }

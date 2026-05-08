@@ -70,16 +70,14 @@ class ModuleConfigBuilder {
 		return $this;
 	}
 
-	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	/**
 	 * Sets the loader class name.
 	 *
-	 * @param string $class Fully Qualified Class Name.
+	 * @param string $clazz Fully Qualified Class Name.
 	 * @return self
 	 */
-	public function set_class( string $class ): self {
-		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$this->data['class'] = $class;
+	public function set_clazz( string $clazz ): self {
+		$this->data['clazz'] = $clazz;
 
 		return $this;
 	}
@@ -122,6 +120,7 @@ class ModuleConfigBuilder {
 		return $this;
 	}
 
+
 	/**
 	 * Validates and constructs the ModuleConfig object.
 	 *
@@ -131,7 +130,7 @@ class ModuleConfigBuilder {
 	 */
 	public function build(): ModuleConfig {
 		// Validación mínima: si no hay ID o Clase, esto no va a arrancar.
-		if ( empty( $this->data['id'] ) || empty( $this->data['class'] ) ) {
+		if ( empty( $this->data['id'] ) || empty( $this->data['clazz'] ) ) {
 			throw new InvalidArgumentException( 'ModuleConfigBuilder: ID and Class are mandatory.' );
 		}
 
@@ -139,10 +138,11 @@ class ModuleConfigBuilder {
 			id: $this->data['id'],
 			name: $this->data['name'] ?? $this->data['id'],
 			description: $this->data['description'] ?? '',
-			class: $this->data['class'],
+			clazz: $this->data['clazz'],
 			priority: $this->data['priority'] ?? 500,
 			is_core: $this->data['is_core'] ?? false,
-			icon: $this->data['icon'] ?? 'dashicons-admin-generic'
+			icon: $this->data['icon'] ?? 'dashicons-admin-generic',
+			settings_group: 'triskelion_toolkit_' . $this->data['id'] . '_group'
 		);
 	}
 }

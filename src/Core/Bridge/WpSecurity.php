@@ -61,4 +61,52 @@ class WpSecurity extends AbstractWpBridge {
 		}
 		return is_admin();
 	}
+
+	/**
+	 * Renders or returns a nonce HTML form field.
+	 *
+	 * Used to prevent Cross-Site Request Forgery (CSRF) attacks. When the
+	 * TRISKELION_TOOLKIT_WP_DISABLED constant is true, it returns a mock hidden field.
+	 *
+	 * @see https://developer.wordpress.org/reference/functions/wp_nonce_field/
+	 *
+	 * @param string|int $action  Optional. Action name. Default -1.
+	 * @param string     $name    Optional. Nonce name. Default '_wpnonce'.
+	 * @param bool       $referrer Optional. Whether to set the referrer field for validation. Default true.
+	 * @param bool       $echo     Optional. Whether to display or return hidden form field. Default true.
+	 * @return string The nonce native HTML form field or mock if WP is disabled.
+	 */
+	public function nonce_field( $action = -1, string $name = '_wpnonce', bool $referrer = true, bool $echo = true ): string {
+		if ( $this->is_wp_disabled() ) {
+			$mock = '<input type="hidden" name="' . esc_attr( $name ) . '" value="mock_nonce" />';
+			if ( $echo ) {
+				echo $mock; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			}
+			return $mock;
+		}
+
+		return wp_nonce_field( $action, $name, $referrer, $echo );
+	}
+
+	/**
+	 * Outputs nonce, action, and option_page fields for a settings page.
+	 *
+	 * This is a wrapper for the native WordPress settings_fields function.
+	 * When the TRISKELION_TOOLKIT_WP_DISABLED constant is true, it renders
+	 * a mock hidden field for testing purposes.
+	 *
+	 * @see https://developer.wordpress.org/reference/functions/settings_fields/
+	 *
+	 * @param string $option_group A settings group name. This should match the
+	 * group name used in register_setting().
+	 * @return void
+	 */
+	public function settings_fields( string $option_group ): void {
+		if ( $this->is_wp_disabled() ) {
+			echo '<input type="hidden" name="option_page" value="' . esc_attr( $option_group ) . '" />';
+			return;
+		}
+
+		settings_fields( $option_group );
+	}
 }

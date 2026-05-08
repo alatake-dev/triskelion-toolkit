@@ -39,11 +39,25 @@ interface HasSettingsInterface {
 	 * @since 1.0.0
 	 */
 	public function sanitize_module_settings( $input ): array;
+
 	/**
-	 * Renders the settings HTML for the module's tab.
+	 * Returns the HTML content to be placed inside the main module form.
 	 *
-	 * @return string HTML content to be displayed.
-	 * @since 1.0.0
+	 * The AdminManager will automatically wrap this content in a <form> tag,
+	 * injecting the necessary security nonces, settings fields, and the submit button.
+	 * If this returns an empty string, the form container will not be rendered.
+	 *
+	 * @return string The HTML internal form fields.
 	 */
-	public function render_settings(): string;
+	public function render_inside_form(): string;
+
+	/**
+	 * Returns the HTML content to be rendered outside of the main form.
+	 *
+	 * This is ideal for status displays, logs, previews, or any information
+	 * that should not be sent as part of the settings POST request.
+	 *
+	 * @return string The HTML content for the external display area.
+	 */
+	public function render_outside_form(): string;
 }
