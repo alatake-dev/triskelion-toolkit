@@ -3,11 +3,9 @@
  * Manejo de Tabs, Selector Móvil y Portapapeles.
  */
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Buscamos el bloque raíz con el nuevo nombre BEM
     const showcases = document.querySelectorAll('.triskelion-toolkit-code-showcase');
 
     showcases.forEach(container => {
-        // 2. Mapeo de elementos usando la nueva nomenclatura __
         const tabs = container.querySelectorAll('.triskelion-toolkit-code-showcase__tab');
         const panes = container.querySelectorAll('.triskelion-toolkit-code-showcase__pane');
         const copyBtn = container.querySelector('.triskelion-toolkit-code-showcase__copy');
@@ -58,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (copyBtn) {
             copyBtn.addEventListener('click', () => {
-                const pane = document.querySelector('.triskelion-toolkit-code-showcase__pane.is-active code');
+                const pane = container.querySelector('.triskelion-toolkit-code-showcase__pane.is-active code');
                 const originalSVG = copyBtn.innerHTML;
                 const checkSVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#27c93f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
 

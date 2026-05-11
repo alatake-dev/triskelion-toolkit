@@ -40,11 +40,11 @@ class WpBridge {
 	public WpSecurity $security;
 
 	/**
-	 * Hooks wrapper.
+	 * Events wrapper (hooks, filters, etc.).
 	 *
-	 * @var WpHooks
+	 * @var WpEvents
 	 */
-	public WpHooks $hooks;
+	public WpEvents $events;
 
 	/**
 	 * WpBridge constructor.
@@ -53,7 +53,7 @@ class WpBridge {
 		$this->menu     = new WpMenu();
 		$this->settings = new WpSettings();
 		$this->security = new WpSecurity();
-		$this->hooks    = new WpHooks();
+		$this->events   = new WpEvents();
 	}
 
 	/**
@@ -94,12 +94,12 @@ class WpBridge {
 	/**
 	 * Sets the Hooks wrapper instance.
 	 *
-	 * @param WpHooks $hooks Hooks wrapper instance.
+	 * @param WpEvents $events Hooks wrapper instance.
 	 *
 	 * @return self
 	 */
-	public function set_hooks( WpHooks $hooks ): self {
-		$this->hooks = $hooks;
+	public function set_events( WpEvents $events ): self {
+		$this->events = $events;
 		return $this;
 	}
 }

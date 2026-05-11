@@ -1,4 +1,11 @@
 <?php
+/**
+ * Code Showcase Module Loader.
+ *
+ * @package    Triskelion\TriskelionToolkit
+ * @subpackage Modules\CodeShowcase
+ * @since      1.0.0
+ */
 
 namespace Triskelion\TriskelionToolkit\Modules\CodeShowcase;
 
@@ -8,136 +15,219 @@ use Triskelion\TriskelionToolkit\Core\Data\ModuleConfig;
 use Triskelion\TriskelionToolkit\Core\Data\ModuleConfigBuilder;
 use Triskelion\TriskelionToolkit\Core\Interfaces\HasSettingsInterface;
 use Triskelion\TriskelionToolkit\Core\Interfaces\RegistrableModuleInterface;
+use Triskelion\TriskelionToolkit\Core\Logger;
 
+/**
+ * Class CodeShowcaseLoader
+ *
+ * Orchestrates the "Code Showcase" block, handling Gutenberg block registration,
+ * server-side rendering with syntax highlighting, and admin configuration.
+ *
+ * @package Triskelion\TriskelionToolkit\Modules\CodeShowcase
+ */
 class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInterface, HasSettingsInterface {
 
+	/**
+	 * Defines the module configuration using the standardized builder.
+	 *
+	 * @return ModuleConfig
+	 */
 	public static function get_config(): ModuleConfig {
 		return ( new ModuleConfigBuilder() )
 				->set_id( 'code_showcase' )
 				->set_name( 'Code Showcase' )
 				->set_description( 'Display code snippets with a premium macOS terminal aesthetic.' )
-				->set_class( self::class )
+				->set_clazz( self::class )
 				->set_priority( 100 )
 				->set_is_core( false )
 				->set_icon( 'dashicons-rest-api' )
 				->build();
 	}
 
+	/**
+	 * Enqueues administrative assets specifically for the toolkit's dashboard.
+	 *
+	 * Restricts the loading of inventory scripts and styles to the toolkit's
+	 * custom pages to prevent asset pollution across the WordPress admin area.
+	 * Utilizes filemtime for robust cache busting during development cycles.
+	 *
+	 * @param string $hook The current administrative page hook.
+	 *
+	 * @return void
+	 */
 	public function enqueue_admin_assets( $hook ): void {
 		if ( ! str_contains( $hook, 'triskelion-toolkit' ) ) {
 			return;
 		}
+		$build_path = TRISKELION_TOOLKIT_PATH . 'build/Modules/CodeShowcase/';
+		$src_path   = TRISKELION_TOOLKIT_PATH . 'src/Modules/CodeShowcase/';
 
-		$js_path = 'src/Modules/CodeShowcase/assets/admin-inventory.js';
-		wp_enqueue_script( 'triskelion-toolkit-admin-inventory', TRISKELION_TOOLKIT_URL . $js_path, array(), filemtime( TRISKELION_TOOLKIT_PATH . $js_path ), true );
-		wp_enqueue_style( 'triskelion-toolkit-showcase-admin-styles', TRISKELION_TOOLKIT_URL . 'src/Modules/CodeShowcase/assets/admin-module.css', array(), '1.0.0' );
-		wp_enqueue_style( 'triskelion-toolkit-showcase-hljs-styles', TRISKELION_TOOLKIT_URL . 'src/Modules/CodeShowcase/assets/syntax-highlighting.css', array(), '1.0.0' );
+		$build_url = TRISKELION_TOOLKIT_URL . 'build/Modules/CodeShowcase/';
+		$src_url   = TRISKELION_TOOLKIT_URL . 'src/Modules/CodeShowcase/';
+		$this->wp->events->enqueue_style(
+			'triskelion-toolkit-showcase-admin-styles',
+			$src_url . 'assets/admin-module.css',
+			array(),
+			filemtime( $src_path . 'assets/admin-module.css' )
+		);
+		$this->wp->events->enqueue_style(
+			'triskelion-toolkit-showcase-hljs-styles',
+			$src_url . 'assets/syntax-highlighting.css',
+			array(),
+			filemtime( $src_path . 'assets/syntax-highlighting.css' )
+		);
+		$this->wp->events->enqueue_style(
+			'triskelion-toolkit-admin-showcase-console',
+			$build_url . 'style-index.css',
+			array(),
+			filemtime( $build_path . 'style-index.css' )
+		);
 
-		$json = TRISKELION_TOOLKIT_PATH . 'src/Modules/CodeShowcase/assets/languages.json';
+		$json              = $src_path . 'assets/languages.json';
+		$inventory_handler = 'triskelion-toolkit-admin-inventory';
+		$this->wp->events->enqueue_script(
+			$inventory_handler,
+			$src_url . 'assets/admin-inventory.js',
+			array(),
+			filemtime( $src_path . 'assets/admin-inventory.js' ),
+			true
+		);
 		if ( file_exists( $json ) ) {
-			wp_localize_script(
-				'triskelion-toolkit-admin-inventory',
+			$this->wp->events->localize_script(
+				$inventory_handler,
 				'triskelionToolkitInventoryData',
 				array(
-					'allLanguages' => json_decode( file_get_contents( $json ), true ) ?: array( 'php', 'javascript' ),
+					'allLanguages' => json_decode( file_get_contents( $json ), true ) ?: array(
+						'php',
+						'javascript',
+					),
 				)
 			);
 		}
 	}
 
-	public function render_settings(): string {
-		if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] ) {
-			add_settings_error( 'triskelion_showcase_group', 'settings_updated', __( 'Settings saved.', 'triskelion-toolkit' ), 'updated' );
-		}
+	/**
+	 * Renders the global configuration inside the Admin Manager form.
+	 *
+	 * @return string HTML content for the settings tab.
+	 */
+	public function render_inside_form(): string {
 		$settings    = $this->get_settings();
 		$theme       = $settings['active_theme'];
 		$themes_data = $this->get_themes_config();
 		ob_start(); ?>
-		<h1><?php echo self::i18n_config()['name']; ?></h1>
-		<p class="description"><?php echo self::i18n_config()['description']; ?></p>
-
-		<div class="wrap triskelion-toolkit-settings-container">
-			<?php settings_errors( 'triskelion_showcase_group' ); ?>
-
-			<?php echo $this->get_theme_inline_css( $theme, true ); ?>
-			<h2><?php esc_html_e( 'Code Showcase Configuration', 'triskelion-toolkit' ); ?></h2>
-			<form action="options.php" method="post">
-				<?php settings_fields( 'triskelion_showcase_group' ); ?>
-				<table class="form-table">
-					<tr>
-						<th scope="row"><?php esc_html_e( 'Theme', 'triskelion-toolkit' ); ?> </th>
-						<td>
-							<select name="triskelion_toolkit_showcase_settings[active_theme]">
-								<?php foreach ( $themes_data as $id => $data ) : ?>
-									<option value="<?php echo esc_attr( $id ); ?>" <?php selected( $theme, $id ); ?>>
-										<?php echo esc_html( $data['label'] ); ?>
-									</option>
-								<?php endforeach; ?>
-							</select>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><?php esc_html_e( 'Preview View', 'triskelion-toolkit' ); ?></th>
-						<td>
-							<div class="triskelion-toolkit-code-showcase-preview is-theme-<?php echo esc_attr( $theme ); ?>">
-								<div class="triskelion-toolkit-window-header">
-									<div class="triskelion-toolkit-dots"><span class="dot red"></span><span
-												class="dot yellow"></span><span
-												class="dot green"></span></div>
-									<div class="triskelion-toolkit-tabs">
-										<div class="triskelion-toolkit-tab is-active">preview.php</div>
-									</div>
+		<?php echo $this->get_theme_inline_css( $theme, true ); ?>
+		<table class="form-table">
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Theme', 'triskelion-toolkit' ); ?> </th>
+				<td>
+					<select name="triskelion_toolkit_showcase_settings[active_theme]">
+						<?php foreach ( $themes_data as $id => $data ) : ?>
+							<option value="<?php echo esc_attr( $id ); ?>" <?php selected( $theme, $id ); ?>>
+								<?php echo esc_html( $data['label'] ); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Preview View', 'triskelion-toolkit' ); ?></th>
+				<td>
+					<div class="is-admin-preview">
+						<div class="triskelion-toolkit-code-showcase-preview is-theme-<?php echo esc_attr( $theme ); ?>">
+							<div class="triskelion-toolkit-window-header">
+								<div class="triskelion-toolkit-dots"><span class="dot red"></span><span
+											class="dot yellow"></span><span
+											class="dot green"></span></div>
+								<div class="triskelion-toolkit-tabs">
+									<div class="triskelion-toolkit-tab is-active">preview.php</div>
 								</div>
-								<div class="triskelion-toolkit-window-content">
-								<pre><code class="hljs php">
+							</div>
+							<div class="triskelion-toolkit-window-content">
 								<?php
-										$hl = new Highlighter();
-										echo $hl->highlight( 'php', "function hello() {\n    echo 'Triskelion Power';\n}" )->value;
+								$hl             = new Highlighter();
+								$processed_code = $hl->highlight(
+									'php',
+									"function hello() {\n    echo 'Triskelion Power';\n    echo 'Triskelion Power, probanding extra long text, only for view the horizontal scrollbar..... 34r34 314431 dsafdsgsd dfgrfewqfethetyhtywreghtyhg ergwrtg werf ';\n}"
+								)->value;
 								?>
-										</code></pre>
-								</div>
+								<pre><code class="hljs php"><?php echo trim( $processed_code ); ?></code></pre>
 							</div>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><?php esc_html_e( 'Languages inventory', 'triskelion-toolkit' ); ?></th>
-						<td>
-							<div class="triskelion-toolkit-search-group">
-								<input type="text" id="triskelion-toolkit-lang-finder"
-										placeholder="<?php echo esc_attr__( 'Add language...', 'triskelion-toolkit' ); ?>"
-										class="regular-text">
-								<ul id="triskelion-toolkit-search-results" class="triskelion-toolkit-results-list" hidden></ul>
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Languages inventory', 'triskelion-toolkit' ); ?></th>
+				<td>
+					<div class="triskelion-toolkit-search-group">
+						<input type="text" id="triskelion-toolkit-lang-finder"
+								placeholder="<?php echo esc_attr__( 'Add language...', 'triskelion-toolkit' ); ?>"
+								class="regular-text">
+						<ul id="triskelion-toolkit-search-results" class="triskelion-toolkit-results-list" hidden></ul>
 
+					</div>
+					<div class="triskelion-toolkit-pills" id="triskelion-toolkit-active-langs">
+						<?php foreach ( $settings['active_languages'] as $lang ) : ?>
+							<div class="triskelion-toolkit-pill">
+								<span><?php echo strtoupper( $lang ); ?></span>
+								<input type="hidden" name="triskelion_toolkit_showcase_settings[active_languages][]"
+										value="<?php echo $lang; ?>">
+								<button type="button" class="triskelion-toolkit-pill__remove">&times;</button>
 							</div>
-							<div class="triskelion-toolkit-pills" id="triskelion-toolkit-active-langs">
-								<?php foreach ( $settings['active_languages'] as $lang ) : ?>
-									<div class="triskelion-toolkit-pill">
-										<span><?php echo strtoupper( $lang ); ?></span>
-										<input type="hidden" name="triskelion_toolkit_showcase_settings[active_languages][]"
-												value="<?php echo $lang; ?>">
-										<button type="button" class="triskelion-toolkit-pill__remove">&times;</button>
-									</div>
-								<?php endforeach; ?>
-							</div>
-						</td>
-					</tr>
-				</table>
-				<?php submit_button(); ?>
-			</form>
-		</div>
+						<?php endforeach; ?>
+					</div>
+				</td>
+			</tr>
+		</table>
 		<?php
 		return ob_get_clean();
 	}
 
+	/**
+	 * Renders an empty string as Showcase doesn't require outside elements in Admin.
+	 *
+	 * @return string
+	 */
+	public function render_outside_form(): string {
+		return '';
+	}
+
+	/**
+	 * Retrieves and merges module settings with hardcoded system defaults.
+	 *
+	 * Acts as the single source of truth for the Code Showcase configuration.
+	 * It utilizes wp_parse_args to perform a recursive-like merge between
+	 * the stored database options and the safety defaults, ensuring that
+	 * the Gutenberg editor always has a valid inventory of languages and themes
+	 * even if the settings have not been formally saved by the user.
+	 *
+	 * @return array{active_theme: string, active_languages: string[]}
+	 * The consolidated settings containing:
+	 * - active_theme: The identifier for the current syntax highlighter theme.
+	 * - active_languages: Array of slugs for the supported programming languages.
+	 */
 	private function get_settings(): array {
 		$defaults = array(
 			'active_theme'     => 'triskelion-dark',
-			'active_languages' => array( 'php', 'javascript', 'css', 'html', 'json', 'sql' ),
+			'active_languages' => array( 'css', 'html', 'javascript', 'json', 'php', 'sql' ),
 		);
 
-		return wp_parse_args( get_option( 'triskelion_toolkit_showcase_settings', array() ), $defaults );
+		return $this->wp->settings->parse_args(
+			$this->wp->settings->get_option( 'triskelion_toolkit_showcase_settings', array() ),
+			$defaults
+		);
 	}
 
+	/**
+	 * Returns the configuration manifest for available terminal syntax themes.
+	 * * Defines a curated inventory of color schemes for the code console,
+	 * providing the technical mapping between theme identifiers and their
+	 * human-readable labels. This manifest serves as the primary data source
+	 * for the block editor's theme selector and the frontend's CSS class resolution.
+	 *
+	 * @return array{id: string, name: string}[] A collection of theme definitions.
+	 */
 	private function get_themes_config(): array {
 		return array(
 			'triskelion-dark' => array(
@@ -176,6 +266,11 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
 		);
 	}
 
+	/**
+	 * Returns the internationalization configuration.
+	 *
+	 * @return array{name: string, description: string}
+	 */
 	public static function i18n_config(): array {
 		return array(
 			'name'        => __( 'Code Showcase', 'triskelion-toolkit' ),
@@ -183,6 +278,20 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
 		);
 	}
 
+	/**
+	 * Generates dynamic inline CSS variables based on the selected syntax theme.
+	 *
+	 * This method acts as a bridge between the module's settings and the frontend/editor
+	 * styling. It injects specific CSS Custom Properties (Variables) that override
+	 * the default terminal colors. When $is_admin is true, the selector is scoped
+	 * to the Gutenberg editor container to ensure a consistent WYSIWYG experience
+	 * without bleeding styles into the rest of the WordPress dashboard.
+	 *
+	 * @param string $active_theme The identifier of the theme (e.g., 'triskelion-dark').
+	 * @param bool   $is_admin Whether to target the editor's preview container.
+	 *
+	 * @return string A sanitized string of CSS custom properties.
+	 */
 	private function get_theme_inline_css( $active_theme, $is_admin = false ): string {
 		$themes_config = $this->get_themes_config();
 		$css           = '';
@@ -192,35 +301,44 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
 			$vars = $themes_config[ $id ];
 			$css .= ".is-theme-$id { ";
 			foreach ( $vars as $var => $val ) {
-				if ( $var === 'label' ) {
+				if ( 'label' === $var ) {
 					continue;
 				}
 				$css .= "$var: $val; ";
 			}
 			$css .= "}\n";
 
-			// Cadenas y documentación especial
+			// Cadenas y documentación especial.
 			$css .= ".is-theme-<$id> .hljs-string, .is-theme-$id .hljs-doctag, .is-theme-$id .hljs-regexp { color: var(--triskelion-toolkit-syntax-string) !important; }\n";
 
-			// Palabras reservadas y tipos de sistema
+			// Palabras reservadas y tipos de sistema.
 			$css .= ".is-theme-$id .hljs-keyword, .is-theme-$id .hljs-selector-tag, .is-theme-$id .hljs-built_in, .is-theme-$id .hljs-type { color: var(--triskelion-toolkit-syntax-keyword) !important; font-weight: bold !important; }\n";
 
-			// Comentarios y citas
+			// Comentarios y citas.
 			$css .= ".is-theme-$id .hljs-comment, .is-theme-$id .hljs-quote { color: var(--triskelion-toolkit-syntax-comment) !important; font-style: italic !important; }\n";
 
-			// Números y constantes literales
+			// Números y constantes literales.
 			$css .= ".is-theme-$id .hljs-number, .is-theme-$id .hljs-literal { color: var(--triskelion-toolkit-syntax-number) !important; }\n";
 
-			// Funciones, clases y títulos de sección
+			// Funciones, clases y títulos de sección.
 			$css .= ".is-theme-$id .hljs-function, .is-theme-$id .hljs-title, .is-theme-$id .hljs-title.function_, .is-theme-$id .hljs-title.class_, .is-theme-$id .hljs-section { color: var(--triskelion-toolkit-syntax-function) !important; }\n";
 
-			// Atributos y variables (si quieres diferenciarlos, si no, usa el color de texto base)
+			// Atributos y variables (si quieres diferenciarlos, si no, usa el color de texto base).
 			$css .= ".is-theme-$id .hljs-attr, .is-theme-$id .hljs-variable, .is-theme-$id .hljs-template-variable { color: var(--triskelion-toolkit-syntax-number); }\n";
 		}
 
 		return "<style>$css</style>";
 	}
 
+	/**
+	 * Server-side render callback for the Gutenberg block.
+	 * * Implements Highlighter for performance and security, ensuring
+	 * the macOS terminal aesthetic is maintained.
+	 *
+	 * @param array $attributes Block attributes from Gutenberg.
+	 *
+	 * @return string Final Block HTML.
+	 */
 	public function render_frontend( $attributes ): string {
 		$settings = $this->get_settings();
 		$theme    = $settings['active_theme'];
@@ -275,6 +393,11 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
 		return ob_get_clean();
 	}
 
+	/**
+	 * Registers the Gutenberg block using the block.json metadata.
+	 *
+	 * @return void
+	 */
 	public function register_showcase_block(): void {
 		$path = TRISKELION_TOOLKIT_PATH . 'build/Modules/CodeShowcase';
 		if ( file_exists( $path . '/block.json' ) ) {
@@ -288,6 +411,11 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
 		}
 	}
 
+	/**
+	 * Injects dynamic settings into the block editor for the Showcase inventory.
+	 *
+	 * @return void
+	 */
 	public function enqueue_block_assets(): void {
 		$s = $this->get_settings();
 		wp_localize_script(
@@ -300,9 +428,14 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
 		);
 	}
 
+	/**
+	 * Registers the settings in the WordPress Database.
+	 *
+	 * @return void
+	 */
 	public function register_module_settings(): void {
 		register_setting(
-			'triskelion_showcase_group',
+			$this->get_config()->settings_group,
 			'triskelion_toolkit_showcase_settings',
 			array(
 				'type'              => 'object',
@@ -315,13 +448,39 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
 		);
 	}
 
+	/**
+	 * Sanitizes and validates the module configuration array.
+	 *
+	 * Implements a strict whitelist validation pattern for the Showcase settings.
+	 * It ensures that the 'active_theme' matches a registered theme identifier
+	 * and that 'active_languages' contains only valid, slug-compatible strings.
+	 * This method prevents the persistence of malformed data or unauthorized
+	 * language keys that could break the Highlighter execution or the
+	 * Gutenberg block editor's state.
+	 *
+	 * @param mixed $input The raw data array submitted from the admin form.
+	 *
+	 * @return array{active_theme: string, active_languages: string[]} Sanitized configuration.
+	 */
 	public function sanitize_module_settings( $input ): array {
+
+		$active_languages = ( isset( $input['active_languages'] ) && is_array( $input['active_languages'] ) )
+				? array_map( 'sanitize_key', $input['active_languages'] )
+				: $this->get_settings();
+		if ( ! empty( $active_languages ) ) {
+			sort( $active_languages, SORT_STRING );
+		}
 		return array(
 			'active_theme'     => sanitize_key( $input['active_theme'] ?? 'triskelion-dark' ),
-			'active_languages' => is_array( $input['active_languages'] ) ? array_map( 'sanitize_key', $input['active_languages'] ) : array(),
+			'active_languages' => ( $active_languages ),
 		);
 	}
 
+	/**
+	 * Registers hooks for block registration and settings.
+	 *
+	 * @return void
+	 */
 	protected function register(): void {
 		add_action( 'init', array( $this, 'register_showcase_block' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_assets' ) );

@@ -1,16 +1,37 @@
 <?php
+/**
+ * Diagnostic and System Logging Module Loader.
+ *
+ * @package    Triskelion\TriskelionToolkit
+ * @subpackage Modules\Diagnostic
+ * @since      1.0.0
+ */
 
 namespace Triskelion\TriskelionToolkit\Modules\Diagnostic;
 
 use Triskelion\TriskelionToolkit\Core\AbstractModule;
 use Triskelion\TriskelionToolkit\Core\Data\ModuleConfig;
 use Triskelion\TriskelionToolkit\Core\Data\ModuleConfigBuilder;
+use Triskelion\TriskelionToolkit\Core\Enums\LogLevel;
 use Triskelion\TriskelionToolkit\Core\Interfaces\HasSettingsInterface;
 use Triskelion\TriskelionToolkit\Core\Interfaces\RegistrableModuleInterface;
 use Triskelion\TriskelionToolkit\Core\Logger;
 
+/**
+ * Class DiagnosticLoader
+ *
+ * Orchestrates system diagnostics by providing an interface for log level
+ * configuration and a specialized terminal-like viewer for telemetry inspection.
+ *
+ * @package Triskelion\TriskelionToolkit\Modules\Diagnostic
+ */
 class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterface, HasSettingsInterface {
 
+	/**
+	 * Returns the internationalization configuration for the module.
+	 *
+	 * @return array{name: string, description: string} Localized strings.
+	 */
 	public static function i18n_config(): array {
 		return array(
 			'name'        => __( 'Logs & Diagnostic', 'triskelion-toolkit' ),
@@ -18,6 +39,11 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
 		);
 	}
 
+	/**
+	 * Registers the settings group and fields in the WordPress Settings API.
+	 *
+	 * @return void
+	 */
 	public function register_module_settings(): void {
 		register_setting(
 			'triskelion_toolkit_diagnostic_group',
@@ -26,120 +52,114 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
 				'type'              => 'array',
 				'sanitize_callback' => array( $this, 'sanitize_module_settings' ),
 				'default'           => array(
-					'debug_enabled' => false,
-					'level'         => Logger::LEVEL_ERROR,
+					'level' => LogLevel::INFO->value,
 				),
 			)
 		);
 	}
 
+	/**
+	 * Sanitizes the diagnostic settings array.
+	 *
+	 * @param mixed $input Raw input data from the form.
+	 * @return array Validated settings.
+	 */
 	public function sanitize_module_settings( $input ): array {
-		$severity_map = Logger::get_severity_map();
+		$level_value = isset( $input['level'] ) ? (int) $input['level'] : LogLevel::INFO->value;
 
-		$level = ( isset( $input['level'] ) && isset( $severity_map[ $input['level'] ] ) )
-				? $input['level']
-				: Logger::LEVEL_ERROR;
-
+		$level = LogLevel::tryFrom( $level_value )
+				?? LogLevel::INFO->value;
 		return array(
-			'debug_enabled' => isset( $input['debug_enabled'] ),
-			'level'         => $level,
+			'level' => $level->value,
 		);
 	}
 
-	public function render_settings(): string {
-		if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] ) {
-			add_settings_error( 'triskelion_toolkit_diagnostic_group', 'settings_updated', __( 'Settings saved.', 'triskelion-toolkit' ), 'updated' );
-		}
-		$options = get_option(
+	/**
+	 * Renders configuration controls (Switches and Selects) inside the main form.
+	 *
+	 * Migrated from legacy render_settings. It focuses on the internal field
+	 * elements, delegating the form container to the AdminManager.
+	 *
+	 * @return string The internal form HTML.
+	 */
+	public function render_inside_form(): string {
+		$options         = get_option(
 			'triskelion_toolkit_diagnostic_settings',
 			array(
-				'debug_enabled' => false,
-				'level'         => Logger::LEVEL_ERROR,
+				'level' => LogLevel::INFO->value,
 			)
 		);
-
 		$is_debug_forced = defined( 'TRISKELION_TOOLKIT_DEBUG' );
 		$is_level_forced = defined( 'TRISKELION_TOOLKIT_LOG_LEVEL' );
 
-		$val_enabled = $is_debug_forced ? (bool) constant( 'TRISKELION_TOOLKIT_DEBUG' ) : $options['debug_enabled'];
-		$val_level   = $is_level_forced ? constant( 'TRISKELION_TOOLKIT_LOG_LEVEL' ) : $options['level'];
+		$val_level = $is_level_forced ? constant( 'TRISKELION_TOOLKIT_LOG_LEVEL' ) : $options['level'];
+		ob_start();
+		?>
+		<header class="triskelion-toolkit-section-header">
+			<h2><?php esc_html_e( 'Logs & Diagnostic', 'triskelion-toolkit' ); ?></h2>
+			<?php if ( $is_debug_forced || $is_level_forced ) : ?>
+				<p class="triskelion-toolkit-notice triskelion-toolkit-notice--info">
+					<span class="dashicons dashicons-lock"></span>
+					<?php esc_html_e( 'Configuration managed via code (wp-config.php).', 'triskelion-toolkit' ); ?>
+				</p>
+			<?php endif; ?>
+		</header>
 
-		ob_start(); ?>
-		<h1><?php esc_html_e( self::get_config()->name, 'triskelion-toolkit' ); ?></h1>
-		<p class="description"><?php esc_html_e( self::get_config()->description, 'triskelion-toolkit' ); ?></p>
-		<div class="triskelion-toolkit-diagnostic-view">
-			<?php settings_errors( 'triskelion_toolkit_diagnostic_group' ); ?>
-			<form method="post" action="options.php">
-				<?php
-				settings_fields( 'triskelion_toolkit_diagnostic_group' );
-				?>
-
-				<header class="triskelion-toolkit-section-header">
-					<h2><?php _e( 'Logs & Diagnostic', 'triskelion-toolkit' ); ?></h2>
-					<?php if ( $is_debug_forced || $is_level_forced ) : ?>
-						<p class="triskelion-toolkit-notice triskelion-toolkit-notice--info">
-							<span class="dashicons dashicons-lock"></span>
-							<?php _e( 'Configuration managed via code (wp-config.php).', 'triskelion-toolkit' ); ?>
-						</p>
-					<?php endif; ?>
-				</header>
-
-				<table class="form-table">
-					<tr>
-						<th scope="row"><?php _e( 'Enable Logging', 'triskelion-toolkit' ); ?></th>
-						<td>
-							<label class="triskelion-toolkit-switch <?php echo $is_debug_forced ? 'triskelion-toolkit-disabled' : ''; ?>">
-								<input type="checkbox"
-										name="triskelion_toolkit_diagnostic_settings[debug_enabled]"
-										value="1"
-										<?php checked( true, (bool) $val_enabled ); ?>
-										<?php disabled( $is_debug_forced ); ?>>
-								<span class="triskelion-toolkit-slider"></span>
-							</label>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><?php _e( 'Log Level', 'triskelion-toolkit' ); ?></th>
-						<td>
-							<select name="triskelion_toolkit_diagnostic_settings[level]" <?php disabled( $is_level_forced ); ?>>
-								<?php foreach ( Logger::get_levels() as $lvl ) : ?>
-									<option value="<?php echo $lvl; ?>" <?php selected( $lvl, $val_level ); ?>>
-										<?php echo strtoupper( $lvl ); ?>
-									</option>
-								<?php endforeach; ?>
-							</select>
-						</td>
-					</tr>
-				</table>
-
-				<?php
-				submit_button( __( 'Save Changes', 'triskelion-toolkit' ) );
-				?>
-			</form>
-			<?php $this->render_log_viewer(); ?>
-		</div>
-		<?php
-		return ob_get_clean();
+		<table class="form-table">
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Log Level', 'triskelion-toolkit' ); ?></th>
+				<td>
+					<select name="triskelion_toolkit_diagnostic_settings[level]" <?php disabled( $is_level_forced ); ?>>
+						<?php foreach ( LogLevel::cases() as $level_case ) : ?>
+							<option value="<?php echo esc_attr( $level_case->value ); ?>" <?php selected( $level_case->value, (int) $val_level ); ?>>
+								<?php echo esc_html( $level_case->name ); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+				</td>
+			</tr>
+		</table>
+			<?php
+			return ob_get_clean();
 	}
 
+	/**
+	 * Defines the module configuration using the standardized builder.
+	 *
+	 * @return ModuleConfig The configuration object containing module metadata.
+	 */
 	public static function get_config(): ModuleConfig {
 		return ( new ModuleConfigBuilder() )
 				->set_id( 'diagnostic' )
 				->set_name( 'Logs & Diagnostic' )
 				->set_description( 'Monitor system health and view activity logs.' )
-				->set_class( self::class )
+				->set_clazz( self::class )
 				->set_priority( 1000 )
 				->set_is_core( true )
 				->set_icon( 'dashicons-rest-api' )
 				->build();
 	}
 
-	private function render_log_viewer(): void {
+	/**
+	 * Renders the terminal-style log viewer outside the main form.
+	 *
+	 * Migrated from render_log_viewer. Implements optimized file reading by
+	 * capturing only the last 100 entries to ensure interface performance.
+	 *
+	 * @return string The terminal HTML and initialization scripts.
+	 */
+	public function render_outside_form(): string {
 		$log_file = Logger::get_log_path();
-		// Lógica limpia: si no hay archivo, mostramos un placeholder técnico
+		// Lógica limpia: si no hay archivo, mostramos un placeholder técnico.
+		Logger::trace( 'render_outside_form: TRACE log_file=' . $log_file );
+		Logger::debug( 'render_outside_form: DEBUG log_file=' . $log_file );
+		Logger::info( 'render_outside_form: INFO log_file=' . $log_file );
+		Logger::warn( 'render_outside_form: WARN log_file=' . $log_file );
+		Logger::error( 'render_outside_form: ERROR log_file=' . $log_file );
 		$content = file_exists( $log_file )
 				? implode( '', array_slice( file( $log_file ), - 100 ) )
 				: '--- SYSTEM READY: NO LOG ENTRIES FOUND ---';
+		ob_start();
 		?>
 		<section class="triskelion-toolkit-terminal">
 			<header class="triskelion-toolkit-terminal__header">
@@ -188,11 +208,17 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
 			})();
 		</script>
 		<?php
+		return ob_get_clean();
 	}
 
+	/**
+	 * Entry point for WordPress hook registration.
+	 *
+	 * @return void
+	 */
 	protected function register(): void {
 		if ( $this->wp->security->is_admin() ) {
-			$this->wp->hooks->add_action( 'admin_init', array( $this, 'register_module_settings' ) );
+			$this->wp->events->add_action( 'admin_init', array( $this, 'register_module_settings' ) );
 		}
 	}
 }

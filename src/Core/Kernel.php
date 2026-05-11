@@ -93,24 +93,24 @@ class Kernel {
 
 	private function load_active_modules(): void {
 
-		$db_settings  = get_option( 'triskelion_toolkit_active_modules', array() );
+		$db_settings  = get_option( 'triskelion_toolkit_general_settings', array() );
 		$loader_files = glob( TRISKELION_TOOLKIT_PATH . 'src/Modules/*/*Loader.php' );
 
-		// Discovery
+		// Discovery.
 		foreach ( $loader_files as $file ) {
-			$class = $this->resolve_namespace( $file );
-			if ( class_exists( $class ) ) {
-				$this->modules->add( $class::get_config() );
-				Logger::debug( "Triskelion Debug: Loading module $class", 'Kernel' );
+			$clazz = $this->resolve_namespace( $file );
+			if ( class_exists( $clazz ) ) {
+				$this->modules->add( $clazz::get_config() );
+				Logger::debug( "Triskelion Debug: Loading module $clazz", 'Kernel' );
 			}
 		}
-		// Creation
+		// Creation.
 		foreach ( $this->modules->get_all() as $config ) {
 			if ( $config->is_core || in_array( $config->id, $db_settings, true ) ) {
 
-				$class    = $config->class;
-				$instance = new $class();
-				Logger::debug( "Triskelion Debug: Inyectando colección de módulos en $class", 'Kernel' );
+				$clazz    = $config->clazz;
+				$instance = new $clazz();
+				Logger::debug( "Triskelion Debug: Inyectando colección de módulos en $clazz", 'Kernel' );
 
 				// Inyección de la bolsa completa
 				if ( $instance instanceof NeedsModuleCollectionInterface ) {

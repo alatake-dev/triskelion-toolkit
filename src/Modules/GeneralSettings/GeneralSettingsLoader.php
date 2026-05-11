@@ -82,7 +82,7 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 	public function register_module_settings(): void {
 		register_setting(
 			'triskelion_toolkit_general_settings_group',
-			'triskelion_toolkit_active_modules',
+			'triskelion_toolkit_general_settings',
 			array(
 				'type'              => 'array',
 				'sanitize_callback' => array( $this, 'sanitize_module_settings' ),
@@ -107,7 +107,7 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 	 * @return string The generated internal form HTML.
 	 */
 	public function render_inside_form(): string {
-		$active_modules = get_option( 'triskelion_toolkit_active_modules', array() );
+		$active_modules = get_option( 'triskelion_toolkit_general_settings', array() );
 		$all_modules    = $this->module_collection->get_all_sorted();
 
 		ob_start();
@@ -121,7 +121,7 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 				?>
 				<div class="triskelion-toolkit-module-card <?php echo $is_core ? 'is-core' : ''; ?>">
 					<label class="triskelion-toolkit-switch">
-						<input name="triskelion_toolkit_active_modules[]"
+						<input name="triskelion_toolkit_general_settings[]"
 								type="checkbox"
 								id="module_<?php echo esc_attr( $id ); ?>"
 								value="<?php echo esc_attr( $id ); ?>"
@@ -134,7 +134,7 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 						<strong>
 							<?php echo esc_html( $this->resolve_i18n_field( 'name', $config ) ); ?>
 							<?php if ( $is_core ) : ?>
-								<span class="triskelion-toolkit-pill">Core</span>
+								<span class="tsk-badge tsk-badge--mandatory">(<?php esc_html_e( 'Core Module', 'triskelion-toolkit' ); ?>)</span>
 							<?php endif; ?>
 						</strong>
 						<p class="description">

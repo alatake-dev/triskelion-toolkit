@@ -67,13 +67,6 @@ define( 'TRISKELION_TOOLKIT_CORE', 'triskelion-toolkit-core' );
  */
 
 /**
- * Option name for active modules.
- *
- * @since 1.0.0
- */
-define( 'TRISKELION_TOOLKIT_ACTIVE_MODULES', 'triskelion_toolkit_active_modules' );
-
-/**
  * Settings group identifier.
  *
  * @since 1.0.0
@@ -115,6 +108,8 @@ if ( file_exists( TRISKELION_TOOLKIT_PATH . 'vendor/autoload.php' ) ) {
 add_action(
 	'plugins_loaded',
 	function () {
-		new Kernel();
-	}
+		$tsk_kernel = new Kernel();
+		$tsk_kernel->boot();
+	},
+	5
 );

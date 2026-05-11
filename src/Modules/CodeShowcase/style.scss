@@ -149,3 +149,54 @@
     }
   }
 }
+// style.scss - Refactor de Aislamiento
+.is-admin-preview {
+  // Aumentamos la especificidad usando el tag 'div'
+  div.triskelion-toolkit-code-showcase-preview {
+    margin: 1.5rem 0;
+    display: block;
+
+    // Este es el contenedor que DEBE mandar
+    .triskelion-toolkit-window-content {
+      display: block;
+      height: 150px;
+      min-height: 150px;
+      overflow: hidden;
+      background: #1e1e1e;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+      padding-bottom: 1px;
+
+      pre {
+        display: block;
+        height: 100%; // Ahora sí debería heredar los 350px
+        width: 100%;
+        margin: 0;
+        padding: 20px;
+        overflow: auto; // El scroll nace aquí
+        box-sizing: border-box;
+        background: transparent;
+
+        &::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+        &::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 10px;
+        }
+        &::-webkit-scrollbar-corner {
+          background: transparent;
+        }
+
+        code {
+          display: inline-block;
+          min-width: 100%;
+          white-space: pre;
+          font-family: var(--font-mono);
+          font-size: 13px;
+        }
+      }
+    }
+  }
+}

@@ -8,6 +8,10 @@
 
 namespace Triskelion\TriskelionToolkit\Core;
 
+use Triskelion\TriskelionToolkit\Core\Enums\LogLevel;
+use Triskelion\TriskelionToolkit\Core\Exceptions\FileSystemException;
+use WP_Filesystem_Base;
+
 /**
  * Class Logger
  *
@@ -18,13 +22,9 @@ namespace Triskelion\TriskelionToolkit\Core;
  */
 class Logger {
 	/**
-	 * Log levels constants.
+	 * Log levels.
 	 */
-	public const LEVEL_DEBUG = 'debug';
-	public const LEVEL_INFO  = 'info';
-	public const LEVEL_WARN  = 'warn';
-	public const LEVEL_ERROR = 'error';
-	public const LEVEL_OFF   = 'off';
+
 	/**
 	 * Path to the log directory.
 	 *
@@ -50,125 +50,106 @@ class Logger {
 	 */
 	private static array $test_constants = array();
 
+	private static bool $admin_notice = false;
+
 	/**
 	 * Sets a value for a mocked constant during unit tests.
 	 *
-	 * @param string $name  Constant name.
+	 * @param string $name Constant name.
 	 * @param mixed  $value Constant value.
+	 *
 	 * @return void
 	 */
 	public static function set_test_constant( string $name, $value ): void {
 		self::$test_constants[ $name ] = $value;
 	}
-	/**
-	 * Returns available log levels.
-	 *
-	 * @return array List of severity levels.
-	 */
-	public static function get_levels(): array {
-		return array_keys( self::get_severity_map() );
-	}
-	/**
-	 * Returns severity weights for filtering.
-	 *
-	 * @return array Map of level => weight.
-	 */
-	public static function get_severity_map(): array {
-		return array(
-			self::LEVEL_DEBUG => 0,
-			self::LEVEL_INFO  => 1,
-			self::LEVEL_WARN  => 2,
-			self::LEVEL_ERROR => 3,
-			self::LEVEL_OFF   => 4,
-		);
-	}
 
-	/**
-	 * Log an info message.
-	 *
-	 * @param string $message The message to log.
-	 * @param string $module  Originating module.
-	 * @return void
-	 */
-	public static function info( string $message, string $module = 'CORE' ): void {
-		self::write( $message, 'info', $module );
-	}
+
 	/**
 	 * Core write method. Handles initialization, rotation and writing.
 	 *
-	 * @param string $message The message to log.
-	 * @param string $level   Severity level.
-	 * @param string $module  Originating module.
+	 * @param string   $message The message to log.
+	 * @param LogLevel $level Severity level.
+	 * @param string   $module Originating module.
+	 *
 	 * @return void
+	 * @throws FileSystemException If init fails.
 	 */
-	private static function write( string $message, string $level, string $module ): void {
+	private static function write( string $message, LogLevel $level, string $module ): void {
 		self::init();
-
 		$config = self::get_config();
 		if ( ! $config['enabled'] ) {
 			return;
 		}
 
-		$severity      = self::get_severity_map();
-		$msg_weight    = $severity[ $level ] ?? 3;
-		$thresh_weight = $severity[ $config['level'] ] ?? 3;
+		$saved_value  = (int) get_option( 'triskelion_toolkit_diagnostic_settings' )['level'];
+		$config_level = LogLevel::tryFrom( $saved_value ) ?? LogLevel::OFF;
 
-		if ( $msg_weight < $thresh_weight ) {
+		if ( $level->value < $config_level->value ) {
 			return;
 		}
 
-		$file = self::$log_path . '/triskelion.log';
+		$file          = self::$log_path . '/triskelion.log';
+		$wp_filesystem = self::get_filesystem();
 
 		if ( file_exists( $file ) && filesize( $file ) > self::$max_size ) {
-			self::$wp_filesystem->move( $file, self::$log_path . '/triskelion-' . gmdate( 'Ymd-His' ) . '.bak' );
+			$wp_filesystem->move( $file, self::$log_path . '/triskelion-' . gmdate( 'Ymd-His' ) . '.bak' );
 			self::cleanup_backups();
 		}
 
 		$entry = sprintf(
 			"[%s] [%s] [%-12s] %s\n",
 			gmdate( 'Y-m-d H:i:s' ),
-			str_pad( strtoupper( $level ), 5 ),
+			str_pad( $level->name, 5 ),
 			strtoupper( substr( $module, 0, 12 ) ),
 			$message
 		);
 		self::direct_write( $file, $entry );
 	}
+
 	/**
 	 * Initializes the logger and sets up the WP_Filesystem.
 	 *
-	 * @return void
+	 * @throws FileSystemException In any error.
 	 */
 	public static function init(): void {
 		if ( self::$initialized ) {
 			return;
 		}
 		self::$initialized = true;
-		if ( empty( $GLOBALS['wp_filesystem'] ) ) {
-			if ( ! function_exists( 'WP_Filesystem' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/file.php';
+		try {
+			$upload_dir     = self::get_file_system_status();
+			self::$log_path = wp_normalize_path( $upload_dir['basedir'] . '/triskelion-logs' );
+
+			$fs = self::get_filesystem();
+
+			if ( ! $fs->is_dir( self::$log_path ) ) {
+				if ( ! $fs->mkdir( self::$log_path, '0755' ) ) {
+					self::error_log( 'No se pudo crear la carpeta de logs.' );
+					throw new FileSystemException( 'No se pudo crear la carpeta de logs.' );
+				}
 			}
-			WP_Filesystem();
-		}
-		if ( ! empty( self::$log_path ) || ! function_exists( 'wp_upload_dir' ) ) {
-			return;
-		}
+			if ( file_exists( self::$log_path ) ) {
+				self::secure_directory();
+			}
 
-		$upload_dir = wp_upload_dir();
-
-		if ( ! empty( $upload_dir['error'] ) ) {
-			return;
-		}
-
-		self::$log_path = wp_normalize_path( $upload_dir['basedir'] . '/triskelion-logs' );
-
-		if ( ! file_exists( self::$log_path ) ) {
-			wp_mkdir_p( self::$log_path );
-		}
-
-		if ( file_exists( self::$log_path ) ) {
-			self::secure_directory();
+			if ( ! $fs->is_writable( self::$log_path ) ) {
+				$owner = 'unknown';
+				if ( function_exists( 'posix_getpwuid' ) ) {
+					$owner_info = posix_getpwuid( fileowner( self::$log_path ) );
+					$owner      = $owner_info['name'] ?? 'unknown';
+				}
+				self::error_log( 'Carpeta de logs no escribible. Dueño actual: ' . $owner );
+				throw new FileSystemException( 'Carpeta de logs no escribible. Dueño actual: ' . $owner );
+			}
+			self::info( 'Logger initialized successfully.' );
+		} catch ( FileSystemException $e ) {
+			self::$initialized = false;
+			self::error_log( 'admin_notice: ' . self::$admin_notice );
+			self::register_admin_error_notice( $e->getMessage() );
 		}
 	}
+
 	/**
 	 * Adds security files to the log directory.
 	 *
@@ -176,9 +157,11 @@ class Logger {
 	 */
 	private static function secure_directory(): void {
 		self::init();
-		self::$wp_filesystem->put_contents( self::$log_path . '/.htaccess', 'Deny from all' );
-		self::$wp_filesystem->put_contents( self::$log_path . '/index.php', '<?php // Silence' );
+		$wp_filesystem = self::get_filesystem();
+		$wp_filesystem->put_contents( self::$log_path . '/.htaccess', 'Deny from all' );
+		$wp_filesystem->put_contents( self::$log_path . '/index.php', '<?php // Silence' );
 	}
+
 	/**
 	 * Retrieves logger configuration from constants or database.
 	 *
@@ -214,14 +197,17 @@ class Logger {
 	 * Environment-aware constant retriever. Supports testing mocks.
 	 *
 	 * @param string $name Constant name.
+	 *
 	 * @return mixed|null Value or null if not defined.
 	 */
 	protected static function get_env_constant( string $name ): mixed {
 		if ( isset( self::$test_constants[ $name ] ) ) {
 			return self::$test_constants[ $name ];
 		}
+
 		return defined( $name ) ? constant( $name ) : null;
 	}
+
 	/**
 	 * Cleans up old backup files, keeping only a limited number.
 	 *
@@ -234,60 +220,27 @@ class Logger {
 			wp_delete_file( $files[0] );
 		}
 	}
-	/**
-	 * Log a warning message.
-	 *
-	 * @param string $message The message to log.
-	 * @param string $module  Originating module.
-	 * @return void
-	 */
-	public static function warn( string $message, string $module = 'CORE' ): void {
-		self::write( $message, 'warn', $module );
-	}
-	/**
-	 * Log an error message with optional context.
-	 *
-	 * @param string $message The message to log.
-	 * @param string $module  Originating module.
-	 * @param array  $context Additional data to log.
-	 * @return void
-	 */
-	public static function error( string $message, string $module = 'CORE', array $context = array() ): void {
-		if ( ! empty( $context ) ) {
-			$message .= ' | Context: ' . wp_json_encode( $context );
-		}
-		self::write( $message, 'error', $module );
-	}
-	/**
-	 * Log a debug message.
-	 *
-	 * @param string $message The message to log.
-	 * @param string $module  Originating module.
-	 * @return void
-	 */
-	public static function debug( string $message, string $module = 'CORE' ): void {
-		self::write( $message, 'debug', $module );
-	}
+
 	/**
 	 * Returns the full path to the log file.
 	 *
 	 * @return string Full file path.
 	 */
 	public static function get_log_path(): string {
-		if ( empty( self::$log_path ) ) {
-			self::init();
-		}
+		self::init();
 
 		return self::$log_path . '/triskelion.log';
 	}
+
 	/**
 	 * Performs direct file write using PHP filesystem functions for performance.
 	 *
-	 * @param string $file  File path.
+	 * @param string $file File path.
 	 * @param string $entry Log entry.
-	 * @return mixed
+	 *
+	 * @return void
 	 */
-	protected static function direct_write( string $file, string $entry ) {
+	protected static function direct_write( string $file, string $entry ): void {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 		$handle = fopen( $file, 'a' );
 		if ( $handle ) {
@@ -296,5 +249,148 @@ class Logger {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 			fclose( $handle );
 		}
+	}
+
+	public static function get_file_system_status(): array {
+		$uploads = wp_upload_dir();
+
+		if ( ! empty( $uploads['error'] ) ) {
+			self::error_log( 'WordPress Filesystem Error [get_file_system_status]: ' . $uploads['error'] );
+			throw new FileSystemException( 'WordPress Filesystem Error: ' . $uploads['error'] );
+		}
+		return $uploads;
+	}
+
+	/**
+	 * Ensures the WordPress Filesystem global is initialized.
+	 *
+	 * @return \WP_Filesystem_Base
+	 * @throws FileSystemException If the filesystem cannot be initialized.
+	 */
+	private static function get_filesystem(): WP_Filesystem_Base {
+		global $wp_filesystem;
+		$uploads = self::get_file_system_status();
+
+		if ( ! $wp_filesystem ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+
+			$method = get_filesystem_method();
+			if ( 'direct' !== $method ) {
+				self::error_log( 'WordPress Filesystem Error [get_filesystem_method]: NOT direct' );
+				throw new FileSystemException( 'Filesystem method is not "direct". Check server configuration.' );
+			}
+
+			if ( ! WP_Filesystem() ) {
+				self::error_log( 'WordPress Filesystem Error [get_filesystem_method]: initialize WordPress Filesystem' );
+				throw new FileSystemException( 'Failed to initialize WordPress Filesystem.' );
+			}
+		}
+		return $wp_filesystem;
+	}
+
+	/**
+	 * Proxy method for PHP's native error_log.
+	 *
+	 * This abstraction allows us to bypass strict linting rules (like WordPress.PHP.DevelopmentFunctions)
+	 * in a single, controlled location. It serves as the "emergency exit" for logging when the
+	 * custom filesystem-based logger fails or is not yet initialized.
+	 *
+	 * @param string $message The error message to be sent to the server's error log.
+	 * @return void
+	 */
+	public static function error_log( string $message ): void {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( $message );
+	}
+
+	/**
+	 * Registers a one-time administrative notice for critical filesystem errors.
+	 *
+	 * This method uses a static guard to ensure that even if the logger is called multiple
+	 * times during a single request (e.g., in a loop), the admin notice is only hooked once.
+	 * It prevents the "cascading notices" UI bug in the WordPress Dashboard.
+	 *
+	 * @hook admin_notices
+	 *
+	 * @param string $message The validation or filesystem error message to display.
+	 * @return void
+	 */
+	private static function register_admin_error_notice( $message ) {
+		if ( self::$admin_notice ) {
+			return;
+		}
+		self::$admin_notice = true;
+		add_action(
+			'admin_notices',
+			printf(
+				'<div class="notice notice-error"><p><strong>Triskelion Toolkit:</strong>%s</p></div>',
+				esc_html( $message )
+			)
+		);
+	}
+
+
+	/**
+	 * Log an info message.
+	 *
+	 * @param string $message The message to log.
+	 * @param string $module Originating module.
+	 *
+	 * @return void
+	 */
+	public static function info( string $message, string $module = 'CORE' ): void {
+		self::write( $message, LogLevel::INFO, $module );
+	}
+
+	/**
+	 * Log an trce message.
+	 *
+	 * @param string $message The message to log.
+	 * @param string $module Originating module.
+	 *
+	 * @return void
+	 */
+	public static function trace( string $message, string $module = 'CORE' ): void {
+		self::write( $message, LogLevel::TRACE, $module );
+	}
+
+	/**
+	 * Log a warning message.
+	 *
+	 * @param string $message The message to log.
+	 * @param string $module Originating module.
+	 *
+	 * @return void
+	 */
+	public static function warn( string $message, string $module = 'CORE' ): void {
+		self::write( $message, LogLevel::WARN, $module );
+	}
+
+	/**
+	 * Log an error message with optional context.
+	 *
+	 * @param string $message The message to log.
+	 * @param string $module Originating module.
+	 * @param array  $context Additional data to log.
+	 *
+	 * @return void
+	 */
+	public static function error( string $message, string $module = 'CORE', array $context = array() ): void {
+		if ( ! empty( $context ) ) {
+			$message .= ' | Context: ' . wp_json_encode( $context );
+		}
+		self::write( $message, LogLevel::ERROR, $module );
+	}
+
+	/**
+	 * Log a debug message.
+	 *
+	 * @param string $message The message to log.
+	 * @param string $module Originating module.
+	 *
+	 * @return void
+	 */
+	public static function debug( string $message, string $module = 'CORE' ): void {
+		self::write( $message, LogLevel::DEBUG, $module );
 	}
 }

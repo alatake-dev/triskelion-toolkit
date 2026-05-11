@@ -54,7 +54,7 @@ class GeneralSettingsLoaderTest extends TestCase {
 
 		WP_Mock::userFunction( 'get_option', [
 			'return' => function( $option, $default ) {
-				if ( $option === 'triskelion_toolkit_active_modules' ) {
+				if ( $option === 'triskelion_toolkit_general_settings' ) {
 					return [ GeneralSettingsLoader::get_config()->id ];
 				}
 				if ( $option === 'triskelion_toolkit_diagnostic_settings' ) {

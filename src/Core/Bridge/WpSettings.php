@@ -16,7 +16,7 @@ namespace Triskelion\TriskelionToolkit\Core\Bridge;
  *
  * @package Triskelion\TriskelionToolkit\Core\Bridge
  */
-class WpSettings {
+class WpSettings extends AbstractWpBridge {
 
 	/**
 	 * Retrieves an option value based on an option name.
@@ -51,5 +51,20 @@ class WpSettings {
 			return true;
 		}
 		return update_option( $option, $value, $autoload );
+	}
+
+	/**
+	 * Bridge: Merges user-defined arguments with defaults.
+	 *
+	 * @param array|string|object $args     Value to merge with $defaults.
+	 * @param array               $defaults The list of defaults.
+	 * @return array
+	 */
+	public function parse_args( $args, array $defaults = array() ): array {
+		if ( $this->is_wp_disabled() ) {
+			// En modo Test, simulamos el merge básico de arrays.
+			return array_merge( $defaults, (array) $args );
+		}
+		return wp_parse_args( $args, $defaults );
 	}
 }
