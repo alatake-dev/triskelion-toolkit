@@ -15,7 +15,6 @@ use Triskelion\TriskelionToolkit\Core\Data\ModuleConfig;
 use Triskelion\TriskelionToolkit\Core\Data\ModuleConfigBuilder;
 use Triskelion\TriskelionToolkit\Core\Interfaces\HasSettingsInterface;
 use Triskelion\TriskelionToolkit\Core\Interfaces\RegistrableModuleInterface;
-use Triskelion\TriskelionToolkit\Core\Logger;
 
 /**
  * Class CodeShowcaseLoader

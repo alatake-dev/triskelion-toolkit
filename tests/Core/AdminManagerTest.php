@@ -136,5 +136,21 @@ class AdminManagerTest extends TestCase {
 		$this->expectNotToPerformAssertions();
 		$this->admin_manager->trigger_module_settings();
 	}
+/*
+	public function test_render_admin_page_basic_structure() {
+		// 1. Setup del Buffer
+		ob_start();
+		$this->admin_manager->render_admin_page();
+		$html = ob_get_clean();
 
+		// 2. Asserts de Estructura (Hardening)
+		// Verificamos que el wrapper principal que definiste en el archivo esté ahí
+		$this->assertStringContainsString( 'triskelion-toolkit-wrapper', $html );
+		$this->assertStringContainsString( 'triskelion-toolkit-header', $html );
+
+		// 3. Testeando el "privado" de navegación indirectamente:
+		// Si el método privado de tabs funciona, debería haber un nav con la clase nav-tab-wrapper
+		$this->assertStringContainsString( 'nav-tab-wrapper', $html );
+	}
+*/
 }

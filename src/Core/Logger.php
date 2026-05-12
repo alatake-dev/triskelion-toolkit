@@ -2,8 +2,12 @@
 /**
  * Logger Class File.
  *
- * @package Triskelion\TriskelionToolkit
- * @since 1.0.0
+ * Handles the toolkit's logging infrastructure, including file rotation,
+ * directory security, and severity-based message distribution.
+ *
+ * @package    Triskelion\TriskelionToolkit
+ * @subpackage Core
+ * @since      1.0.0
  */
 
 namespace Triskelion\TriskelionToolkit\Core;
@@ -17,10 +21,11 @@ use WP_Filesystem_Base;
 /**
  * Class Logger
  *
- * Handles application logging, including file rotation and directory security.
+ * Provides a static interface for application-wide logging. Features include
+ * automatic log rotation, directory hardening via .htaccess/index.php,
+ * and integration with the WordPress Filesystem API.
  *
- * @package Triskelion\TriskelionToolkit
- * @since 1.0.0
+ * @package Triskelion\TriskelionToolkit\Core
  */
 class Logger {
 	/**
@@ -40,14 +45,24 @@ class Logger {
 	 */
 	private static int $max_size = 2097152;
 	/**
-	 * Initialization flag.
+	 * Internal flag to track if the logger has been bootstrapped.
 	 *
 	 * @var bool
 	 */
 	private static bool $initialized = false;
 
+	/**
+	 * Flag to determine if an administrative notice should be triggered on failure.
+	 *
+	 * @var bool
+	 */
 	private static bool $admin_notice = false;
 
+	/**
+	 * Bridge for decoupled WordPress core functionality.
+	 *
+	 * @var WpBridge
+	 */
 	private static WpBridge $wp;
 
 
@@ -90,9 +105,12 @@ class Logger {
 	}
 
 	/**
-	 * Initializes the logger and sets up the WP_Filesystem.
+	 * Bootstraps the logging environment.
 	 *
-	 * @throws FileSystemException In any error.
+	 * Ensures the log directory exists and is secured against direct access.
+	 *
+	 * @throws FileSystemException If the directory cannot be created or secured.
+	 * @return void
 	 */
 	public static function init(): void {
 		if ( self::$initialized ) {
@@ -101,15 +119,16 @@ class Logger {
 		self::$wp          = new WpBridge();
 		self::$initialized = true;
 		try {
-			$upload_dir     = self::get_file_system_status();
+			$upload_dir     = self::$wp->settings->upload_dir();
 			self::$log_path = self::$wp->settings->normalize_path( $upload_dir['basedir'] . '/triskelion-logs' );
 
 			$fs = self::get_filesystem();
 
 			if ( ! $fs->is_dir( self::$log_path ) ) {
 				if ( ! $fs->mkdir( self::$log_path, '0755' ) ) {
-					self::error_log( 'No se pudo crear la carpeta de logs.' );
-					throw new FileSystemException( 'No se pudo crear la carpeta de logs.' );
+					$msg = 'Could not create log directory: ' . self::$log_path;
+					self::error_log( $msg );
+					throw new FileSystemException( $msg );
 				}
 			}
 			if ( file_exists( self::$log_path ) ) {
@@ -122,19 +141,22 @@ class Logger {
 					$owner_info = posix_getpwuid( fileowner( self::$log_path ) );
 					$owner      = $owner_info['name'] ?? 'unknown';
 				}
-				self::error_log( 'Carpeta de logs no escribible. Dueño actual: ' . $owner );
-				throw new FileSystemException( 'Carpeta de logs no escribible. Dueño actual: ' . $owner );
+				$msg = 'Log directory is not writable. Current owner ' . $owner;
+				self::error_log( $msg );
+				throw new FileSystemException( $msg );
 			}
 			self::info( 'Logger initialized successfully.' );
 		} catch ( FileSystemException $e ) {
-			self::$initialized = false;
 			self::error_log( 'admin_notice: ' . self::$admin_notice );
 			self::register_admin_error_notice( $e->getMessage() );
 		}
 	}
 
 	/**
-	 * Adds security files to the log directory.
+	 * Hardens the log directory.
+	 *
+	 * Generates an .htaccess file to deny all web access and an empty index.php
+	 * to prevent directory listing.
 	 *
 	 * @return void
 	 */
@@ -188,12 +210,24 @@ class Logger {
 		}
 	}
 
+	/**
+	 * Retrieves and validates the current WordPress filesystem status.
+	 *
+	 * Interrogates the environment via the WpBridge to determine the
+	 * availability and writability of the uploads directory. This serves
+	 * as a pre-flight check for all disk-heavy operations.
+	 *
+	 * @throws FileSystemException If the WordPress filesystem returns an error state.
+	 * @return array<string, mixed> The filesystem path and URL data from wp_upload_dir().
+	 */
 	public static function get_file_system_status(): array {
 		$uploads = self::$wp->settings->upload_dir();
 
 		if ( ! empty( $uploads['error'] ) ) {
+			$msg = 'WordPress Filesystem Error: ' . $uploads['error'];
 			self::error_log( 'WordPress Filesystem Error [get_file_system_status]: ' . $uploads['error'] );
-			throw new FileSystemException( 'WordPress Filesystem Error: ' . $uploads['error'] );
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+			throw new FileSystemException( $msg );
 		}
 		return $uploads;
 	}
@@ -206,19 +240,11 @@ class Logger {
 	 */
 	private static function get_filesystem(): WP_Filesystem_Base|stdClass {
 		global $wp_filesystem;
-		$uploads = self::get_file_system_status();
 
 		if ( ! $wp_filesystem ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
-
-			$method = get_filesystem_method();
-			if ( 'direct' !== $method ) {
-				self::error_log( 'WordPress Filesystem Error [get_filesystem_method]: NOT direct' );
-				throw new FileSystemException( 'Filesystem method is not "direct". Check server configuration.' );
-			}
-
-			if ( ! self::$wp->security->filesystem() ) {
-				self::error_log( 'WordPress Filesystem Error [get_filesystem_method]: initialize WordPress Filesystem' );
+			if ( ! function_exists( 'WP_Filesystem' ) || ! WP_Filesystem() ) {
+				self::error_log( 'Critical: Failed to initialize WordPress Filesystem.' );
 				throw new FileSystemException( 'Failed to initialize WordPress Filesystem.' );
 			}
 		}
@@ -237,7 +263,7 @@ class Logger {
 	 */
 	public static function error_log( string $message ): void {
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		error_log( $message );
+		error_log( "[Triskelion Emergency] $message" );
 	}
 
 	/**
@@ -252,7 +278,7 @@ class Logger {
 	 * @param string $message The validation or filesystem error message to display.
 	 * @return void
 	 */
-	private static function register_admin_error_notice( $message ) {
+	private static function register_admin_error_notice( $message ): void {
 		if ( self::$admin_notice ) {
 			return;
 		}
@@ -280,7 +306,7 @@ class Logger {
 	}
 
 	/**
-	 * Log an trce message.
+	 * Log an trace message.
 	 *
 	 * @param string $message The message to log.
 	 * @param string $module Originating module.

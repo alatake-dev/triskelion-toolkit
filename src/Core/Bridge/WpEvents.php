@@ -110,16 +110,17 @@ class WpEvents extends AbstractWpBridge {
 	 * @param string          $handle    Name of the script. Should be unique.
 	 * @param string          $src       Full URL of the script, or path of the script relative to the WordPress root directory.
 	 * @param array           $deps      Optional. An array of registered script handles this script depends on.
-	 * @param string|bool|int $ver       Optional. String specifying script version number, if it has one.
-	 * @param array|bool      $args      Optional. An array of extra arguments, or a boolean for in_footer.
-	 * * @return void
+	 * @param bool|int|string $ver       Optional. String specifying script version number, if it has one.
+	 * @param bool|array      $args      Optional. An array of extra arguments, or a boolean for in_footer.
+	 *
+	 * @return void
 	 */
 	public function enqueue_script(
 		string $handle,
 		string $src = '',
 		array $deps = array(),
-		$ver = false,
-		$args = false
+		bool|int|string $ver = false,
+		bool|array $args = false
 	): void {
 		if ( $this->is_wp_disabled() ) {
 			return;

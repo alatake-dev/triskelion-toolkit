@@ -1,7 +1,9 @@
 <?php
-
 /**
  * Admin Manager Class File.
+ *
+ *  Orchestrates the WordPress administration interface, handling navigation,
+ *  security headers, and module-specific settings rendering.
  *
  * @package    Triskelion\TriskelionToolkit
  * @subpackage Core
@@ -10,6 +12,7 @@
 
 namespace Triskelion\TriskelionToolkit\Core;
 
+use Exception;
 use Triskelion\TriskelionToolkit\Core\Bridge\WpBridge;
 use Triskelion\TriskelionToolkit\Core\Data\ModuleCollection;
 use Triskelion\TriskelionToolkit\Core\Interfaces\HasSettingsInterface;
@@ -45,8 +48,11 @@ class AdminManager {
 	/**
 	 * AdminManager constructor.
 	 *
-	 * @param ModuleCollection $modules
-	 * @param array            $active_loaders
+	 *  Initialized with the essential module registries and loaders. The WordPress
+	 * bridge is instantiated internally to manage core decoupled functionality.
+	 *
+	 * @param ModuleCollection $modules        Registry of all available modules.
+	 * @param array            $active_loaders Instances of currently active module loaders.
 	 */
 	public function __construct( ModuleCollection $modules, array $active_loaders ) {
 		$this->modules        = $modules;
@@ -55,11 +61,14 @@ class AdminManager {
 	}
 
 	/**
-	 * Renders the main administration layout.
+	 * Renders the main administration page.
+	 *
+	 * Orchestrates the layout by checking capabilities, rendering the header,
+	 * navigation tabs, and the content of the active module.
 	 *
 	 * @return void
 	 */
-	public function render_layout(): void {
+	public function render_admin_page(): void {
 		$final_menu  = $this->get_navigation_menu();
 		$current_tab = $this->get_current_tab( $final_menu );
 		$module      = $final_menu[ $current_tab ] ?? null;
@@ -87,6 +96,8 @@ class AdminManager {
 						class="triskelion-module-wrapper">
 						<?php
 						$this->render_form_section( $module, $group );
+						// output is validated inside the method.
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						echo $module->render_outside_form();
 						?>
 					</div>
@@ -113,7 +124,8 @@ class AdminManager {
 		echo '<form method="post" action="options.php" class="triskelion-toolkit-form">';
 		$this->wp->security->settings_fields( $group );
 		$this->wp->security->nonce_field( $group, '_triskelion_nonce' );
-
+		// output is validated inside the method.
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo $form_content;
 
 		submit_button();
@@ -121,11 +133,17 @@ class AdminManager {
 	}
 
 	/**
-	 * Validates the security nonce for POST requests.
+	 * Orchestrates stateful security verification for administrative form submissions.
 	 *
-	 * @param string $group_action
+	 * This method acts as a gatekeeper for POST requests. It performs a non-blocking
+	 * check on the request method and triggers a formal nonce verification if a
+	 * submission is detected. It leverages the WpBridge to ensure that security
+	 * checks are decoupled and testable.
+	 *
+	 * @param string $group_action The unique action identifier for nonce verification.
 	 *
 	 * @return void
+	 * @throws Exception In case of wp_die.
 	 */
 	private function maybe_validate_nonce( string $group_action ): void {
         // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -164,16 +182,21 @@ class AdminManager {
 	 * @return string
 	 */
 	private function get_current_tab( array $menu ): string {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'general_settings';
 
 		return isset( $menu[ $tab ] ) ? $tab : (string) key( $menu );
 	}
 
 	/**
-	 * Renders the sidebar navigation.
+	 * Renders the primary administrative navigation interface.
 	 *
-	 * @param array  $menu
-	 * @param string $current_tab
+	 * This method iterates through the provided menu collection to generate a
+	 * tabbed navigation bar. It dynamically resolves module naming by checking
+	 * for i18n_config support or falling back to standard configuration arrays.
+	 *
+	 * @param array<string, object> $menu        Map of module IDs to their respective loader instances.
+	 * @param string                $current_tab The slug of the currently active navigation tab.
 	 *
 	 * @return void
 	 */
@@ -219,17 +242,23 @@ class AdminManager {
 	}
 
 	/**
-	 * Triggers the display of settings errors.
+	 * Orchestrates the display of administrative feedback messages.
 	 *
-	 * @param string $group
+	 * This method intercepts the 'settings-updated' state from the environment
+	 * to register a success notification and subsequently triggers the
+	 * WordPress settings API error display logic. It ensures that users receive
+	 * consistent confirmation after data persistence operations.
+	 *
+	 * @param string $group The settings group identifier for which to display messages.
 	 *
 	 * @return void
 	 */
 	private function render_messages( string $group ): void {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] ) {
-			add_settings_error( $group, 'settings_updated', __( 'Settings saved.', 'triskelion-toolkit' ), 'updated' );
+			\add_settings_error( $group, 'settings_updated', __( 'Settings saved.', 'triskelion-toolkit' ), 'updated' );
 		}
-		settings_errors( $group );
+		\settings_errors( $group );
 	}
 
 	/**
@@ -290,7 +319,7 @@ class AdminManager {
 			esc_html__( 'Triskelion Toolkit', 'triskelion-toolkit' ),
 			'manage_options',
 			'triskelion-toolkit',
-			array( $this, 'render_layout' )
+			array( $this, 'render_admin_page' )
 		);
 	}
 
@@ -348,6 +377,7 @@ class AdminManager {
 	 * @return string The validated active tab slug.
 	 */
 	public function get_active_tab(): string {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$tab = $_GET['tab'] ?? 'general_settings';
 
 		if ( ! $this->modules->has( $tab ) ) {

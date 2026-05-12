@@ -107,7 +107,7 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 	 * @return string The generated internal form HTML.
 	 */
 	public function render_inside_form(): string {
-		$active_modules = $this->wp->settings->get_option( 'triskelion_toolkit_general_settings' );
+		$active_modules = $this->wp->settings->get_option( 'triskelion_toolkit_general_settings', array() );
 		$all_modules    = $this->module_collection->get_all_sorted();
 
 		ob_start();

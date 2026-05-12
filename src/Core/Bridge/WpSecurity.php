@@ -9,6 +9,9 @@
 
 namespace Triskelion\TriskelionToolkit\Core\Bridge;
 
+use Exception;
+use WP_Error;
+
 /**
  * Class WpSecurity
  *
@@ -89,7 +92,13 @@ class WpSecurity extends AbstractWpBridge {
 	 *
 	 * @return string The nonce native HTML form field or mock if WP is disabled.
 	 */
-	public function nonce_field( $action = - 1, string $name = '_wpnonce', bool $referrer = true, bool $echo = true ): string {
+	public function nonce_field(
+		$action = - 1,
+		string $name = '_wpnonce',
+		bool $referrer = true,
+		// phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.echoFound
+		bool $echo = true
+	): string {
 		if ( $this->is_wp_disabled() ) {
 			$mock = '<input type="hidden" name="' . esc_attr( $name ) . '" value="mock_nonce" />';
 			if ( $echo ) {
@@ -124,5 +133,96 @@ class WpSecurity extends AbstractWpBridge {
 		}
 
 		settings_fields( $option_group );
+	}
+
+	/**
+	 * Determines the current locale for the environment.
+	 *
+	 * This method provides a decoupled way to retrieve the locale (e.g., 'en_US', 'es_MX').
+	 * It is essential for internationalization (i18n) and for loading localized
+	 * assets or external documentation links.
+	 *
+	 * When the TRISKELION_TOOLKIT_WP_DISABLED constant is true, it defaults to 'en_US'
+	 * to ensure a predictable environment for unit testing.
+	 *
+	 * @see https://developer.wordpress.org/reference/functions/determine_locale/
+	 *
+	 * @return string The determined locale.
+	 */
+	public function determine_locale(): string {
+		if ( $this->is_wp_disabled() ) {
+			return 'en_US';
+		}
+
+		return determine_locale();
+	}
+
+	/**
+	 * Loads a translation file into the textdomain.
+	 *
+	 * This is critical for internationalization (i18n). In a decoupled environment,
+	 * it returns true to simulate a successful translation load without hitting
+	 * the filesystem for .mo files.
+	 *
+	 * @see https://developer.wordpress.org/reference/functions/load_textdomain/
+	 *
+	 * @param string $domain Text domain. Unique identifier for retrieving translated strings.
+	 * @param string $mofile Path to the .mo file.
+	 *
+	 * @return bool True on success, false on failure.
+	 */
+	public function load_textdomain( string $domain, string $mofile ): bool {
+		if ( $this->is_wp_disabled() ) {
+			return true;
+		}
+
+		return load_textdomain( $domain, $mofile );
+	}
+
+	/**
+	 * Loads the plugin's translated strings.
+	 *
+	 * A wrapper for load_plugin_textdomain, which is the standard way to load
+	 * translations for a WordPress plugin.
+	 *
+	 * @see https://developer.wordpress.org/reference/functions/load_plugin_textdomain/
+	 *
+	 * @param string       $domain   Unique identifier for retrieving translated strings.
+	 * @param string|false $deprecated Deprecated. Use false.
+	 * @param string|false $plugin_rel_path Optional. Relative path to the directory containing the .mo files.
+	 *
+	 * @return bool True on success, false on failure.
+	 */
+	public function load_plugin_textdomain( string $domain, $deprecated = false, $plugin_rel_path = false ): bool {
+		if ( $this->is_wp_disabled() ) {
+			return true;
+		}
+		// phpcs:ignore WordPress.WP.DeprecatedParameters.Load_plugin_textdomainParam2Found
+		return load_plugin_textdomain( $domain, $deprecated, $plugin_rel_path );
+	}
+
+	/**
+	 * Kills WordPress execution and displays HTML error message.
+	 *
+	 * This is the bridge for the native wp_die function. In test mode, it
+	 * throws an exception instead of terminating the script, allowing the
+	 * test suite to catch and verify that the "die" condition was met.
+	 *
+	 * @see https://developer.wordpress.org/reference/functions/wp_die/
+	 *
+	 * @param string|WP_Error $message Optional. Error message.
+	 * @param string          $title   Optional. Error title.
+	 * @param string|array    $args    Optional. Arguments to control behavior.
+	 *
+	 * @throws \Exception In test mode, it throws an exception to avoid script termination.
+	 * @return void
+	 */
+	public function wp_die( $message = '', string $title = '', $args = array() ): void {
+		if ( $this->is_wp_disabled() ) {
+			// Hardening: No usamos die() en tests para no matar el proceso de PHPUnit.
+			throw new Exception( esc_html( 'WordPress Die Triggered: ' . $message ) );
+		}
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		wp_die( $message, $title, $args );
 	}
 }

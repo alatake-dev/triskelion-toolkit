@@ -26,9 +26,14 @@ class WpSettings extends AbstractWpBridge {
 	 *
 	 * @param string $option  Name of the option to retrieve.
 	 * @param mixed  $default Optional. Default value to return if the option does not exist.
+	 *
 	 * @return mixed Value set for the option.
 	 */
-	public function get_option( string $option, $default = false ) {
+	public function get_option(
+		string $option,
+		// phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.defaultFound
+		mixed $default = false
+	): mixed {
 		if ( $this->is_wp_disabled() ) {
 			return $default;
 		}
@@ -87,7 +92,7 @@ class WpSettings extends AbstractWpBridge {
 	/**
 	 * Normalizes a given path by replacing backslashes with forward slashes.
 	 *
-	 * * @param string $path The path to normalize.
+	 * @param string $path The path to normalize.
 	 *
 	 * @return string Normalized path.
 	 */
@@ -118,7 +123,8 @@ class WpSettings extends AbstractWpBridge {
 
 	/**
 	 * Gets the basename of a plugin.
-	 * * @param string $file The filename of the plugin.
+	 *
+	 * @param string $file The filename of the plugin.
 	 *
 	 * @return string The basename of the plugin.
 	 */
@@ -131,8 +137,8 @@ class WpSettings extends AbstractWpBridge {
 
 	/**
 	 * Retrieves the URL to the admin area for the current site.
-	 * * @param string      $path   Optional. Path relative to the admin URL.
 	 *
+	 * @param string      $path   Optional. Path relative to the admin URL.
 	 * @param string|null $scheme The scheme to use. Default is 'admin'.
 	 *
 	 * @return string Admin area URL with path appended.
@@ -146,7 +152,8 @@ class WpSettings extends AbstractWpBridge {
 
 	/**
 	 * Gets the URL directory path (with trailing slash) for the plugin.
-	 * * @param string $file The filename of the plugin (usually TRISKELION_TOOLKIT_FILE).
+	 *
+	 * @param string $file The filename of the plugin (usually TRISKELION_TOOLKIT_FILE).
 	 *
 	 * @return string The URL for the plugin directory.
 	 */
@@ -155,5 +162,26 @@ class WpSettings extends AbstractWpBridge {
 			return 'https://example.com/wp-content/plugins/triskelion-toolkit/';
 		}
 		return plugin_dir_url( $file );
+	}
+
+	/**
+	 * Gets the filesystem directory path (with trailing slash) for the plugin.
+	 *
+	 * Used primarily for including files or locating assets on the server.
+	 * In a decoupled environment, it returns a generic path based on the filename
+	 * to prevent path disclosure or filesystem errors during testing.
+	 *
+	 * @see https://developer.wordpress.org/reference/functions/plugin_dir_path/
+	 *
+	 * @param string $file The filename of the plugin.
+	 *
+	 * @return string The filesystem path for the plugin directory.
+	 */
+	public function plugin_dir_path( string $file ): string {
+		if ( $this->is_wp_disabled() ) {
+			return '/var/www/html/wp-content/plugins/' . basename( $file, '.php' ) . '/';
+		}
+
+		return plugin_dir_path( $file );
 	}
 }

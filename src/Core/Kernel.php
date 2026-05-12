@@ -1,4 +1,14 @@
 <?php
+/**
+ * Kernel Class File.
+ *
+ * This is the central nervous system of the Triskelion Toolkit. It handles
+ * the initialization lifecycle, internationalization, and dynamic module discovery.
+ *
+ * @package    Triskelion\TriskelionToolkit
+ * @subpackage Core
+ * @since      1.0.0
+ */
 
 namespace Triskelion\TriskelionToolkit\Core;
 
@@ -7,73 +17,103 @@ use Triskelion\TriskelionToolkit\Core\Data\ModuleCollection;
 use Triskelion\TriskelionToolkit\Core\Interfaces\NeedsModuleCollectionInterface;
 
 /**
- * Kernel: El cerebro del plugin.
- * Registra el Autoloader y levanta los módulos activos.
+ * Class Kernel
+ *
+ * The core engine of the plugin. It registers the internal infrastructure,
+ * handles bootstrapping sequences, and manages the dependency injection
+ * for active module loaders.
+ *
+ * @package Triskelion\TriskelionToolkit\Core
  */
 class Kernel {
+	/**
+	 * Registry for all discovered module configurations.
+	 *
+	 * @var ModuleCollection
+	 */
 	private ModuleCollection $modules;
+	/**
+	 * Map of currently instantiated and active module loaders.
+	 *
+	 * @var array<string, object>
+	 */
 	private array $loaded_modules = array();
-
+	/**
+	 * Bridge for decoupled WordPress core functionality.
+	 *
+	 * @var WpBridge
+	 */
 	private WpBridge $wp;
 
+	/**
+	 * Kernel constructor.
+	 *
+	 * Initializes the internal state by instantiating the WordPress bridge
+	 * and the module registry.
+	 */
 	public function __construct() {
 		$this->wp      = new WpBridge();
 		$this->modules = new ModuleCollection();
 	}
 
+	/**
+	 * Orchestrates the primary boot sequence.
+	 *
+	 * Triggers internationalization loading and internal infrastructure setup.
+	 *
+	 * @return void
+	 */
 	public function boot(): void {
 		$this->init_i18n();
 		$this->setup();
 	}
 
 	/**
-	 * Carga el dominio de traducción principal.
+	 * Initializes the internationalization system.
+	 *
+	 * Detects the current locale and loads specific .mo files, with a
+	 * fallback to the native WordPress plugin textdomain system.
+	 *
+	 * @return void
 	 */
 	public function init_i18n(): void {
 		$domain = 'triskelion-toolkit';
-		$locale = determine_locale(); // Detecta el idioma actual del WP (es_MX, en_US, es, etc.)
+		$locale = $this->wp->security->determine_locale();
 
-		// EXCEPCIÓN: Normalización del Español
-		// Si es cualquier variante de español (es_MX, es_ES, es_AR, o solo es)
 		if ( str_starts_with( $locale, 'es' ) ) {
 			$mo_file = TRISKELION_TOOLKIT_PATH . 'languages/' . $domain . '-es.mo';
 
 			if ( file_exists( $mo_file ) ) {
-				load_textdomain( $domain, $mo_file );
+				$this->wp->security->load_textdomain( $domain, $mo_file );
 
 				return;
 			}
 		}
 
-		// LÓGICA GENERAL: Para otros idiomas (inglés, francés, etc.)
-		// Intentamos cargar el archivo específico del locale actual
 		$specific_mo = TRISKELION_TOOLKIT_PATH . "languages/$domain-$locale.mo";
 
 		if ( file_exists( $specific_mo ) ) {
-			load_textdomain( $domain, $specific_mo );
+			$this->wp->security->load_textdomain( $domain, $specific_mo );
 		} else {
-			// FALLBACK: Si no hay traducción, cargamos .pot (inglés) por defecto
-			load_plugin_textdomain( $domain, false, dirname( plugin_basename( TRISKELION_TOOLKIT_FILE ) ) . '/languages' );
+			$this->wp->security->load_plugin_textdomain(
+				$domain,
+				false,
+				dirname(
+					$this->wp->settings->plugin_basename( TRISKELION_TOOLKIT_FILE )
+				) . '/languages'
+			);
 		}
 
-		add_filter(
+		$this->wp->events->add_filter(
 			'load_script_translation_file',
 			function ( $file, $handle, $current_domain ) use ( $domain ) {
-				// Solo afectamos a nuestro plugin
 				if ( $domain !== $current_domain ) {
 					return $file;
 				}
 
-				$locale = determine_locale();
-
-				// Si el idioma es español (ej. es_MX, es_AR) pero NO es el "es" base
-				if ( $locale !== 'es' && str_starts_with( $locale, 'es' ) ) {
-
-					// $file contiene la ruta que WP está intentando cargar (ej. .../triskelion-toolkit-es_MX-hash.json)
-					// Reemplazamos "-es_MX-" por "-es-" en la ruta del archivo
+				$locale = $this->wp->security->determine_locale();
+				if ( 'es' !== $locale && str_starts_with( $locale, 'es' ) ) {
 					$fallback_file = str_replace( '-' . $locale . '-', '-es-', $file );
-
-					// Si nuestro archivo base 'es' existe, obligamos a WP a usarlo
 					if ( file_exists( $fallback_file ) ) {
 						return $fallback_file;
 					}
@@ -86,17 +126,31 @@ class Kernel {
 		);
 	}
 
+	/**
+	 * Configures the administrative infrastructure.
+	 *
+	 * Loads active modules and, if in an administrative context, initializes
+	 * the AdminManager to handle the user interface.
+	 *
+	 * @return void
+	 */
 	public function setup(): void {
 		$this->load_active_modules();
-
-		if ( is_admin() ) {
+		if ( $this->wp->security->is_admin() ) {
 			$admin = new AdminManager( $this->modules, $this->loaded_modules );
 			$admin->init();
 		}
 	}
 
+	/**
+	 * Scans and instantiates active module loaders.
+	 *
+	 * Discovers modules via file system globbing, registers their configs,
+	 * and performs dependency injection for modules requiring the collection.
+	 *
+	 * @return void
+	 */
 	private function load_active_modules(): void {
-
 		$db_settings  = $this->wp->settings->get_option( 'triskelion_toolkit_general_settings', array() );
 		$loader_files = glob( TRISKELION_TOOLKIT_PATH . 'src/Modules/*/*Loader.php' );
 
@@ -105,7 +159,7 @@ class Kernel {
 			$clazz = $this->resolve_namespace( $file );
 			if ( class_exists( $clazz ) ) {
 				$this->modules->add( $clazz::get_config() );
-				Logger::debug( "Triskelion Debug: Loading module $clazz", 'Kernel' );
+				Logger::trace( "Triskelion Debug: Loading module $clazz", 'Kernel' );
 			}
 		}
 		// Creation.
@@ -114,9 +168,8 @@ class Kernel {
 
 				$clazz    = $config->clazz;
 				$instance = new $clazz();
-				Logger::debug( "Triskelion Debug: Inyectando colección de módulos en $clazz", 'Kernel' );
+				Logger::trace( "Triskelion Debug: Inyectando colección de módulos en $clazz", 'Kernel' );
 
-				// Inyección de la bolsa completa
 				if ( $instance instanceof NeedsModuleCollectionInterface ) {
 					$instance->set_module_collection( $this->modules );
 				}
@@ -126,18 +179,25 @@ class Kernel {
 		}
 	}
 
+	/**
+	 * Resolves a physical file path to its fully qualified class name.
+	 *
+	 * @param string $file_path The absolute path to the PHP file.
+	 *
+	 * @return string The resolved PSR-4 compliant namespace.
+	 */
 	private function resolve_namespace( string $file_path ): string {
 
-		$relative_path = str_replace( array( TRISKELION_TOOLKIT_PATH . 'src/', '.php', '/' ), array( '', '', '\\' ), $file_path );
+		$relative_path = str_replace(
+			array( TRISKELION_TOOLKIT_PATH . 'src/', '.php', '/' ),
+			array(
+				'',
+				'',
+				'\\',
+			),
+			$file_path
+		);
 
 		return 'Triskelion\\TriskelionToolkit\\' . $relative_path;
-	}
-
-	/**
-	 * Devuelve los módulos que están corriendo actualmente.
-	 * Útil para que la Capa de Visualización del Admin sepa qué pestañas pintar.
-	 */
-	public function get_active_modules(): array {
-		return $this->loaded_modules;
 	}
 }

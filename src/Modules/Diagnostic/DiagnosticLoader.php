@@ -150,11 +150,11 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
 	public function render_outside_form(): string {
 		$log_file = Logger::get_log_path();
 		// Lógica limpia: si no hay archivo, mostramos un placeholder técnico.
-		Logger::trace( 'render_outside_form: TRACE log_file=' . $log_file );
-		Logger::debug( 'render_outside_form: DEBUG log_file=' . $log_file );
-		Logger::info( 'render_outside_form: INFO log_file=' . $log_file );
-		Logger::warn( 'render_outside_form: WARN log_file=' . $log_file );
-		Logger::error( 'render_outside_form: ERROR log_file=' . $log_file );
+		Logger::trace( 'TRACE Log Sample' );
+		Logger::debug( 'DEBUG Log Sample' );
+		Logger::info( 'INFO Log Sample' );
+		Logger::warn( 'WARN Log Sample' );
+		Logger::error( 'ERROR Log Sample' );
 		$content = file_exists( $log_file )
 				? implode( '', array_slice( file( $log_file ), - 100 ) )
 				: '--- SYSTEM READY: NO LOG ENTRIES FOUND ---';

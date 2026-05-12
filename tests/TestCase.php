@@ -13,14 +13,25 @@ class TestCase extends \WP_Mock\Tools\TestCase {
 	public function setUp(): void {
 		parent::setUp();
 		WP_Mock::setUp();
+		$this->mock_constants();
+		$this->mock_wp_filesystem();
+		$this->mock_wp_creation();
+	}
+
+	public function mock_constants(): void {
+		$project_root = dirname( __DIR__ ) . '/';
+		if ( ! defined( 'TRISKELION_TOOLKIT_VERSION' ) ) {
+			define( 'TRISKELION_TOOLKIT_VERSION', '1.0.0' );
+		}
 		if ( ! defined( 'TRISKELION_TOOLKIT_WP_DISABLED' ) ) {
 			define( 'TRISKELION_TOOLKIT_WP_DISABLED', 'Tests running' );
 		}
 		if ( ! defined( 'TRISKELION_TOOLKIT_FILE' ) ) {
-			define( 'TRISKELION_TOOLKIT_FILE', __FILE__ );
+			define( 'TRISKELION_TOOLKIT_FILE', $project_root . 'triskelion-toolkit.php' );
 		}
-		$this->mock_wp_filesystem();
-		$this->mock_wp_creation();
+		if ( ! defined( 'TRISKELION_TOOLKIT_PATH' ) ) {
+			define( 'TRISKELION_TOOLKIT_PATH',  $project_root  );
+		}
 	}
 
 	public function mock_wp_creation(): void {

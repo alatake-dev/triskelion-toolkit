@@ -2,13 +2,15 @@
 <ruleset name="TriskelionToolkit">
     <description>Reglas de estilo Senior para Triskelion Toolkit.</description>
 
-    <rule ref="WordPress-Core" />
-    <rule ref="WordPress-Docs" />
-    <rule ref="WordPress-Extra" />
+    <rule ref="WordPress-Core"/>
+    <rule ref="WordPress-Docs"/>
+    <rule ref="WordPress-Extra"/>
 
     <rule ref="WordPress.WP.I18n">
         <properties>
-            <property name="text_domain" type="array" value="triskelion-toolkit" />
+            <property name="text_domain" type="array">
+                <element value="triskelion-toolkit"/>
+            </property>
         </properties>
     </rule>
 
@@ -18,20 +20,29 @@
     <exclude-pattern>*/build/*</exclude-pattern>
 
     <arg name="colors"/>
-    <arg value="sp"/> <arg name="extensions" value="php"/>
+    <arg value="sp"/>
+    <arg name="extensions" value="php"/>
 
     <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
         <properties>
-            <property name="prefixes" type="array" value="triskelion" />
+            <property name="prefixes" type="array">
+                <element value="triskelion_toolkit"/>
+                <element value="TRISKELION_TOOLKIT"/>
+                <element value="triskelion"/>
+            </property>
         </properties>
     </rule>
     <rule ref="WordPress.Files.FileName">
         <properties>
-            <property name="strict_class_file_names" value="false" />
+            <property name="strict_class_file_names" value="false"/>
         </properties>
-        <exclude name="WordPress.Files.FileName.NotHyphenatedLowers" />
-        <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase" />
-        <exclude name="WordPress.Files.FileName.InvalidClassFileName" />
+        <exclude name="WordPress.Files.FileName.NotHyphenatedLowers"/>
+        <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+        <exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
     </rule>
+
+    <property name="text_domain" type="array">
+        <element value="triskelion-toolkit"/>
+    </property>
 
 </ruleset>
