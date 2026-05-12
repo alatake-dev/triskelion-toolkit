@@ -67,18 +67,4 @@ abstract class AbstractModule {
 	 * @since  1.0.0
 	 */
 	abstract protected function register(): void;
-
-	/**
-	 * Sets the WordPress Bridge instance.
-	 *
-	 * This setter allows for injecting a mock or a specific instance of the WpBridge,
-	 * which is essential for decoupling the manager from global WordPress functions
-	 * during unit testing.
-	 *
-	 * @param WpBridge $wp The WordPress Bridge instance.
-	 * @since 1.0.0
-	 */
-	public function set_wp( WpBridge $wp ): void {
-		$this->wp = $wp;
-	}
 }

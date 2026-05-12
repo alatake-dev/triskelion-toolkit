@@ -16,7 +16,9 @@ class TestCase extends \WP_Mock\Tools\TestCase {
 		if ( ! defined( 'TRISKELION_TOOLKIT_WP_DISABLED' ) ) {
 			define( 'TRISKELION_TOOLKIT_WP_DISABLED', 'Tests running' );
 		}
-		$this->set_env_debug( false );
+		if ( ! defined( 'TRISKELION_TOOLKIT_FILE' ) ) {
+			define( 'TRISKELION_TOOLKIT_FILE', __FILE__ );
+		}
 		$this->mock_wp_filesystem();
 		$this->mock_wp_creation();
 	}
@@ -25,7 +27,6 @@ class TestCase extends \WP_Mock\Tools\TestCase {
 		if ( ! defined( 'ABSPATH' ) ) {
 			define( 'ABSPATH', __DIR__ . '/../' );
 		}
-		$this->set_env_debug( false );
 
 
 		WP_Mock::userFunction( 'settings_errors', ['return' => null]);
@@ -34,6 +35,16 @@ class TestCase extends \WP_Mock\Tools\TestCase {
 		WP_Mock::userFunction( 'do_settings_sections', [] );
 		WP_Mock::userFunction( 'disabled', [
 			'return' => ' disabled="disabled"',
+			'print' => true
+		]);
+		WP_Mock::userFunction( 'selected', [
+			'return' => function( $selected, $current, $echo = true ) {
+				$result = ( (string) $selected === (string) $current ) ? ' selected="selected"' : '';
+				if ( $echo ) {
+					echo $result;
+				}
+				return $result;
+			},
 			'print' => true
 		]);
 
@@ -58,6 +69,8 @@ class TestCase extends \WP_Mock\Tools\TestCase {
 		$filesystem->shouldReceive( 'exists' )->andReturn( true );
 		$filesystem->shouldReceive( 'move' )->andReturn( true );
 		$filesystem->shouldReceive( 'abspath' )->andReturnArg( 0 );
+		$filesystem->shouldReceive( 'is_dir' )->andReturn( true );
+		$filesystem->shouldReceive( 'is_writable' )->andReturn( true );
 
 		$GLOBALS['wp_filesystem'] = $filesystem;
 
@@ -66,8 +79,4 @@ class TestCase extends \WP_Mock\Tools\TestCase {
 		] );
 	}
 
-	protected function set_env_debug( bool $enabled, string $level = 'error' ): void {
-		Logger::set_test_constant( 'TRISKELION_TOOLKIT_DEBUG', $enabled );
-		Logger::set_test_constant( 'TRISKELION_TOOLKIT_LOG_LEVEL', $level );
-	}
 }

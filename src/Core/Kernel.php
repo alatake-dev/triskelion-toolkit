@@ -2,6 +2,7 @@
 
 namespace Triskelion\TriskelionToolkit\Core;
 
+use Triskelion\TriskelionToolkit\Core\Bridge\WpBridge;
 use Triskelion\TriskelionToolkit\Core\Data\ModuleCollection;
 use Triskelion\TriskelionToolkit\Core\Interfaces\NeedsModuleCollectionInterface;
 
@@ -13,7 +14,10 @@ class Kernel {
 	private ModuleCollection $modules;
 	private array $loaded_modules = array();
 
+	private WpBridge $wp;
+
 	public function __construct() {
+		$this->wp      = new WpBridge();
 		$this->modules = new ModuleCollection();
 	}
 
@@ -93,7 +97,7 @@ class Kernel {
 
 	private function load_active_modules(): void {
 
-		$db_settings  = get_option( 'triskelion_toolkit_general_settings', array() );
+		$db_settings  = $this->wp->settings->get_option( 'triskelion_toolkit_general_settings', array() );
 		$loader_files = glob( TRISKELION_TOOLKIT_PATH . 'src/Modules/*/*Loader.php' );
 
 		// Discovery.

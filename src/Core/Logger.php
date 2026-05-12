@@ -8,6 +8,8 @@
 
 namespace Triskelion\TriskelionToolkit\Core;
 
+use stdClass;
+use Triskelion\TriskelionToolkit\Core\Bridge\WpBridge;
 use Triskelion\TriskelionToolkit\Core\Enums\LogLevel;
 use Triskelion\TriskelionToolkit\Core\Exceptions\FileSystemException;
 use WP_Filesystem_Base;
@@ -43,26 +45,10 @@ class Logger {
 	 * @var bool
 	 */
 	private static bool $initialized = false;
-	/**
-	 * Storage for mocked constants during testing.
-	 *
-	 * @var array
-	 */
-	private static array $test_constants = array();
 
 	private static bool $admin_notice = false;
 
-	/**
-	 * Sets a value for a mocked constant during unit tests.
-	 *
-	 * @param string $name Constant name.
-	 * @param mixed  $value Constant value.
-	 *
-	 * @return void
-	 */
-	public static function set_test_constant( string $name, $value ): void {
-		self::$test_constants[ $name ] = $value;
-	}
+	private static WpBridge $wp;
 
 
 	/**
@@ -77,13 +63,9 @@ class Logger {
 	 */
 	private static function write( string $message, LogLevel $level, string $module ): void {
 		self::init();
-		$config = self::get_config();
-		if ( ! $config['enabled'] ) {
-			return;
-		}
-
-		$saved_value  = (int) get_option( 'triskelion_toolkit_diagnostic_settings' )['level'];
-		$config_level = LogLevel::tryFrom( $saved_value ) ?? LogLevel::OFF;
+		$default_level = array( 'level' => LogLevel::OFF->value );
+		$saved_value   = (int) self::$wp->settings->get_option( 'triskelion_toolkit_diagnostic_settings', $default_level )['level'];
+		$config_level  = LogLevel::tryFrom( $saved_value ) ?? LogLevel::OFF;
 
 		if ( $level->value < $config_level->value ) {
 			return;
@@ -116,10 +98,11 @@ class Logger {
 		if ( self::$initialized ) {
 			return;
 		}
+		self::$wp          = new WpBridge();
 		self::$initialized = true;
 		try {
 			$upload_dir     = self::get_file_system_status();
-			self::$log_path = wp_normalize_path( $upload_dir['basedir'] . '/triskelion-logs' );
+			self::$log_path = self::$wp->settings->normalize_path( $upload_dir['basedir'] . '/triskelion-logs' );
 
 			$fs = self::get_filesystem();
 
@@ -160,52 +143,6 @@ class Logger {
 		$wp_filesystem = self::get_filesystem();
 		$wp_filesystem->put_contents( self::$log_path . '/.htaccess', 'Deny from all' );
 		$wp_filesystem->put_contents( self::$log_path . '/index.php', '<?php // Silence' );
-	}
-
-	/**
-	 * Retrieves logger configuration from constants or database.
-	 *
-	 * @return array Configuration data.
-	 */
-	private static function get_config(): array {
-		$ret_val   = array();
-		$env_debug = self::get_env_constant( 'TRISKELION_TOOLKIT_DEBUG' );
-		if ( null !== $env_debug ) {
-			$enabled = (bool) $env_debug;
-		}
-
-		$env_level = self::get_env_constant( 'TRISKELION_TOOLKIT_LOG_LEVEL' );
-		if ( null !== $env_level ) {
-			$level = (string) $env_level;
-		}
-		if ( ! isset( $enabled ) || ! isset( $level ) ) {
-			$settings = $settings ?? get_option( 'triskelion_toolkit_diagnostic_settings', array() );
-			if ( ! isset( $enabled ) ) {
-				$enabled = $settings['debug_enabled'] ?? false;
-			}
-			if ( ! isset( $level ) ) {
-				$level = $settings['level'] ?? 'error';
-			}
-		}
-		$ret_val['enabled'] = $enabled;
-		$ret_val['level']   = strtolower( $level );
-
-		return $ret_val;
-	}
-
-	/**
-	 * Environment-aware constant retriever. Supports testing mocks.
-	 *
-	 * @param string $name Constant name.
-	 *
-	 * @return mixed|null Value or null if not defined.
-	 */
-	protected static function get_env_constant( string $name ): mixed {
-		if ( isset( self::$test_constants[ $name ] ) ) {
-			return self::$test_constants[ $name ];
-		}
-
-		return defined( $name ) ? constant( $name ) : null;
 	}
 
 	/**
@@ -252,7 +189,7 @@ class Logger {
 	}
 
 	public static function get_file_system_status(): array {
-		$uploads = wp_upload_dir();
+		$uploads = self::$wp->settings->upload_dir();
 
 		if ( ! empty( $uploads['error'] ) ) {
 			self::error_log( 'WordPress Filesystem Error [get_file_system_status]: ' . $uploads['error'] );
@@ -264,10 +201,10 @@ class Logger {
 	/**
 	 * Ensures the WordPress Filesystem global is initialized.
 	 *
-	 * @return \WP_Filesystem_Base
+	 * @return WP_Filesystem_Base|stdClass stdClass if the bridge is in no WP mode.
 	 * @throws FileSystemException If the filesystem cannot be initialized.
 	 */
-	private static function get_filesystem(): WP_Filesystem_Base {
+	private static function get_filesystem(): WP_Filesystem_Base|stdClass {
 		global $wp_filesystem;
 		$uploads = self::get_file_system_status();
 
@@ -280,7 +217,7 @@ class Logger {
 				throw new FileSystemException( 'Filesystem method is not "direct". Check server configuration.' );
 			}
 
-			if ( ! WP_Filesystem() ) {
+			if ( ! self::$wp->security->filesystem() ) {
 				self::error_log( 'WordPress Filesystem Error [get_filesystem_method]: initialize WordPress Filesystem' );
 				throw new FileSystemException( 'Failed to initialize WordPress Filesystem.' );
 			}

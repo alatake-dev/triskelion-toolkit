@@ -9,8 +9,4 @@ enum LogLevel: int {
 	case WARN  = 400;
 	case ERROR = 500;
 	case OFF   = 1000;
-
-	public function satisfies( LogLevel $threshold ): bool {
-		return $this->value >= $threshold->value;
-	}
 }

@@ -80,7 +80,7 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 	 * @return void
 	 */
 	public function register_module_settings(): void {
-		register_setting(
+		$this->wp->settings->register_setting(
 			'triskelion_toolkit_general_settings_group',
 			'triskelion_toolkit_general_settings',
 			array(
@@ -107,7 +107,7 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 	 * @return string The generated internal form HTML.
 	 */
 	public function render_inside_form(): string {
-		$active_modules = get_option( 'triskelion_toolkit_general_settings', array() );
+		$active_modules = $this->wp->settings->get_option( 'triskelion_toolkit_general_settings' );
 		$all_modules    = $this->module_collection->get_all_sorted();
 
 		ob_start();
@@ -116,8 +116,8 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 			<?php foreach ( $all_modules as $id => $config ) : ?>
 				<?php
 				$is_core  = (bool) $config->is_core;
-				$disabled = $is_core ? 'disabled' : '';
-				$checked  = ( $is_core || in_array( $id, $active_modules, true ) ) ? 'checked' : '';
+				$disabled = $is_core ? ' disabled  ' : '';
+				$checked  = ( $is_core || in_array( $id, $active_modules, true ) ) ? ' checked ' : ' ';
 				?>
 				<div class="triskelion-toolkit-module-card <?php echo $is_core ? 'is-core' : ''; ?>">
 					<label class="triskelion-toolkit-switch">
@@ -126,7 +126,7 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 								id="module_<?php echo esc_attr( $id ); ?>"
 								value="<?php echo esc_attr( $id ); ?>"
 								<?php echo esc_attr( $checked ); ?>
-								<?php echo esc_attr( $disabled ); ?>>
+								<?php echo esc_attr( $disabled ); ?> >
 						<span class="triskelion-toolkit-slider"></span>
 					</label>
 
@@ -134,7 +134,7 @@ class GeneralSettingsLoader extends AbstractModule implements HasSettingsInterfa
 						<strong>
 							<?php echo esc_html( $this->resolve_i18n_field( 'name', $config ) ); ?>
 							<?php if ( $is_core ) : ?>
-								<span class="tsk-badge tsk-badge--mandatory">(<?php esc_html_e( 'Core Module', 'triskelion-toolkit' ); ?>)</span>
+								<span class="triskelion-toolkit-badge triskelion-toolkit-badge--mandatory">(<?php esc_html_e( 'Core Module', 'triskelion-toolkit' ); ?>)</span>
 							<?php endif; ?>
 						</strong>
 						<p class="description">

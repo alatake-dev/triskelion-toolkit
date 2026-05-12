@@ -210,7 +210,7 @@ class AdminManager {
 	 * @return string[] The modified array containing the prepended "Settings" link.
 	 */
 	public function add_settings_link( array $links ): array {
-		$url   = admin_url( 'admin.php?page=triskelion-toolkit' );
+		$url   = $this->wp->settings->admin_url( 'admin.php?page=triskelion-toolkit' );
 		$label = __( 'Settings', 'triskelion-toolkit' );
 
 		array_unshift( $links, "<a href=\"{$url}\">{$label}</a>" );
@@ -245,7 +245,7 @@ class AdminManager {
 		$this->wp->events->add_action( 'admin_menu', array( $this, 'add_toolkit_menu' ) );
 		$this->wp->events->add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 
-		$basename = plugin_basename( TRISKELION_TOOLKIT_FILE );
+		$basename = $this->wp->settings->plugin_basename( TRISKELION_TOOLKIT_FILE );
 		$this->wp->events->add_filter( "plugin_action_links_$basename", array( $this, 'add_settings_link' ) );
 		$this->wp->events->add_action( 'admin_init', array( $this, 'trigger_module_settings' ) );
 		$this->wp->events->add_filter( 'block_categories_all', array( $this, 'add_block_categories' ) );
@@ -312,8 +312,8 @@ class AdminManager {
 			return;
 		}
 		$this->wp->events->enqueue_style(
-			'tsk-admin-layout',
-			plugin_dir_url( TRISKELION_TOOLKIT_FILE ) . 'build/admin-layout.css',
+			'triskelion-toolkit-admin-layout',
+			$this->wp->settings->plugin_dir_url( TRISKELION_TOOLKIT_FILE ) . 'build/admin-layout.css',
 			array(),
 			'1.0.0'
 		);
@@ -338,5 +338,22 @@ class AdminManager {
 				$module->register_module_settings();
 			}
 		}
+	}
+
+	/**
+	 * Resolves the currently active navigation tab.
+	 * * Hardening: It defaults to 'general_settings' if the parameter is missing
+	 * or if the requested tab doesn't exist in the collection.
+	 *
+	 * @return string The validated active tab slug.
+	 */
+	public function get_active_tab(): string {
+		$tab = $_GET['tab'] ?? 'general_settings';
+
+		if ( ! $this->modules->has( $tab ) ) {
+			return 'general_settings';
+		}
+
+		return $tab;
 	}
 }

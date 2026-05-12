@@ -434,7 +434,7 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
 	 * @return void
 	 */
 	public function register_module_settings(): void {
-		register_setting(
+		$this->wp->settings->register_setting(
 			$this->get_config()->settings_group,
 			'triskelion_toolkit_showcase_settings',
 			array(

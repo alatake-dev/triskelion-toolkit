@@ -17,18 +17,27 @@ namespace Triskelion\TriskelionToolkit\Core\Bridge;
  * @package Triskelion\TriskelionToolkit\Core\Bridge
  */
 class WpSecurity extends AbstractWpBridge {
+
+	/**
+	 * Internal filesystem instance.
+	 *
+	 * @var object|null
+	 */
+
 	/**
 	 * Checks if the current user has a specific capability.
 	 *
 	 * @see https://developer.wordpress.org/reference/functions/current_user_can/
 	 *
 	 * @param string $capability Capability name.
+	 *
 	 * @return bool
 	 */
 	public function current_user_can( string $capability ): bool {
 		if ( $this->is_wp_disabled() ) {
 			return true;
 		}
+
 		return current_user_can( $capability );
 	}
 
@@ -37,14 +46,16 @@ class WpSecurity extends AbstractWpBridge {
 	 *
 	 * @see https://developer.wordpress.org/reference/functions/check_admin_referer/
 	 *
-	 * @param string|int $action    Role-specific action name.
+	 * @param string|int $action Role-specific action name.
 	 * @param string     $query_arg Optional. Name of the query variable.
+	 *
 	 * @return int|false 1 if valid, false on failure.
 	 */
-	public function check_admin_referer( string|int $action = -1, string $query_arg = '_wpnonce' ): false|int {
+	public function check_admin_referer( string|int $action = - 1, string $query_arg = '_wpnonce' ): false|int {
 		if ( $this->is_wp_disabled() ) {
 			return 1;
 		}
+
 		return check_admin_referer( $action, $query_arg );
 	}
 
@@ -59,6 +70,7 @@ class WpSecurity extends AbstractWpBridge {
 		if ( $this->is_wp_disabled() ) {
 			return true;
 		}
+
 		return is_admin();
 	}
 
@@ -70,18 +82,20 @@ class WpSecurity extends AbstractWpBridge {
 	 *
 	 * @see https://developer.wordpress.org/reference/functions/wp_nonce_field/
 	 *
-	 * @param string|int $action  Optional. Action name. Default -1.
-	 * @param string     $name    Optional. Nonce name. Default '_wpnonce'.
+	 * @param string|int $action Optional. Action name. Default -1.
+	 * @param string     $name Optional. Nonce name. Default '_wpnonce'.
 	 * @param bool       $referrer Optional. Whether to set the referrer field for validation. Default true.
-	 * @param bool       $echo     Optional. Whether to display or return hidden form field. Default true.
+	 * @param bool       $echo Optional. Whether to display or return hidden form field. Default true.
+	 *
 	 * @return string The nonce native HTML form field or mock if WP is disabled.
 	 */
-	public function nonce_field( $action = -1, string $name = '_wpnonce', bool $referrer = true, bool $echo = true ): string {
+	public function nonce_field( $action = - 1, string $name = '_wpnonce', bool $referrer = true, bool $echo = true ): string {
 		if ( $this->is_wp_disabled() ) {
 			$mock = '<input type="hidden" name="' . esc_attr( $name ) . '" value="mock_nonce" />';
 			if ( $echo ) {
 				echo $mock; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
+
 			return $mock;
 		}
 
@@ -99,11 +113,13 @@ class WpSecurity extends AbstractWpBridge {
 	 *
 	 * @param string $option_group A settings group name. This should match the
 	 * group name used in register_setting().
+	 *
 	 * @return void
 	 */
 	public function settings_fields( string $option_group ): void {
 		if ( $this->is_wp_disabled() ) {
 			echo '<input type="hidden" name="option_page" value="' . esc_attr( $option_group ) . '" />';
+
 			return;
 		}
 

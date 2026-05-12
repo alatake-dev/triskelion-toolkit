@@ -3,97 +3,67 @@
 namespace Triskelion\TriskelionToolkit\Tests\Modules\GeneralSettings;
 
 use Triskelion\TriskelionToolkit\Core\Data\ModuleCollection;
-use Triskelion\TriskelionToolkit\Core\Data\ModuleConfig;
 use Triskelion\TriskelionToolkit\Modules\CodeShowcase\CodeShowcaseLoader;
 use Triskelion\TriskelionToolkit\Modules\Diagnostic\DiagnosticLoader;
 use Triskelion\TriskelionToolkit\Modules\GeneralSettings\GeneralSettingsLoader;
 use Triskelion\TriskelionToolkit\Tests\TestCase;
-use WP_Mock;
 
-
+/**
+ * Class GeneralSettingsLoaderTest
+ *
+ * Test suite for GeneralSettingsLoader using the WP_DISABLED bridge strategy.
+ * This approach tests real object interactions without mocking WordPress globals.
+ */
 class GeneralSettingsLoaderTest extends TestCase {
 
-	private ModuleConfig $valid_config;
 	private ModuleCollection $module_collection;
+	private GeneralSettingsLoader $loader;
 
 	public function setUp(): void {
 		parent::setUp();
-		$this->setup_module_collection();
+
+		$this->module_collection = new ModuleCollection();
+		$this->module_collection->add( GeneralSettingsLoader::get_config() );
+		$this->module_collection->add( DiagnosticLoader::get_config() );
+
+		$this->loader = new GeneralSettingsLoader();
+		$this->loader->set_module_collection( $this->module_collection );
 	}
 
-	private function setup_module_collection(): void {
-		$this->module_collection = new ModuleCollection();
-		$this->valid_config      = GeneralSettingsLoader::get_config();
-		$this->module_collection->add( $this->valid_config );
-		$this->module_collection->add( DiagnosticLoader::get_config() );
-		$this->module_collection->add( CodeShowcaseLoader::get_config() );
+	public function test_sanitize_module_settings_filters_invalid_ids() {
+		// 'diagnostic' y 'code_showcase' son válidos. 'hacker_mod' no existe.
+		$input = array( 'diagnostic', 'hacker_mod' );
+
+		$output = $this->loader->sanitize_module_settings( $input );
+
+		$this->assertCount( 1, $output );
+		$this->assertContains( 'diagnostic', $output );
+		$this->assertNotContains( 'hacker_mod', $output );
+	}
+
+	public function test_sanitize_module_settings_handles_garbage_input() {
+		$this->assertSame( array(), $this->loader->sanitize_module_settings( null ) );
+		$this->assertSame( array(), $this->loader->sanitize_module_settings( 'invalid_string' ) );
+		$this->assertSame( array(), $this->loader->sanitize_module_settings( 12345 ) );
 	}
 
 	/**
-	 * Prueba que el sanitizador solo deje pasar IDs que existen en la colección
-	 * y que no son obligatorios (is_core).
+	 * @test
+	 * Verifica que el renderizado genere el HTML esperado para los módulos.
+	 * Al estar WP_DISABLED, las funciones como checked() o esc_html()
+	 * deben estar cubiertas por el TestCase o el Bridge.
 	 */
-	public function test_sanitize_module_settings_filters_invalid_and_core_ids() {
-		echo "test_sanitize_module_settings_filters_invalid_and_core_ids";
-		$loader = new GeneralSettingsLoader();
-		$loader->set_module_collection( $this->module_collection );
-		$input  = [ CodeShowcaseLoader::get_config()->id ];
-		$output = $loader->sanitize_module_settings( $input );
-		$this->assertCount( 1, $output );
-		$this->assertEquals( $this->valid_config->id, in_array( CodeShowcaseLoader::get_config()->id, $output, true ) );
+	public function test_render_inside_form_resilience_with_empty_db() {
+		// Ejecutamos el render (usa ob_start internamente)
+		$html = $this->loader->render_inside_form();
+		var_dump( $html );
 
-	}
+		// Verificamos elementos clave del DOM definido en el Loader
+		$this->assertStringContainsString( 'triskelion_toolkit_general_settings[]', $html );
+		$this->assertStringNotContainsString( 'Code Showcase', $html );
 
-	public function test_render_settings_includes_module_grid_html() {
-		$collection = $this->module_collection;
-		$loader     = new GeneralSettingsLoader();
-		$loader->set_module_collection( $collection );
-
-
-
-
-		WP_Mock::userFunction( 'get_option', [
-			'return' => function( $option, $default ) {
-				if ( $option === 'triskelion_toolkit_general_settings' ) {
-					return [ GeneralSettingsLoader::get_config()->id ];
-				}
-				if ( $option === 'triskelion_toolkit_diagnostic_settings' ) {
-					return [ 'enabled' => false ];
-				}
-				return $default;
-			}
-		] );
-
-		WP_Mock::userFunction( 'checked', [
-			'return' => ' checked="checked"',
-			'print' => true
-		] );
-
-		WP_Mock::userFunction( 'submit_button', [
-			'return' => '<button>Save</button>'
-		] );
-
-		$html = $loader->render_settings();
-
-		$this->assertStringContainsString( $this->valid_config->id, $html );
-		$this->assertStringContainsString( '<div class="triskelion-toolkit-module-info">', $html );
-		$this->assertStringContainsString( 'triskelion-toolkit-module-card--core', $html );
+		// Verificamos que General Settings (is_core) tenga su badge mandatory
 		$this->assertStringContainsString( 'triskelion-toolkit-badge--mandatory', $html );
-
 	}
-	public function test_sanitize_diagnostic_settings_enforces_data_integrity() {
-		$loader = new DiagnosticLoader();
 
-		$dirty_input = [
-			'debug_enabled' => '1',
-			'level'         => 'fake_level'
-		];
-
-		$output = $loader->sanitize_module_settings( $dirty_input );
-
-		$this->assertIsBool( $output['debug_enabled'] );
-		$this->assertTrue( $output['debug_enabled'] );
-
-		$this->assertEquals( 'error', $output['level'] );
-	}
 }

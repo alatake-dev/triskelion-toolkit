@@ -45,7 +45,7 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
 	 * @return void
 	 */
 	public function register_module_settings(): void {
-		register_setting(
+		$this->wp->settings->register_setting(
 			'triskelion_toolkit_diagnostic_group',
 			'triskelion_toolkit_diagnostic_settings',
 			array(
@@ -67,10 +67,10 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
 	public function sanitize_module_settings( $input ): array {
 		$level_value = isset( $input['level'] ) ? (int) $input['level'] : LogLevel::INFO->value;
 
-		$level = LogLevel::tryFrom( $level_value )
+		$level = LogLevel::tryFrom( $level_value )->value
 				?? LogLevel::INFO->value;
 		return array(
-			'level' => $level->value,
+			'level' => $level,
 		);
 	}
 
@@ -83,13 +83,12 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
 	 * @return string The internal form HTML.
 	 */
 	public function render_inside_form(): string {
-		$options         = get_option(
+		$options         = $this->wp->settings->get_option(
 			'triskelion_toolkit_diagnostic_settings',
 			array(
 				'level' => LogLevel::INFO->value,
 			)
 		);
-		$is_debug_forced = defined( 'TRISKELION_TOOLKIT_DEBUG' );
 		$is_level_forced = defined( 'TRISKELION_TOOLKIT_LOG_LEVEL' );
 
 		$val_level = $is_level_forced ? constant( 'TRISKELION_TOOLKIT_LOG_LEVEL' ) : $options['level'];
@@ -97,7 +96,7 @@ class DiagnosticLoader extends AbstractModule implements RegistrableModuleInterf
 		?>
 		<header class="triskelion-toolkit-section-header">
 			<h2><?php esc_html_e( 'Logs & Diagnostic', 'triskelion-toolkit' ); ?></h2>
-			<?php if ( $is_debug_forced || $is_level_forced ) : ?>
+			<?php if ( $is_level_forced ) : ?>
 				<p class="triskelion-toolkit-notice triskelion-toolkit-notice--info">
 					<span class="dashicons dashicons-lock"></span>
 					<?php esc_html_e( 'Configuration managed via code (wp-config.php).', 'triskelion-toolkit' ); ?>

@@ -107,11 +107,11 @@ class WpEvents extends AbstractWpBridge {
 	 * It checks the 'is_wp_disabled' status (Feature Flag) before registering
 	 * the asset in the WordPress queue.
 	 *
-	 * @param string           $handle    Name of the script. Should be unique.
-	 * @param string           $src       Full URL of the script, or path of the script relative to the WordPress root directory.
-	 * @param array            $deps      Optional. An array of registered script handles this script depends on.
-	 * @param string|bool|int  $ver       Optional. String specifying script version number, if it has one.
-	 * @param array|bool       $args      Optional. An array of extra arguments, or a boolean for in_footer.
+	 * @param string          $handle    Name of the script. Should be unique.
+	 * @param string          $src       Full URL of the script, or path of the script relative to the WordPress root directory.
+	 * @param array           $deps      Optional. An array of registered script handles this script depends on.
+	 * @param string|bool|int $ver       Optional. String specifying script version number, if it has one.
+	 * @param array|bool      $args      Optional. An array of extra arguments, or a boolean for in_footer.
 	 * * @return void
 	 */
 	public function enqueue_script(

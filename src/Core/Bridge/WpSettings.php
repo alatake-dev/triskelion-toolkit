@@ -67,4 +67,93 @@ class WpSettings extends AbstractWpBridge {
 		}
 		return wp_parse_args( $args, $defaults );
 	}
+
+	/**
+	 * Bridge for wp_upload_dir().
+	 *
+	 * @return array{path: string, url: string, ...} Directory data or mock paths if disabled.
+	 */
+	public function upload_dir(): array {
+		if ( $this->is_wp_disabled() ) {
+			return array(
+				'path'    => '/tmp/triskelion-tests',
+				'basedir' => '/tmp/triskelion-tests',
+				'url'     => 'https://example.com/wp-content/uploads',
+			);
+		}
+		return wp_upload_dir();
+	}
+
+	/**
+	 * Normalizes a given path by replacing backslashes with forward slashes.
+	 *
+	 * * @param string $path The path to normalize.
+	 *
+	 * @return string Normalized path.
+	 */
+	public function normalize_path( string $path ): string {
+		if ( $this->is_wp_disabled() ) {
+			return str_replace( '\\', '/', $path );
+		}
+		return wp_normalize_path( $path );
+	}
+
+	/**
+	 * Registers a setting and its sanitization callback.
+	 *
+	 * @see https://developer.wordpress.org/reference/functions/register_setting/
+	 *
+	 * @param string $option_group A settings group name.
+	 * @param string $option_name  The name of an option to sanitize and save.
+	 * @param array  $args         Data used to describe the setting when registered.
+	 *
+	 * @return void
+	 */
+	public function register_setting( string $option_group, string $option_name, array $args = array() ): void {
+		if ( $this->is_wp_disabled() ) {
+			return;
+		}
+		register_setting( $option_group, $option_name, $args );
+	}
+
+	/**
+	 * Gets the basename of a plugin.
+	 * * @param string $file The filename of the plugin.
+	 *
+	 * @return string The basename of the plugin.
+	 */
+	public function plugin_basename( string $file ): string {
+		if ( $this->is_wp_disabled() ) {
+			return basename( $file, '.php' );
+		}
+		return plugin_basename( $file );
+	}
+
+	/**
+	 * Retrieves the URL to the admin area for the current site.
+	 * * @param string      $path   Optional. Path relative to the admin URL.
+	 *
+	 * @param string|null $scheme The scheme to use. Default is 'admin'.
+	 *
+	 * @return string Admin area URL with path appended.
+	 */
+	public function admin_url( string $path = '', ?string $scheme = 'admin' ): string {
+		if ( $this->is_wp_disabled() ) {
+			return 'https://example.com/wp-admin/' . ltrim( $path, '/' );
+		}
+		return admin_url( $path, $scheme );
+	}
+
+	/**
+	 * Gets the URL directory path (with trailing slash) for the plugin.
+	 * * @param string $file The filename of the plugin (usually TRISKELION_TOOLKIT_FILE).
+	 *
+	 * @return string The URL for the plugin directory.
+	 */
+	public function plugin_dir_url( string $file ): string {
+		if ( $this->is_wp_disabled() ) {
+			return 'https://example.com/wp-content/plugins/triskelion-toolkit/';
+		}
+		return plugin_dir_url( $file );
+	}
 }

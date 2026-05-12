@@ -79,4 +79,15 @@ class ModuleCollection {
 	public function get( string $id ): ?ModuleConfig {
 		return $this->items[ $id ] ?? null;
 	}
+
+	/**
+	 * Checks if a specific module configuration exists in the collection.
+	 *
+	 * @param string $module_id The module identifier to verify.
+	 *
+	 * @return bool True if the module exists, false otherwise.
+	 */
+	public function has( string $module_id ): bool {
+		return isset( $this->items[ $module_id ] );
+	}
 }
