@@ -225,4 +225,20 @@ class WpSecurity extends AbstractWpBridge {
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		wp_die( $message, $title, $args );
 	}
+
+	/**
+	 * Sanitizes a string key.
+	 *
+	 * Keys are used for internal identifiers, settings, and CSS classes.
+	 *
+	 * @param string $key The key to be sanitized.
+	 * @return string The sanitized key.
+	 */
+	public function sanitize_key( string $key ): string {
+		if ( $this->is_wp_disabled() ) {
+			return preg_replace( '/[^a-z0-9_\-]/', '', strtolower( $key ) );
+
+		}
+		return sanitize_key( $key );
+	}
 }

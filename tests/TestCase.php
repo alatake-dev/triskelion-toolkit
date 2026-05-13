@@ -14,6 +14,7 @@ class TestCase extends \WP_Mock\Tools\TestCase {
 		parent::setUp();
 		WP_Mock::setUp();
 		$this->mock_constants();
+		$this->mock_functions();
 		$this->mock_wp_filesystem();
 		$this->mock_wp_creation();
 	}
@@ -32,7 +33,12 @@ class TestCase extends \WP_Mock\Tools\TestCase {
 		if ( ! defined( 'TRISKELION_TOOLKIT_PATH' ) ) {
 			define( 'TRISKELION_TOOLKIT_PATH',  $project_root  );
 		}
+		if ( ! defined( 'TRISKELION_TOOLKIT_URL' ) ) {
+			define( 'TRISKELION_TOOLKIT_URL',  $project_root  );
+		}
 	}
+
+
 
 	public function mock_wp_creation(): void {
 		if ( ! defined( 'ABSPATH' ) ) {
@@ -88,6 +94,16 @@ class TestCase extends \WP_Mock\Tools\TestCase {
 		WP_Mock::userFunction( 'WP_Filesystem', [
 			'return' => true,
 		] );
+	}
+
+	private function mock_functions(): void {
+		/*
+		if ( ! function_exists( 'sanitize_key' ) ) {
+			function sanitize_key( $key ) {
+				return strtolower( preg_replace( '/[^a-z0-9_\-]/', '', $key ) );
+			}
+		}
+		*/
 	}
 
 }

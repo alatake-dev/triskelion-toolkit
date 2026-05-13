@@ -25,6 +25,16 @@ use Triskelion\TriskelionToolkit\Core\Interfaces\RegistrableModuleInterface;
  * @package Triskelion\TriskelionToolkit\Modules\CodeShowcase
  */
 class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInterface, HasSettingsInterface {
+	/**
+	 * Default syntax highlighting languages.
+	 *
+	 * These identifiers correspond to the language definitions supported by
+	 * the Highlight.php library. They serve as the baseline collection
+	 * for the showcase block when no custom configuration is provided.
+	 *
+	 * @var string[] List of supported language slugs.
+	 */
+	private $default_languages = array( 'css', 'html', 'javascript', 'json', 'php', 'sql' );
 
 	/**
 	 * Defines the module configuration using the standardized builder.
@@ -92,14 +102,14 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
 			true
 		);
 		if ( file_exists( $json ) ) {
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			$json_data = file_get_contents( $json );
+			$languages = json_decode( $json_data, true ) ?? $this->default_languages;
 			$this->wp->events->localize_script(
 				$inventory_handler,
 				'triskelionToolkitInventoryData',
 				array(
-					'allLanguages' => json_decode( file_get_contents( $json ), true ) ?: array(
-						'php',
-						'javascript',
-					),
+					'allLanguages' => $languages,
 				)
 			);
 		}
@@ -115,7 +125,10 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
 		$theme       = $settings['active_theme'];
 		$themes_data = $this->get_themes_config();
 		ob_start(); ?>
-		<?php echo $this->get_theme_inline_css( $theme, true ); ?>
+		<?php
+        // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Estilos dinámicos cargados desde configuración controlada.
+		echo $this->get_theme_inline_css( $theme, true );
+		?>
 		<table class="form-table">
 			<tr>
 				<th scope="row"><?php esc_html_e( 'Theme', 'triskelion-toolkit' ); ?> </th>
@@ -149,8 +162,14 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
 									'php',
 									"function hello() {\n    echo 'Triskelion Power';\n    echo 'Triskelion Power, probanding extra long text, only for view the horizontal scrollbar..... 34r34 314431 dsafdsgsd dfgrfewqfethetyhtywreghtyhg ergwrtg werf ';\n}"
 								)->value;
+									$pre_code   = sprintf(
+										'<pre><code class="hljs %s">%s</code></pre>',
+										'php',
+										$processed_code
+									);
+                                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-render and sanitized by SSR.
+									echo $pre_code;
 								?>
-								<pre><code class="hljs php"><?php echo trim( $processed_code ); ?></code></pre>
 							</div>
 						</div>
 					</div>
@@ -209,7 +228,7 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
 	private function get_settings(): array {
 		$defaults = array(
 			'active_theme'     => 'triskelion-dark',
-			'active_languages' => array( 'css', 'html', 'javascript', 'json', 'php', 'sql' ),
+			'active_languages' => $this->default_languages,
 		);
 
 		return $this->wp->settings->parse_args(
@@ -462,15 +481,16 @@ class CodeShowcaseLoader extends AbstractModule implements RegistrableModuleInte
 	 * @return array{active_theme: string, active_languages: string[]} Sanitized configuration.
 	 */
 	public function sanitize_module_settings( $input ): array {
+		$security = $this->wp->security;
 
 		$active_languages = ( isset( $input['active_languages'] ) && is_array( $input['active_languages'] ) )
-				? array_map( 'sanitize_key', $input['active_languages'] )
+				? array_map( array( $security, 'sanitize_key' ), $input['active_languages'] )
 				: $this->get_settings();
 		if ( ! empty( $active_languages ) ) {
 			sort( $active_languages, SORT_STRING );
 		}
 		return array(
-			'active_theme'     => sanitize_key( $input['active_theme'] ?? 'triskelion-dark' ),
+			'active_theme'     => $this->wp->security->sanitize_key( $input['active_theme'] ?? 'triskelion-dark' ),
 			'active_languages' => ( $active_languages ),
 		);
 	}
